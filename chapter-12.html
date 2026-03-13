@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ch.12 — Deep Agents</title>
+<link rel="stylesheet" href="assets/styles.css">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+</head>
+<body>
+<div id="progress-bar"></div>
+
+<nav class="top-nav">
+  <button class="mobile-menu-btn" id="mobile-menu-btn"><span class="material-symbols-rounded">menu</span></button>
+  <a class="nav-logo" href="index.html">
+    <div class="nav-logo-icon">CC</div>
+    <span class="nav-logo-text">Claude <em>Code</em></span>
+  </a>
+  <span class="nav-ver">Docs v1.0</span>
+  <div class="nav-spacer"></div>
+  <button class="search-trigger"><span class="st-icon"><span class="material-symbols-rounded" style="font-size:16px">search</span></span><span>Search docs...</span><kbd>⌘K</kbd></button>
+  <button class="theme-toggle" id="theme-toggle"><span class="material-symbols-rounded">light_mode</span></button>
+</nav>
+
+<div class="page-header">
+  <div class="breadcrumb">
+    <a href="index.html">Home</a><span class="sep">/</span>
+    <span class="cur">Chapter 12 — Deep Agents</span>
+  </div>
+  <h1>Deep Agents: Under the Hood</h1>
+  <p class="subtitle">Deep agents maintain long-running state, reason about their own execution, and self-direct complex multi-step work — a fundamentally different architecture from the one-shot AI assistants you may be used to.</p>
+  <div class="tag-row">
+    <span class="tag purple">Chapter 12</span>
+    <span class="tag blue">Deep Agents</span>
+    <span class="tag orange">Agent Architecture</span>
+    <span class="tag green">Hierarchical Delegation</span>
+    <span class="tag orange">File System</span>
+  </div>
+</div>
+
+<div class="layout">
+<aside class="sidebar">
+  <div class="sb-section">
+    <div class="sb-label">Documentation</div>
+    <a class="sb-link" href="index.html">Overview</a>
+  </div>
+  <div class="sb-section">
+    <div class="sb-label">Chapters</div>
+    <a class="sb-link" href="chapter-01.html"><span class="ch-n">01</span>Introduction</a>
+    <a class="sb-link" href="chapter-02.html"><span class="ch-n">02</span>Context Engineering</a>
+    <a class="sb-link" href="chapter-03.html"><span class="ch-n">03</span>Claude Code Essentials</a>
+    <a class="sb-link" href="chapter-04.html"><span class="ch-n">04</span>Essential Commands</a>
+    <a class="sb-link" href="chapter-05.html"><span class="ch-n">05</span>MCP</a>
+    <a class="sb-link" href="chapter-06.html"><span class="ch-n">06</span>GitHub Integration</a>
+    <a class="sb-link" href="chapter-07.html"><span class="ch-n">07</span>Advanced Workflows</a>
+    <a class="sb-link" href="chapter-08.html"><span class="ch-n">08</span>Subagents</a>
+    <a class="sb-link" href="chapter-09.html"><span class="ch-n">09</span>Output Styles</a>
+    <a class="sb-link" href="chapter-10.html"><span class="ch-n">10</span>Agent Skills</a>
+    <a class="sb-link" href="chapter-11.html"><span class="ch-n">11</span>Desktop</a>
+    <a class="sb-link active" href="chapter-12.html"><span class="ch-n">12</span>Deep Agents</a>
+    <a class="sb-link" href="chapter-13.html"><span class="ch-n">13</span>Security</a>
+  </div>
+</aside>
+
+<main class="main-content">
+
+<!-- SECTION: What Are Deep Agents? -->
+<section class="section" id="what-are-deep-agents">
+  <div class="section-eyebrow">
+    <span class="s-badge">Chapter 12</span>
+    <span class="s-cat">Overview</span>
+  </div>
+  <h2>What Are Deep Agents?</h2>
+  <p class="lead">Deep agents are agents that maintain long-running state, reason about their own execution, and self-direct complex multi-step work. They are fundamentally different from shallow agents — one-shot responders that answer questions and stop. Claude Code is a deep agent.</p>
+
+  <div class="sub">
+    <h3>The Core Distinction</h3>
+    <p>When you ask a shallow agent "how do I implement OAuth?", it answers and stops. When you ask Claude Code "implement OAuth in this repository", it decomposes the task, writes a todo list, reads the codebase, implements code across multiple files, runs tests, fixes failures, and marks each step complete as it goes. That is a deep agent: persistent, self-directing, and capable of recovering from failure.</p>
+    <p>Claude Code exhibits all the hallmarks of a deep agent:</p>
+    <ul>
+      <li>It maintains a todo list that persists across steps</li>
+      <li>It tracks its own progress and backtracks when stuck</li>
+      <li>It spawns subagents for subtasks that can run in parallel</li>
+      <li>It uses the file system as persistent memory between steps</li>
+    </ul>
+
+    <h3>What Makes a Task "Deep"</h3>
+    <p>Not every task needs a deep agent approach. A task is "deep" when it exhibits one or more of these characteristics:</p>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Characteristic</th>
+            <th>Shallow Task</th>
+            <th>Deep Task</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Scope</td>
+            <td>One file or one function</td>
+            <td>Multiple files, packages, or services</td>
+          </tr>
+          <tr>
+            <td>Duration</td>
+            <td>Seconds to a few minutes</td>
+            <td>Minutes to hours</td>
+          </tr>
+          <tr>
+            <td>Verification</td>
+            <td>Visual inspection</td>
+            <td>Running tests, building, integration checks</td>
+          </tr>
+          <tr>
+            <td>Unknowns</td>
+            <td>Requirements are fully clear upfront</td>
+            <td>Discovery is needed — read code to understand before writing</td>
+          </tr>
+          <tr>
+            <td>Failure handling</td>
+            <td>User corrects and retries</td>
+            <td>Agent self-corrects and continues</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout tip">
+      <strong>Tip:</strong> Give deep agents goals, not step-by-step instructions. "Implement JWT refresh token rotation with all tests passing" is a deep agent goal. "In jwt.go, add a field called RefreshToken to the User struct" is an instruction better suited for a shallow, direct request. Deep agents excel at figuring out the steps — that is their core value.
+    </div>
+  </div>
+
+  <div class="feature-grid">
+    <div class="feature-card">
+      <div class="fc-icon"><span class="material-symbols-rounded">assignment</span></div>
+      <div class="fc-title">Long-Running State</div>
+      <div class="fc-body">Maintains a todo list and progress tracking across many steps and tool calls. Does not lose context mid-task.</div>
+    </div>
+    <div class="feature-card">
+      <div class="fc-icon"><span class="material-symbols-rounded">explore</span></div>
+      <div class="fc-title">Self-Direction</div>
+      <div class="fc-body">Decomposes high-level goals into concrete steps autonomously. Does not require hand-holding between each action.</div>
+    </div>
+    <div class="feature-card">
+      <div class="fc-icon"><span class="material-symbols-rounded">eco</span></div>
+      <div class="fc-title">Hierarchical Delegation</div>
+      <div class="fc-body">Spawns subagents to handle parallel subtasks, then synthesizes their results into a coherent whole.</div>
+    </div>
+    <div class="feature-card">
+      <div class="fc-icon">↩</div>
+      <div class="fc-title">Backtracking</div>
+      <div class="fc-body">When a step fails or produces unexpected results, it revises the plan, creates new todos, and retries with a corrected approach.</div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- SECTION: Agent Taxonomy -->
+<section class="section" id="taxonomy">
+  <div class="section-eyebrow"><span class="s-cat">Concepts</span></div>
+  <h2>Agent Taxonomy: Deep vs Shallow</h2>
+  <p class="lead">The distinction between shallow and deep agents is not about intelligence — it is about architecture. Shallow agents are stateless request-response systems. Deep agents are stateful autonomous systems that persist across many reasoning steps.</p>
+
+  <div class="sub">
+    <div class="data-table">
+      <table>
+        <thead>
+          <tr>
+            <th>Characteristic</th>
+            <th>Shallow Agent</th>
+            <th>Deep Agent</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Task duration</td>
+            <td>Single response</td>
+            <td>Multi-step, minutes to hours</td>
+          </tr>
+          <tr>
+            <td>State</td>
+            <td>Stateless</td>
+            <td>Maintains todo list, progress</td>
+          </tr>
+          <tr>
+            <td>Error handling</td>
+            <td>Returns error to user</td>
+            <td>Backtracks, retries, self-corrects</td>
+          </tr>
+          <tr>
+            <td>Tool use</td>
+            <td>Limited or none</td>
+            <td>Extensive (file, shell, search)</td>
+          </tr>
+          <tr>
+            <td>Delegation</td>
+            <td>None</td>
+            <td>Spawns subagents</td>
+          </tr>
+          <tr>
+            <td>Example</td>
+            <td>ChatGPT Q&amp;A</td>
+            <td>Claude Code implementing a feature</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout info">
+      <div class="ct">A Fundamental Architecture Difference</div>
+      <p>Most "AI assistants" are shallow agents. Claude Code's architecture is fundamentally different — it is designed to execute tasks autonomously over long horizons. Understanding this distinction helps you work with it correctly: give it goals, not instructions, and let it reason about the steps.</p>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- SECTION: TODO Internals -->
+<section class="section" id="todo-internals">
+  <div class="section-eyebrow"><span class="s-cat">Internals</span></div>
+  <h2>How Claude Code Uses TODOs Internally</h2>
+  <p class="lead">Claude Code maintains an internal todo list that you can inspect with <span class="ic">/todo</span>. This is not a cosmetic feature — it is the mechanism by which the agent decomposes work, tracks progress, and backtracks when it hits blockers.</p>
+
+  <div class="sub">
+    <h3>The Task Execution Loop</h3>
+    <div class="mech-steps">
+      <div class="mech-step">
+        <div class="step-num">1</div>
+        <div class="step-title">Decompose the task</div>
+        <div class="step-body">Claude Code breaks the high-level goal into concrete, ordered steps based on its understanding of the codebase and the task requirements.</div>
+      </div>
+      <div class="mech-step">
+        <div class="step-num">2</div>
+        <div class="step-title">Write steps to the todo list</div>
+        <div class="step-body">Each step is written as a discrete todo item with a clear, actionable description. Nested subtasks are indented under their parent step.</div>
+      </div>
+      <div class="mech-step">
+        <div class="step-num">3</div>
+        <div class="step-title">Execute steps sequentially (or in parallel)</div>
+        <div class="step-body">Steps that depend on each other run sequentially. Independent steps can be delegated to subagents and run in parallel to save time.</div>
+      </div>
+      <div class="mech-step">
+        <div class="step-num">4</div>
+        <div class="step-title">Mark items complete as it goes</div>
+        <div class="step-body">Each completed step is marked immediately. This creates a clear record of what has been done and what remains, visible at any point via <span class="ic">/todo</span>.</div>
+      </div>
+      <div class="mech-step">
+        <div class="step-num">5</div>
+        <div class="step-title">Backtrack and create new todos when blocked</div>
+        <div class="step-body">If a step fails or reveals new complexity, Claude Code revises the plan — marking the blocker and creating new todo items to address it before continuing.</div>
+      </div>
+    </div>
+
+    <h3>What a Claude Code Todo List Looks Like</h3>
+    <div class="code-block">
+      <div class="code-header"><span class="lang-label">text</span><button class="copy-btn">Copy</button></div>
+      <pre><code><span class="ck">[✓]</span> <span class="cs">Read existing auth middleware (src/auth/middleware.go)</span>
+<span class="ck">[✓]</span> <span class="cs">Understand current JWT validation approach</span>
+<span class="ck">[→]</span> <span class="cs">Implement refresh token rotation</span>
+   <span class="ck">[→]</span> <span class="cs">Add RefreshToken field to User struct</span>
+   <span class="cn">[ ]</span> <span class="cs">Write database migration</span>
+   <span class="cn">[ ]</span> <span class="cs">Update JWT service</span>
+   <span class="cn">[ ]</span> <span class="cs">Add refresh endpoint</span>
+<span class="cn">[ ]</span> <span class="cs">Write tests for refresh token flow</span>
+<span class="cn">[ ]</span> <span class="cs">Update documentation</span></code></pre>
+    </div>
+
+    <div class="callout tip">
+      <strong>Tip:</strong> You can inspect and modify Claude Code's todo list at any point during a task. If it goes off track — adding unnecessary steps or missing important ones — you can reset or edit the todos to refocus it. This is one of the most powerful levers for steering a deep agent mid-execution.
+    </div>
+
+    <h3>The GSD (Get Stuff Done) Pattern</h3>
+    <p>For complex multi-step tasks, structure your initial prompt using the Plan → Research → Execute → Verify cycle. This mirrors how an expert engineer approaches a large task:</p>
+    <div class="code-block">
+      <div class="cb-header"><span class="cb-lang">text</span><span class="cb-title">GSD prompt structure for deep tasks</span></div>
+      <pre><code>Goal: Implement rate limiting on all public API endpoints
+
+Phase 1 — Research (do this first, do not write code yet):
+- Read the existing middleware chain in pkg/middleware/
+- Identify all router files that register public endpoints
+- Check if any rate limiting library is already in go.mod
+- Document findings before proceeding
+
+Phase 2 — Plan (write the implementation plan as a todo list):
+- Based on research, create a concrete todo list
+- Each item must be a discrete, testable change
+- Get confirmation before proceeding to Phase 3
+
+Phase 3 — Execute:
+- Implement each todo item
+- Run `go test ./...` after each file change
+- Do not proceed to the next item if tests fail
+
+Phase 4 — Verify:
+- Run the full test suite
+- Run `go build ./...`
+- Write a summary of what was changed and what tests cover it</code></pre>
+    </div>
+    <p>The explicit phase structure prevents a common failure mode: the agent charges into writing code before fully understanding the codebase, producing changes that conflict with existing patterns or miss important integration points.</p>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- SECTION: Hierarchical Delegation -->
+<section class="section" id="hierarchical-delegation">
+  <div class="section-eyebrow"><span class="s-cat">Architecture</span></div>
+  <h2>Hierarchical Delegation</h2>
+  <p class="lead">Deep agents delegate to subagents, which can further delegate — creating a tree of agents where each level handles increasing specificity. The orchestrator manages the goal, coordinators manage features, and workers handle individual files or atomic tasks.</p>
+
+  <div class="sub">
+    <h3>The Delegation Tree</h3>
+    <p>For a large feature implementation, Claude Code might create a delegation structure that looks like this:</p>
+
+    <div class="flow-diagram">
+<svg viewBox="0 0 700 400" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <linearGradient id="s12-go" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#6d28d9"/><stop offset="100%" stop-color="#a78bfa"/></linearGradient>
+  <linearGradient id="s12-gc" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#1e40af"/><stop offset="100%" stop-color="#60a5fa"/></linearGradient>
+  <linearGradient id="s12-gw" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#065f46"/><stop offset="100%" stop-color="#34d399"/></linearGradient>
+  <filter id="s12-sh"><feDropShadow dx="0" dy="3" stdDeviation="6" flood-color="#00000035"/></filter>
+  <marker id="s12-ah" markerWidth="8" markerHeight="6" refX="6" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#6e7681"/></marker>
+</defs>
+
+<!-- Row labels -->
+<text x="10" y="74" fill="#6e7681" font-size="9" font-weight="600" font-family="inherit" text-anchor="start">ORCHESTRATOR</text>
+<text x="10" y="198" fill="#6e7681" font-size="9" font-weight="600" font-family="inherit" text-anchor="start">COORDINATORS</text>
+<text x="10" y="334" fill="#6e7681" font-size="9" font-weight="600" font-family="inherit" text-anchor="start">WORKERS</text>
+
+<!-- Separator lines -->
+<line x1="10" y1="132" x2="690" y2="132" stroke="#21262d" stroke-width="1" stroke-dasharray="3,6"/>
+<line x1="10" y1="262" x2="690" y2="262" stroke="#21262d" stroke-width="1" stroke-dasharray="3,6"/>
+
+<!-- Orchestrator: center (350,90) -->
+<rect x="210" y="56" width="280" height="68" rx="14" fill="url(#s12-go)" filter="url(#s12-sh)"/>
+<text x="350" y="83" text-anchor="middle" fill="white" font-size="13" font-weight="800" font-family="inherit">Orchestrator</text>
+<text x="350" y="101" text-anchor="middle" fill="rgba(255,255,255,0.78)" font-size="10" font-family="inherit">Main Claude Code</text>
+
+<!-- Coordinator 1: center (195,210) -->
+<rect x="100" y="180" width="190" height="64" rx="12" fill="url(#s12-gc)" filter="url(#s12-sh)"/>
+<text x="195" y="206" text-anchor="middle" fill="white" font-size="12" font-weight="700" font-family="inherit">Coordinator</text>
+<text x="195" y="224" text-anchor="middle" fill="rgba(255,255,255,0.82)" font-size="10" font-family="inherit">Feature Agent</text>
+
+<!-- Coordinator 2: center (505,210) -->
+<rect x="410" y="180" width="190" height="64" rx="12" fill="url(#s12-gc)" filter="url(#s12-sh)"/>
+<text x="505" y="206" text-anchor="middle" fill="white" font-size="12" font-weight="700" font-family="inherit">Coordinator</text>
+<text x="505" y="224" text-anchor="middle" fill="rgba(255,255,255,0.82)" font-size="10" font-family="inherit">Test Agent</text>
+
+<!-- Worker W1: center (102,344) -->
+<rect x="30" y="318" width="144" height="56" rx="10" fill="url(#s12-gw)" filter="url(#s12-sh)"/>
+<text x="102" y="341" text-anchor="middle" fill="white" font-size="11" font-weight="700" font-family="inherit">Worker</text>
+<text x="102" y="358" text-anchor="middle" fill="rgba(255,255,255,0.82)" font-size="10" font-family="inherit">auth.go</text>
+
+<!-- Worker W2: center (272,344) -->
+<rect x="200" y="318" width="144" height="56" rx="10" fill="url(#s12-gw)" filter="url(#s12-sh)"/>
+<text x="272" y="341" text-anchor="middle" fill="white" font-size="11" font-weight="700" font-family="inherit">Worker</text>
+<text x="272" y="358" text-anchor="middle" fill="rgba(255,255,255,0.82)" font-size="10" font-family="inherit">jwt.go</text>
+
+<!-- Worker W3: center (432,344) -->
+<rect x="360" y="318" width="144" height="56" rx="10" fill="url(#s12-gw)" filter="url(#s12-sh)"/>
+<text x="432" y="341" text-anchor="middle" fill="white" font-size="11" font-weight="700" font-family="inherit">Worker</text>
+<text x="432" y="358" text-anchor="middle" fill="rgba(255,255,255,0.82)" font-size="10" font-family="inherit">auth_test.go</text>
+
+<!-- Worker W4: center (602,344) -->
+<rect x="530" y="318" width="144" height="56" rx="10" fill="url(#s12-gw)" filter="url(#s12-sh)"/>
+<text x="602" y="335" text-anchor="middle" fill="white" font-size="11" font-weight="700" font-family="inherit">Worker</text>
+<text x="602" y="352" text-anchor="middle" fill="rgba(255,255,255,0.82)" font-size="10" font-family="inherit">integration</text>
+<text x="602" y="366" text-anchor="middle" fill="rgba(255,255,255,0.72)" font-size="9" font-family="inherit">_test.go</text>
+
+<!-- O → C1 -->
+<path d="M300,124 C280,150 240,165 195,180" fill="none" stroke="#6e7681" stroke-width="1.5" marker-end="url(#s12-ah)"/>
+<text x="228" y="148" text-anchor="middle" fill="#8b949e" font-size="10" font-family="inherit" transform="rotate(-28,228,148)">High-level tasks</text>
+
+<!-- O → C2 -->
+<path d="M400,124 C420,150 460,165 505,180" fill="none" stroke="#6e7681" stroke-width="1.5" marker-end="url(#s12-ah)"/>
+<text x="472" y="148" text-anchor="middle" fill="#8b949e" font-size="10" font-family="inherit" transform="rotate(28,472,148)">High-level tasks</text>
+
+<!-- C1 → W1 -->
+<path d="M160,244 C145,276 125,300 102,318" fill="none" stroke="#6e7681" stroke-width="1.5" marker-end="url(#s12-ah)"/>
+<text x="118" y="278" text-anchor="middle" fill="#8b949e" font-size="10" font-family="inherit" transform="rotate(-40,118,278)">Atomic tasks</text>
+
+<!-- C1 → W2 -->
+<path d="M230,244 C246,276 258,300 272,318" fill="none" stroke="#6e7681" stroke-width="1.5" marker-end="url(#s12-ah)"/>
+<text x="264" y="282" text-anchor="middle" fill="#8b949e" font-size="10" font-family="inherit" transform="rotate(22,264,282)">Atomic tasks</text>
+
+<!-- C2 → W3 -->
+<path d="M470,244 C456,276 444,300 432,318" fill="none" stroke="#6e7681" stroke-width="1.5" marker-end="url(#s12-ah)"/>
+<text x="444" y="282" text-anchor="middle" fill="#8b949e" font-size="10" font-family="inherit" transform="rotate(-22,444,282)">Atomic tasks</text>
+
+<!-- C2 → W4 -->
+<path d="M540,244 C556,276 578,300 602,318" fill="none" stroke="#6e7681" stroke-width="1.5" marker-end="url(#s12-ah)"/>
+<text x="582" y="278" text-anchor="middle" fill="#8b949e" font-size="10" font-family="inherit" transform="rotate(40,582,278)">Atomic tasks</text>
+</svg>
+    </div>
+
+    <h3>How Delegation Works</h3>
+    <ul>
+      <li><strong>Orchestrator</strong> — receives the high-level goal, decomposes it into major workstreams, delegates each to a coordinator subagent</li>
+      <li><strong>Coordinators</strong> — receive a scoped workstream (e.g., "implement the auth feature"), decompose it into atomic file-level tasks, delegate to workers</li>
+      <li><strong>Workers</strong> — receive a single, well-defined task (e.g., "add RefreshToken field to User struct in auth.go"), execute it, return structured results</li>
+    </ul>
+
+    <div class="callout warning">
+      <strong>Warning:</strong> Deep hierarchies — three or more levels — can lose context at each delegation step. Each boundary compresses information; summaries replace raw content. Prefer shallow delegation (two levels max) with rich, detailed task descriptions at each handoff. The quality of what workers produce is only as good as the context they receive.
+    </div>
+
+    <h3>Multi-Phase Project Pattern</h3>
+    <p>For large projects that span multiple sessions, break the work into phases with explicit verification gates between them. Each phase must produce a verifiable artifact before the next phase begins:</p>
+    <div class="code-block">
+      <div class="cb-header"><span class="cb-lang">markdown</span><span class="cb-title">CLAUDE.md — multi-phase project structure</span></div>
+      <pre><code>## Current Project: API v2 Migration
+
+### Phase 1 — Schema Design (COMPLETE)
+- New schema documented in docs/api-v2-schema.md
+- Breaking changes listed in docs/api-v2-breaking-changes.md
+- Gate: schema approved in PR #142
+
+### Phase 2 — Implementation (IN PROGRESS)
+- Implementing endpoints per docs/api-v2-schema.md
+- Each endpoint needs: handler, validation, tests
+- Gate: all existing tests pass + new tests added
+
+### Phase 3 — Migration (BLOCKED on Phase 2)
+- Write data migration scripts
+- Dual-write period for backward compatibility
+- Gate: load test confirms no regression
+
+### Do not start a phase before the previous gate is cleared.</code></pre>
+    </div>
+    <p>This structure in CLAUDE.md means every session — including new subagent sessions — starts with the current project state. The agent knows what phase it is in, what is done, and what the acceptance criteria for the current phase are.</p>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- SECTION: Context Flow -->
+<section class="section" id="context-flow-deep">
+  <div class="section-eyebrow"><span class="s-cat">Concepts</span></div>
+  <h2>Context Flow in Deep Agent Systems</h2>
+  <p class="lead">Context flows in two directions: downward from orchestrator to worker (task + relevant code), and upward from worker to orchestrator (results + summaries). Each delegation boundary compresses information — understanding this compression is key to effective deep agent design.</p>
+
+  <div class="sub">
+    <h3>What to Pass at Each Boundary</h3>
+    <div class="data-table">
+      <table>
+        <thead>
+          <tr>
+            <th>Context Direction</th>
+            <th>What to Include</th>
+            <th>What to Omit</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Downward (to worker)</td>
+            <td>Task description, relevant file paths, code snippets, acceptance criteria, constraints</td>
+            <td>Unrelated conversation history, verbose context from previous steps, implementation details not relevant to the subtask</td>
+          </tr>
+          <tr>
+            <td>Upward (from worker)</td>
+            <td>Structured findings (JSON/markdown), specific changes made, file paths and line references, blockers encountered</td>
+            <td>Implementation details not requested, intermediate reasoning steps, raw tool call outputs</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Why Compression Matters</h3>
+    <p>Each context window is finite. At each delegation boundary, the orchestrator must decide what is essential to pass down. A coordinator that receives 50,000 tokens of context but only needs 5,000 tokens to do its job is wasting capacity — capacity that could be used for the actual work. Good deep agent design front-loads compression: include only what the subagent needs to succeed, nothing more.</p>
+
+    <div class="callout tip">
+      <div class="ct">Structured Outputs Are Compressed Context</div>
+      <p>Ask subagents to return structured results — JSON objects or markdown with specific headings — rather than free-form prose. Structured outputs are easier to parse, easier to route, and more reliably summarize exactly what happened. A worker returning <span class="ic">{"changed_files": ["auth.go"], "lines_added": 42, "blockers": []}</span> is far more useful to an orchestrator than three paragraphs of explanation.</p>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- SECTION: File System as Memory -->
+<section class="section" id="filesystem">
+  <div class="section-eyebrow"><span class="s-cat">Patterns</span></div>
+  <h2>File System as Agent Memory</h2>
+  <p class="lead">Deep agents use the file system as persistent memory between steps. Reading files provides current state; writing files communicates progress and intermediate results. This is why CLAUDE.md is so powerful — it is memory that persists across sessions and survives context resets.</p>
+
+  <div class="sub">
+    <h3>The Memory Pattern</h3>
+    <div class="mech-steps">
+      <div class="mech-step">
+        <div class="step-num">1</div>
+        <div class="step-title">Agent reads CLAUDE.md for project context</div>
+        <div class="step-body">At the start of every session, Claude Code reads CLAUDE.md. Architecture decisions, known issues, coding guidelines, and project conventions all live here — and the agent follows them without being told explicitly each time.</div>
+      </div>
+      <div class="mech-step">
+        <div class="step-num">2</div>
+        <div class="step-title">Agent reads existing code to understand current state</div>
+        <div class="step-body">Before making changes, the agent reads the files it will modify. This grounds it in the actual current state of the codebase, not a stale mental model from earlier in the session.</div>
+      </div>
+      <div class="mech-step">
+        <div class="step-num">3</div>
+        <div class="step-title">Agent writes changes incrementally</div>
+        <div class="step-body">Changes are written file by file, not all at once. Each write is a discrete, reviewable step. This incremental approach also means partial work survives if the session is interrupted.</div>
+      </div>
+      <div class="mech-step">
+        <div class="step-num">4</div>
+        <div class="step-title">Agent writes notes or summaries for later steps</div>
+        <div class="step-body">For long multi-step tasks, the agent may write intermediate summaries to temp files. Later steps — or subagents — read these files to pick up where the previous step left off.</div>
+      </div>
+      <div class="mech-step">
+        <div class="step-num">5</div>
+        <div class="step-title">Subagents read these files for context</div>
+        <div class="step-body">When an orchestrator delegates to a worker, the worker reads the relevant files directly rather than receiving a copy of the content in its prompt. This keeps delegation context small and always fresh.</div>
+      </div>
+    </div>
+
+    <h3>CLAUDE.md as Persistent Memory</h3>
+    <p>Unlike conversation context — which resets between sessions — CLAUDE.md persists. Every session starts by reading it. This makes it the right place to store anything you want Claude Code to know permanently:</p>
+    <ul>
+      <li><strong>Architecture decisions</strong> — why certain patterns were chosen, what alternatives were rejected</li>
+      <li><strong>Current state</strong> — what is in progress, what is blocked, what was recently changed</li>
+      <li><strong>Known issues</strong> — bugs you are aware of, workarounds in place, things to avoid</li>
+      <li><strong>Guidelines</strong> — code style, testing requirements, PR conventions</li>
+    </ul>
+
+    <div class="callout tip">
+      <strong>Tip:</strong> Use clear section headings: <strong>Architecture</strong>, <strong>Current State</strong>, <strong>Known Issues</strong>, and <strong>Guidelines</strong>. Agents read CLAUDE.md every session and follow the guidance it contains. The more specific and actionable the content, the more reliably the agent will behave as you expect — across sessions, after context resets, and when spawning subagents that inherit the same file.
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- SECTION: Recovery from Failure -->
+<section class="section" id="recovery">
+  <div class="section-eyebrow"><span class="s-cat">Resilience</span></div>
+  <h2>Recovery from Failure</h2>
+  <p class="lead">Long-running tasks will encounter failures — test breakage, unexpected code patterns, ambiguous requirements. Deep agents handle most failures autonomously, but understanding the recovery mechanisms helps you intervene effectively when needed.</p>
+
+  <div class="sub">
+    <h3>How Claude Code Self-Recovers</h3>
+    <p>When Claude Code hits a failure during a task, it follows a standard recovery pattern:</p>
+    <div class="mech-steps">
+      <div class="mech-step">
+        <div class="step-num">1</div>
+        <div class="step-title">Identify the failure</div>
+        <div class="step-body">Read the error output from the failed command. Identify whether it is a compilation error, test failure, permission error, or unexpected output.</div>
+      </div>
+      <div class="mech-step">
+        <div class="step-num">2</div>
+        <div class="step-title">Diagnose root cause</div>
+        <div class="step-body">Read the relevant source files to understand why the failure occurred. Does the existing code conflict with the new change? Is a dependency missing?</div>
+      </div>
+      <div class="mech-step">
+        <div class="step-num">3</div>
+        <div class="step-title">Revise the plan</div>
+        <div class="step-body">Add new todo items to address the root cause. Mark the current item as blocked. Create a corrected approach before retrying.</div>
+      </div>
+      <div class="mech-step">
+        <div class="step-num">4</div>
+        <div class="step-title">Apply fix and verify</div>
+        <div class="step-body">Make the corrective change and re-run the failing check. Verify the fix resolves the failure without introducing new ones.</div>
+      </div>
+      <div class="mech-step">
+        <div class="step-num">5</div>
+        <div class="step-title">Continue the original task</div>
+        <div class="step-body">Resume the original plan from where it left off, now with the underlying issue resolved.</div>
+      </div>
+    </div>
+
+    <h3>When to Intervene Manually</h3>
+    <p>Some failures require human judgment. Intervene when you observe:</p>
+    <ul>
+      <li>The agent has retried the same approach more than twice without success</li>
+      <li>The failure suggests a fundamental misunderstanding of the codebase architecture</li>
+      <li>The fix requires a design decision — not just a technical correction</li>
+      <li>The agent is changing code outside the original task scope to work around a failure</li>
+    </ul>
+
+    <div class="callout tip">
+      <strong>Tip:</strong> When you need to redirect a failing agent, do not just say "that approach is wrong." Explain <em>why</em> it is wrong and provide the correct constraint. "Don't modify the User struct directly — it is generated code. The source of truth is in schema.graphql" gives the agent the information it needs to find the right path.
+    </div>
+
+    <h3>Rollback Strategies</h3>
+    <p>If an agent makes incorrect changes that you want to undo, use git:</p>
+    <div class="code-block">
+      <div class="cb-header"><span class="cb-lang">bash</span><span class="cb-title">Rolling back agent changes</span></div>
+      <pre><code># See what the agent changed
+git diff HEAD
+
+# Undo uncommitted changes to specific files
+git checkout -- src/auth/jwt.go
+
+# Undo all uncommitted changes (use with caution)
+git checkout -- .
+
+# If agent made commits, revert specific commits
+git revert HEAD
+
+# Or reset to a known-good state
+git reset --hard origin/main</code></pre>
+    </div>
+
+    <div class="callout note">
+      <strong>Note:</strong> This is why you should always work on a branch when running deep agents on significant tasks. A branch gives you a clean rollback path: if the agent produces incorrect results, you can simply delete the branch and start fresh. Never run long deep-agent tasks directly on main.
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- SECTION: Cost Management -->
+<section class="section" id="cost-management">
+  <div class="section-eyebrow"><span class="s-cat">Operations</span></div>
+  <h2>Cost Management for Deep Tasks</h2>
+  <p class="lead">Deep agents consume significantly more tokens than shallow requests. A complex multi-file task can use 10-50x the tokens of a simple question. Understanding where tokens go — and how to control costs — is essential for using deep agents at scale.</p>
+
+  <div class="sub">
+    <h3>Where Tokens Go</h3>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Source</th>
+            <th>Token Volume</th>
+            <th>Reduction Strategy</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>File reads (context building)</td>
+            <td>High — every file read adds to context</td>
+            <td>Use <span class="ic">.claudeignore</span> to exclude irrelevant files</td>
+          </tr>
+          <tr>
+            <td>Conversation history</td>
+            <td>Grows with every step</td>
+            <td>Use <span class="ic">/clear</span> between independent tasks; start fresh sessions</td>
+          </tr>
+          <tr>
+            <td>Tool call results</td>
+            <td>Medium — bash output, file contents</td>
+            <td>Write scripts that return only relevant output (not raw logs)</td>
+          </tr>
+          <tr>
+            <td>Backtracking and retries</td>
+            <td>Variable — depends on failure rate</td>
+            <td>Clear task descriptions reduce ambiguity and retries</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Practical Cost Controls</h3>
+    <ul>
+      <li><strong>Create a <span class="ic">.claudeignore</span> file</strong> — exclude build artifacts, vendor directories, generated files, and test fixtures that Claude Code does not need to read</li>
+      <li><strong>Break large tasks into sessions</strong> — a 4-hour task is more expensive than four 1-hour tasks, because context accumulates. Clear between phases.</li>
+      <li><strong>Front-load information in CLAUDE.md</strong> — every token you save Claude from re-discovering via file reads is a token saved</li>
+      <li><strong>Scope tasks precisely</strong> — "implement X in pkg/auth/" is cheaper than "implement X across the codebase" because Claude reads fewer files</li>
+    </ul>
+
+    <div class="code-block">
+      <div class="cb-header"><span class="cb-lang">text</span><span class="cb-title">.claudeignore — common entries</span></div>
+      <pre><code>vendor/
+node_modules/
+.git/
+dist/
+build/
+*.pb.go
+*_generated.go
+testdata/
+coverage.out
+*.log</code></pre>
+    </div>
+
+    <div class="callout info">
+      <strong>Note:</strong> The <span class="ic">.claudeignore</span> file uses the same syntax as <span class="ic">.gitignore</span>. Claude Code will not read files matching patterns in this file, reducing both token costs and context noise from irrelevant generated or binary files.
+    </div>
+  </div>
+</section>
+
+<!-- Chapter nav footer -->
+<div style="display:flex;justify-content:space-between;padding-top:32px;border-top:1px solid var(--border-dim);">
+  <a href="chapter-11.html" class="btn-secondary" style="text-decoration:none">← Desktop</a>
+  <a href="chapter-13.html" class="btn-primary" style="text-decoration:none">Security →</a>
+</div>
+
+</main>
+<aside class="toc-panel"><div id="page-toc"></div></aside>
+</div>
+
+<div id="back-to-top">↑</div>
+<div id="sidebar-overlay"></div>
+<div id="cmd-overlay">
+  <div id="cmd-palette">
+    <div class="cmd-search">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398l3.85 3.85a1 1 0 0 0 1.415-1.415l-3.868-3.833zm-5.242 1.156a5 5 0 1 1 0-10 5 5 0 0 1 0 10z"/></svg>
+      <input type="text" id="cmd-input" placeholder="Search chapters and sections..." autocomplete="off" spellcheck="false">
+      <kbd>esc</kbd>
+    </div>
+    <div class="cmd-results" id="cmd-results"></div>
+    <div class="cmd-footer">
+      <span class="cmd-hint"><kbd>↑↓</kbd> navigate</span>
+      <span class="cmd-hint"><kbd>↵</kbd> open</span>
+      <span class="cmd-hint"><kbd>esc</kbd> close</span>
+    </div>
+  </div>
+</div>
+<script src="assets/app.js"></script>
+</body>
+</html>

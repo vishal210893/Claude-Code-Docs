@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ch.11 — Desktop</title>
+<link rel="stylesheet" href="assets/styles.css">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+</head>
+<body>
+<div id="progress-bar"></div>
+
+<nav class="top-nav">
+  <button class="mobile-menu-btn" id="mobile-menu-btn"><span class="material-symbols-rounded">menu</span></button>
+  <a class="nav-logo" href="index.html">
+    <div class="nav-logo-icon">CC</div>
+    <span class="nav-logo-text">Claude <em>Code</em></span>
+  </a>
+  <span class="nav-ver">Docs v1.0</span>
+  <div class="nav-spacer"></div>
+  <button class="search-trigger"><span class="st-icon"><span class="material-symbols-rounded" style="font-size:16px">search</span></span><span>Search docs...</span><kbd>⌘K</kbd></button>
+  <button class="theme-toggle" id="theme-toggle"><span class="material-symbols-rounded">light_mode</span></button>
+</nav>
+
+<div class="page-header">
+  <div class="breadcrumb">
+    <a href="index.html">Home</a><span class="sep">/</span>
+    <span class="cur">Chapter 11 — Desktop</span>
+  </div>
+  <h1>Claude Code Desktop</h1>
+  <p class="subtitle">Claude Code Desktop brings background agents, local and cloud execution modes, and git worktree-based parallel workflows together into a unified environment for serious, production-scale AI-assisted development.</p>
+  <div class="tag-row">
+    <span class="tag purple">Chapter 11</span>
+    <span class="tag blue">Desktop App</span>
+    <span class="tag orange">Background Agents</span>
+    <span class="tag green">Git Worktrees</span>
+    <span class="tag orange">Local vs Cloud</span>
+  </div>
+
+  <!-- Desktop App illustration: app window with parallel background agents -->
+  <svg class="page-illus" viewBox="0 0 420 280" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <defs>
+      <linearGradient id="winBg" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#1e1b2e"/>
+        <stop offset="100%" stop-color="#13111f"/>
+      </linearGradient>
+      <linearGradient id="accentG" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stop-color="#7c3aed"/>
+        <stop offset="100%" stop-color="#a78bfa"/>
+      </linearGradient>
+      <linearGradient id="blueG" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stop-color="#2563eb"/>
+        <stop offset="100%" stop-color="#60a5fa"/>
+      </linearGradient>
+      <linearGradient id="greenG" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stop-color="#16a34a"/>
+        <stop offset="100%" stop-color="#4ade80"/>
+      </linearGradient>
+      <linearGradient id="tealG" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stop-color="#0891b2"/>
+        <stop offset="100%" stop-color="#38bdf8"/>
+      </linearGradient>
+      <filter id="winShadow" x="-10%" y="-10%" width="120%" height="130%">
+        <feDropShadow dx="0" dy="8" stdDeviation="16" flood-color="#000" flood-opacity="0.4"/>
+      </filter>
+      <filter id="paneShadow">
+        <feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#000" flood-opacity="0.25"/>
+      </filter>
+      <clipPath id="winClip">
+        <rect x="30" y="20" width="360" height="240" rx="12"/>
+      </clipPath>
+    </defs>
+
+    <!-- App window frame -->
+    <rect x="30" y="20" width="360" height="240" rx="12" fill="url(#winBg)" filter="url(#winShadow)"/>
+
+    <!-- Title bar -->
+    <rect x="30" y="20" width="360" height="32" rx="12" fill="#2a2540"/>
+    <rect x="30" y="38" width="360" height="14" fill="#2a2540"/>
+    <!-- Traffic lights -->
+    <circle cx="52" cy="36" r="5" fill="#ff5f57"/>
+    <circle cx="68" cy="36" r="5" fill="#febc2e"/>
+    <circle cx="84" cy="36" r="5" fill="#28c840"/>
+    <!-- Window title -->
+    <text x="210" y="41" text-anchor="middle" font-family="system-ui,sans-serif" font-size="11" fill="#6b7280" font-weight="600">Claude Code Desktop</text>
+
+    <!-- Sidebar -->
+    <rect x="30" y="52" width="72" height="208" fill="#1a1830" clip-path="url(#winClip)"/>
+    <!-- Sidebar items -->
+    <rect x="38" y="66" width="54" height="24" rx="6" fill="url(#accentG)" opacity="0.9"/>
+    <text x="65" y="82" text-anchor="middle" font-family="system-ui,sans-serif" font-size="8" fill="#fff" font-weight="700">Agents</text>
+    <rect x="38" y="96" width="54" height="20" rx="5" fill="none"/>
+    <text x="65" y="110" text-anchor="middle" font-family="system-ui,sans-serif" font-size="8" fill="#6b7280">Worktrees</text>
+    <rect x="38" y="122" width="54" height="20" rx="5" fill="none"/>
+    <text x="65" y="136" text-anchor="middle" font-family="system-ui,sans-serif" font-size="8" fill="#6b7280">Settings</text>
+    <!-- Sidebar bottom: local/cloud toggle -->
+    <rect x="38" y="226" width="54" height="24" rx="6" fill="#0f172a" stroke="#334155" stroke-width="1"/>
+    <circle cx="51" cy="238" r="5" fill="#4ade80"/>
+    <text x="66" y="242" font-family="system-ui,sans-serif" font-size="7" fill="#4ade80" font-weight="600">Local</text>
+
+    <!-- Main panel: 3 agent cards stacked -->
+    <!-- Agent 1 — running -->
+    <rect x="112" y="62" width="264" height="54" rx="8" fill="#1e1b2e" stroke="#7c3aed" stroke-width="1.2" filter="url(#paneShadow)"/>
+    <rect x="112" y="62" width="264" height="8" rx="8" fill="url(#accentG)" opacity="0.6"/>
+    <rect x="112" y="67" width="264" height="3" fill="url(#accentG)" opacity="0.6"/>
+    <!-- Status dot -->
+    <circle cx="126" cy="82" r="4" fill="#a78bfa"/>
+    <circle cx="126" cy="82" r="4" fill="#a78bfa" opacity="0.4">
+      <animate attributeName="r" values="4;8;4" dur="2s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.4;0;0.4" dur="2s" repeatCount="indefinite"/>
+    </circle>
+    <text x="136" y="86" font-family="system-ui,sans-serif" font-size="9" fill="#e2e8f0" font-weight="600">Agent 1 — Refactoring auth module</text>
+    <!-- Progress bar -->
+    <rect x="122" y="96" width="240" height="4" rx="2" fill="#2d2a40"/>
+    <rect x="122" y="96" width="156" height="4" rx="2" fill="url(#accentG)"/>
+    <text x="372" y="100" text-anchor="end" font-family="monospace" font-size="7" fill="#7c3aed">65%</text>
+    <text x="122" y="110" font-family="monospace" font-size="7" fill="#6b7280">→ writing tests for UserService.go</text>
+
+    <!-- Agent 2 — running (blue) -->
+    <rect x="112" y="126" width="264" height="54" rx="8" fill="#1e1b2e" stroke="#2563eb" stroke-width="1.2" filter="url(#paneShadow)"/>
+    <rect x="112" y="126" width="264" height="8" rx="8" fill="url(#blueG)" opacity="0.5"/>
+    <rect x="112" y="131" width="264" height="3" fill="url(#blueG)" opacity="0.5"/>
+    <circle cx="126" cy="146" r="4" fill="#60a5fa"/>
+    <circle cx="126" cy="146" r="4" fill="#60a5fa" opacity="0.35">
+      <animate attributeName="r" values="4;8;4" dur="2.4s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.35;0;0.35" dur="2.4s" repeatCount="indefinite"/>
+    </circle>
+    <text x="136" y="150" font-family="system-ui,sans-serif" font-size="9" fill="#e2e8f0" font-weight="600">Agent 2 — Writing E2E test suite</text>
+    <rect x="122" y="160" width="240" height="4" rx="2" fill="#2d2a40"/>
+    <rect x="122" y="160" width="96" height="4" rx="2" fill="url(#blueG)"/>
+    <text x="372" y="164" text-anchor="end" font-family="monospace" font-size="7" fill="#2563eb">40%</text>
+    <text x="122" y="174" font-family="monospace" font-size="7" fill="#6b7280">→ cypress/e2e/login.spec.ts</text>
+
+    <!-- Agent 3 — queued (green) -->
+    <rect x="112" y="190" width="264" height="54" rx="8" fill="#1e1b2e" stroke="#16a34a" stroke-width="1.2" filter="url(#paneShadow)"/>
+    <rect x="112" y="190" width="264" height="8" rx="8" fill="url(#greenG)" opacity="0.4"/>
+    <rect x="112" y="195" width="264" height="3" fill="url(#greenG)" opacity="0.4"/>
+    <circle cx="126" cy="210" r="4" fill="#4ade80"/>
+    <text x="136" y="214" font-family="system-ui,sans-serif" font-size="9" fill="#e2e8f0" font-weight="600">Agent 3 — Updating API docs</text>
+    <rect x="122" y="224" width="240" height="4" rx="2" fill="#2d2a40"/>
+    <rect x="122" y="224" width="22" height="4" rx="2" fill="url(#greenG)"/>
+    <text x="372" y="228" text-anchor="end" font-family="monospace" font-size="7" fill="#16a34a">9%</text>
+    <text x="122" y="238" font-family="monospace" font-size="7" fill="#6b7280">→ scanning openapi.yaml</text>
+
+    <!-- Window border glow -->
+    <rect x="30" y="20" width="360" height="240" rx="12" fill="none" stroke="#7c3aed" stroke-width="0.5" opacity="0.4"/>
+  </svg>
+</div>
+
+<div class="layout">
+<aside class="sidebar">
+  <div class="sb-section">
+    <div class="sb-label">Documentation</div>
+    <a class="sb-link" href="index.html">Overview</a>
+  </div>
+  <div class="sb-section">
+    <div class="sb-label">Chapters</div>
+    <a class="sb-link" href="chapter-01.html"><span class="ch-n">01</span>Introduction</a>
+    <a class="sb-link" href="chapter-02.html"><span class="ch-n">02</span>Context Engineering</a>
+    <a class="sb-link" href="chapter-03.html"><span class="ch-n">03</span>Claude Code Essentials</a>
+    <a class="sb-link" href="chapter-04.html"><span class="ch-n">04</span>Essential Commands</a>
+    <a class="sb-link" href="chapter-05.html"><span class="ch-n">05</span>MCP</a>
+    <a class="sb-link" href="chapter-06.html"><span class="ch-n">06</span>GitHub Integration</a>
+    <a class="sb-link" href="chapter-07.html"><span class="ch-n">07</span>Advanced Workflows</a>
+    <a class="sb-link" href="chapter-08.html"><span class="ch-n">08</span>Subagents</a>
+    <a class="sb-link" href="chapter-09.html"><span class="ch-n">09</span>Output Styles</a>
+    <a class="sb-link" href="chapter-10.html"><span class="ch-n">10</span>Agent Skills</a>
+    <a class="sb-link active" href="chapter-11.html"><span class="ch-n">11</span>Desktop</a>
+    <a class="sb-link" href="chapter-12.html"><span class="ch-n">12</span>Deep Agents</a>
+    <a class="sb-link" href="chapter-13.html"><span class="ch-n">13</span>Security</a>
+  </div>
+</aside>
+
+<main class="main-content">
+
+<!-- SECTION: Desktop App -->
+<section class="section" id="desktop-app">
+  <div class="section-eyebrow">
+    <span class="s-badge">Chapter 11</span>
+    <span class="s-cat">Overview</span>
+  </div>
+  <h2>Claude Code Desktop</h2>
+  <p class="lead">Claude Code Desktop is the claude.ai desktop application with deep Claude Code integration. It enables background agents that continue working while you focus elsewhere, and provides a unified interface for managing multiple parallel agent sessions across local and cloud execution environments.</p>
+
+  <div class="sub">
+    <h3>Two Execution Modes</h3>
+    <p>Desktop exposes two fundamentally different ways to run Claude Code agents:</p>
+    <ul>
+      <li><strong>Local Mode</strong> — the agent runs on your machine, with full access to your filesystem, environment variables, and local tools</li>
+      <li><strong>Cloud Mode</strong> — the agent runs on Anthropic's infrastructure, always-on, no local machine dependency</li>
+    </ul>
+    <p>You can run both simultaneously — a local agent working on filesystem-heavy tasks alongside a cloud agent handling long-running background work.</p>
+
+    <div class="callout note">
+      <strong>Note:</strong> Claude Code Desktop is distinct from the Claude Code CLI. The CLI (<span class="ic">claude</span> in your terminal) is the command-line interface. The Desktop app provides a GUI wrapper around similar functionality, adding background agents, session management, and cloud execution. Both use the same underlying model and settings.
+    </div>
+
+    <h3>Desktop vs CLI: When to Use Which</h3>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Scenario</th>
+            <th>Use Desktop</th>
+            <th>Use CLI</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Long-running background tasks</td>
+            <td>Yes — background agents are a Desktop feature</td>
+            <td>No — CLI blocks the terminal while running</td>
+          </tr>
+          <tr>
+            <td>Scripting and automation (CI/CD)</td>
+            <td>No</td>
+            <td>Yes — <span class="ic">claude -p "task" --output-format json</span></td>
+          </tr>
+          <tr>
+            <td>Multiple parallel workstreams</td>
+            <td>Yes — manage multiple sessions in one window</td>
+            <td>Possible, but requires multiple terminals</td>
+          </tr>
+          <tr>
+            <td>Quick inline questions mid-code</td>
+            <td>Works well</td>
+            <td>Works well — stays in your workflow</td>
+          </tr>
+          <tr>
+            <td>Mobile oversight of ongoing work</td>
+            <td>Yes — via the companion mobile app</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td>Cloud execution (machine can be off)</td>
+            <td>Yes — cloud mode agents continue without your machine</td>
+            <td>No — requires your machine</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="feature-grid">
+    <div class="feature-card">
+      <div class="fc-icon"><span class="material-symbols-rounded">smart_toy</span></div>
+      <div class="fc-title">Background Agents</div>
+      <div class="fc-body">Fire off complex tasks and continue with other work. Agents notify you on completion or when they need input.</div>
+    </div>
+    <div class="feature-card">
+      <div class="fc-icon"><span class="material-symbols-rounded">laptop</span></div>
+      <div class="fc-title">Local Mode</div>
+      <div class="fc-body">Full filesystem access, local env vars, your tools. Runs on your machine using your API key.</div>
+    </div>
+    <div class="feature-card">
+      <div class="fc-icon"><span class="material-symbols-rounded">cloud</span></div>
+      <div class="fc-title">Cloud Mode</div>
+      <div class="fc-body">Always-on execution on Anthropic's infrastructure. No local machine dependency for long-running tasks.</div>
+    </div>
+    <div class="feature-card">
+      <div class="fc-icon"><span class="material-symbols-rounded">assignment</span></div>
+      <div class="fc-title">Session Management</div>
+      <div class="fc-body">Manage multiple agent sessions, review progress, and provide input to agents waiting for decisions.</div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- SECTION: Local vs Cloud Agents -->
+<section class="section" id="operating-modes">
+  <div class="section-eyebrow"><span class="s-cat">Configuration</span></div>
+  <h2>Local vs Cloud Agents</h2>
+  <p class="lead">Understanding the capabilities and constraints of each mode lets you route tasks to the right execution environment. Most development workflows benefit from using both modes together.</p>
+
+  <div class="sub">
+    <div class="compare-panel">
+      <div class="cp-col">
+        <div class="cp-head">Local Mode</div>
+        <ul class="cp-list">
+          <li>Runs on your machine</li>
+          <li>Full filesystem and environment access</li>
+          <li>Uses your API key and local tools</li>
+          <li>Zero latency for file operations</li>
+          <li>Requires your machine to be running</li>
+          <li>Best for file-heavy, short-to-medium tasks</li>
+        </ul>
+      </div>
+      <div class="cp-col">
+        <div class="cp-head">Cloud Mode</div>
+        <ul class="cp-list">
+          <li>Runs on Anthropic's infrastructure</li>
+          <li>Sandboxed — no local filesystem access</li>
+          <li>Per-token + compute cost</li>
+          <li>Always-on — machine can be off</li>
+          <li>Best for long-running background tasks</li>
+          <li>Great for 24/7 automation workflows</li>
+        </ul>
+      </div>
+    </div>
+
+    <h3>Mode Comparison</h3>
+    <div class="data-table">
+      <table>
+        <thead>
+          <tr>
+            <th>Mode</th>
+            <th>Environment Access</th>
+            <th>API Cost</th>
+            <th>Best For</th>
+            <th>Limitations</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Local</td>
+            <td>Full filesystem + env</td>
+            <td>Per-token</td>
+            <td>Short-medium tasks, file-heavy work</td>
+            <td>Machine must be running</td>
+          </tr>
+          <tr>
+            <td>Cloud</td>
+            <td>Sandboxed</td>
+            <td>Per-token + compute</td>
+            <td>Long-running, 24/7 tasks</td>
+            <td>No local filesystem access</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- SECTION: Background Agents -->
+<section class="section" id="background-agents">
+  <div class="section-eyebrow"><span class="s-cat">Core Feature</span></div>
+  <h2>Background Agents</h2>
+  <p class="lead">Background agents are Claude Code instances running detached from your active session. You give them a task with clear acceptance criteria, send them to the background, and continue working. They notify you on completion or when a decision is needed.</p>
+
+  <div class="sub">
+    <h3>Workflow</h3>
+    <div class="mech-steps">
+      <div class="mech-step">
+        <div class="step-num">1</div>
+        <div class="step-title">Open Claude Code Desktop</div>
+        <div class="step-body">Launch the desktop app and start a new session with a clearly scoped task description and explicit acceptance criteria.</div>
+      </div>
+      <div class="mech-step">
+        <div class="step-num">2</div>
+        <div class="step-title">Define the task</div>
+        <div class="step-body">Write a complete task description. The more specific the acceptance criteria, the less the agent will interrupt you for clarification.</div>
+      </div>
+      <div class="mech-step">
+        <div class="step-num">3</div>
+        <div class="step-title">Send to background</div>
+        <div class="step-body">Use ⌘+Shift+B or the session menu to detach the agent. It continues running while you work on something else.</div>
+      </div>
+      <div class="mech-step">
+        <div class="step-num">4</div>
+        <div class="step-title">Continue with other work</div>
+        <div class="step-body">Open a new session, work in your editor, or close the window. The agent is not affected.</div>
+      </div>
+      <div class="mech-step">
+        <div class="step-num">5</div>
+        <div class="step-title">Review results</div>
+        <div class="step-body">The agent notifies on completion or when it reaches a decision point that requires your input.</div>
+      </div>
+    </div>
+
+    <h3>Writing Effective Background Task Descriptions</h3>
+    <p>Background agents work best with upfront clarity. Unlike interactive sessions where you can steer mid-task, a background agent will make its own choices when it hits ambiguity. A good background task description includes:</p>
+    <div class="code-block">
+      <div class="cb-header"><span class="cb-lang">text</span><span class="cb-title">Background task template</span></div>
+      <pre><code>Goal: [One sentence describing the end state]
+
+Scope: [Exactly what files/packages/areas to touch]
+
+Constraints:
+- Do NOT modify [specific files or areas]
+- Do NOT add new dependencies without noting them in CHANGES.md
+- All tests must pass after each file change
+
+Acceptance criteria:
+- [Specific, verifiable outcome 1]
+- [Specific, verifiable outcome 2]
+
+If blocked on a decision, write your question to QUESTIONS.md and stop.</code></pre>
+    </div>
+
+    <div class="callout tip">
+      <strong>Tip:</strong> The "write questions to a file and stop" instruction is the single most important addition to background task prompts. Without it, an agent that hits an ambiguous decision will either make a wrong choice silently or ask you at an inconvenient moment. Redirecting its confusion to a file gives you async communication.
+    </div>
+
+    <h3>Monitoring Long-Running Agents</h3>
+    <p>You do not need to watch an agent in real time, but periodic check-ins improve outcomes on long tasks:</p>
+    <ul>
+      <li><strong>Check the todo list</strong> — open the session and run <span class="ic">/todo</span> to see what the agent has done and what remains</li>
+      <li><strong>Review git status</strong> — the agent's changes are visible via <span class="ic">git diff</span> even while it is running</li>
+      <li><strong>Watch for QUESTIONS.md</strong> — if you asked the agent to write questions there, check the file periodically</li>
+      <li><strong>Set time-based check-ins</strong> — for tasks longer than 30 minutes, check in every 15-20 minutes</li>
+    </ul>
+
+    <h3>When to Intervene</h3>
+    <p>Stop a background agent and redirect it when you observe:</p>
+    <ul>
+      <li>It is making changes outside its stated scope</li>
+      <li>It has been running for significantly longer than expected</li>
+      <li>The todo list shows it created many new items not in the original plan</li>
+      <li>Git diff shows changes to files you did not expect it to touch</li>
+    </ul>
+
+    <h3>High-Value Use Cases</h3>
+    <ul>
+      <li><strong>Large refactors</strong> — rename a type across the codebase, migrate an API pattern</li>
+      <li><strong>Test generation</strong> — write coverage for an entire package while you work on the next feature</li>
+      <li><strong>Documentation</strong> — generate or update docs across a repo</li>
+      <li><strong>Research tasks</strong> — read and summarize a large codebase or set of files</li>
+      <li><strong>Dependency upgrades</strong> — update a major dependency version across all affected files</li>
+      <li><strong>Code style migration</strong> — apply a new linting rule across the entire codebase</li>
+    </ul>
+
+    <div class="callout warning">
+      <strong>Warning:</strong> Background agents can accumulate significant token costs on long-running tasks. Set a budget cap before starting, and check in periodically on progress. Overly broad tasks with no scope limit are the most common cause of unexpected costs.
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- SECTION: Git Worktrees -->
+<section class="section" id="git-worktrees">
+  <div class="section-eyebrow"><span class="s-cat">Parallel Development</span></div>
+  <h2>Git Worktrees</h2>
+  <p class="lead">Git worktrees give you multiple working directories from the same repository, each with a different branch checked out simultaneously. This is the foundation for running parallel Claude Code sessions without context interference between tasks.</p>
+
+  <div class="sub">
+    <h3>Worktrees vs Branches</h3>
+    <p>A branch switch changes what your single working directory contains. A worktree gives you a <em>separate directory</em> with a different branch checked out — both coexist at the same time. You can open Claude Code in each directory independently, with no risk of one session affecting the other's files.</p>
+
+    <div class="callout info">
+      <strong>Note:</strong> Worktrees share the same git object store — they are not clones. Commits made in a worktree are immediately visible to other worktrees via the shared <span class="ic">.git</span> directory. Only the working directory and index are separate. This means merges, rebases, and log commands work correctly across all worktrees.
+    </div>
+
+    <div class="mech-steps">
+      <div class="mech-step">
+        <div class="step-num">1</div>
+        <div class="step-title">Create the worktree</div>
+        <div class="step-body">Run <span class="ic">git worktree add ../myrepo-feature feature/auth-redesign</span>. A new directory is created with that branch checked out.</div>
+      </div>
+      <div class="mech-step">
+        <div class="step-num">2</div>
+        <div class="step-title">Open Claude Code in the new directory</div>
+        <div class="step-body">Launch Claude Code from the worktree directory. It operates in full isolation from your main working tree.</div>
+      </div>
+      <div class="mech-step">
+        <div class="step-num">3</div>
+        <div class="step-title">Work in isolation</div>
+        <div class="step-body">Changes in the worktree have no effect on your main directory. Both can run active Claude Code sessions simultaneously.</div>
+      </div>
+      <div class="mech-step">
+        <div class="step-num">4</div>
+        <div class="step-title">Merge and clean up</div>
+        <div class="step-body">Commit all changes in the worktree, merge the branch, then run <span class="ic">git worktree remove ../myrepo-feature</span>.</div>
+      </div>
+    </div>
+
+    <h3>Common Commands</h3>
+    <div class="code-block">
+      <div class="cb-header"><span class="cb-lang">bash</span><span class="cb-title">Git worktree commands</span></div>
+      <pre><code># Create a worktree for a new branch
+git worktree add ../project-feat-auth -b feature/auth-redesign
+
+# List all worktrees
+git worktree list
+
+# Remove a worktree (after merging)
+git worktree remove ../project-feat-auth
+
+# Prune stale worktree records
+git worktree prune</code></pre>
+    </div>
+
+    <h3>Worktrees for Parallel Claude Code Sessions</h3>
+    <p>The key workflow for using Desktop with worktrees to run tasks in parallel:</p>
+    <div class="code-block">
+      <div class="cb-header"><span class="cb-lang">bash</span><span class="cb-title">Set up three parallel worktrees</span></div>
+      <pre><code># Create three worktrees for three independent features
+git worktree add ../myapp-feat-auth    -b feature/auth
+git worktree add ../myapp-feat-api     -b feature/api-v2
+git worktree add ../myapp-fix-metrics  -b fix/metrics
+
+# Open Claude Code Desktop in each — all run independently</code></pre>
+    </div>
+    <p>Each Claude Code session in Desktop gets its own context window, its own branch, and its own working directory. Changes in one cannot affect the others — the isolation is physical, not just logical.</p>
+
+    <div class="callout tip">
+      <strong>Tip:</strong> Name worktree directories with a prefix matching the repo name for clarity: <span class="ic">myapp-feat-auth</span>, <span class="ic">myapp-fix-bug-123</span>. This makes it obvious which repo and which task each directory belongs to when you have multiple open simultaneously.
+    </div>
+
+    <div class="callout warning">
+      <strong>Warning:</strong> You cannot have the same branch checked out in two worktrees simultaneously. If you try, git will refuse. Each worktree must be on a unique branch. This is by design — git cannot track two different sets of changes to the same branch at the same time.
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- SECTION: Merging Worktrees -->
+<section class="section" id="merging">
+  <div class="section-eyebrow"><span class="s-cat">Workflow</span></div>
+  <h2>Merging Worktrees</h2>
+  <p class="lead">Completing work in a worktree follows a predictable sequence: commit in the worktree, merge back in the main tree, remove the worktree. Resolve conflicts inside the worktree before merging — the isolated environment makes it clear exactly what changed.</p>
+
+  <div class="sub">
+    <h3>Merge Sequence</h3>
+    <div class="code-block">
+      <div class="code-header"><span class="lang-label">bash</span><button class="copy-btn">Copy</button></div>
+      <pre><code><span class="cc"># Step 1: In the worktree — commit all changes</span>
+<span class="ck">git</span> add <span class="cs">-p</span>
+<span class="ck">git</span> commit <span class="cs">-m</span> <span class="cs">"feat: implement auth redesign"</span>
+
+<span class="cc"># Step 2: Back in main working tree — merge the branch</span>
+<span class="ck">git</span> merge feature/auth-redesign
+
+<span class="cc"># Step 3: Remove the worktree</span>
+<span class="ck">git</span> worktree remove ../project-feat-auth
+
+<span class="cc"># Step 4: Delete the branch (optional)</span>
+<span class="ck">git</span> branch <span class="cs">-d</span> feature/auth-redesign</code></pre>
+    </div>
+
+    <div class="callout info">
+      <div class="ct">Resolve Conflicts Early</div>
+      <p>Resolve conflicts in the worktree before merging, not after. The isolated environment makes it easier to identify exactly what changed and why — you have full context from the Claude Code session that produced the changes.</p>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- SECTION: Parallel Orchestration -->
+<section class="section" id="parallel-orchestration">
+  <div class="section-eyebrow"><span class="s-cat">Advanced</span></div>
+  <h2>Orchestrating Parallel Local &amp; Cloud Agents</h2>
+  <p class="lead">For large tasks with independent components, run multiple agents simultaneously — each working in its own scope. A local agent handles the filesystem-heavy work, a cloud agent handles the long-running background task, and a main agent synthesizes the results.</p>
+
+  <div class="sub">
+    <h3>Example Architecture</h3>
+    <p>A large feature might run three simultaneous agents:</p>
+    <ul>
+      <li><strong>Frontend agent</strong> (local, worktree) — implements UI components</li>
+      <li><strong>Backend agent</strong> (local, worktree) — implements API endpoints</li>
+      <li><strong>Docs agent</strong> (cloud, background) — generates and updates documentation</li>
+    </ul>
+    <p>Each works independently. The main agent collects their outputs and synthesizes the final integration — reviewing cross-cutting concerns and resolving any interface mismatches.</p>
+
+    <div class="stat-cards">
+      <div class="stat-card">
+        <div class="sc-value">3×</div>
+        <div class="sc-label">Parallel speedup for independent tasks</div>
+      </div>
+      <div class="stat-card">
+        <div class="sc-value">∞</div>
+        <div class="sc-label">Theoretical agent limit</div>
+      </div>
+      <div class="stat-card">
+        <div class="sc-value">git</div>
+        <div class="sc-label">The coordination layer</div>
+      </div>
+    </div>
+
+    <div class="callout tip">
+      <div class="ct">Git as the Integration Bus</div>
+      <p>Git is what makes parallel agents composable. Each agent works in its own branch or worktree. Merging is the integration step. Conflicts at merge time surface exactly where agent outputs diverge — which is exactly where a human review adds the most value.</p>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- SECTION: Remote Development -->
+<section class="section" id="remote-development">
+  <div class="section-eyebrow"><span class="s-cat">Advanced</span></div>
+  <h2>Remote Development Patterns</h2>
+  <p class="lead">Claude Code integrates naturally with remote development environments — SSH remotes, dev containers, and cloud development machines. The key principle is that Claude Code runs where your code lives, not necessarily where your IDE runs.</p>
+
+  <div class="sub">
+    <h3>SSH Remote Workflow</h3>
+    <p>When your development environment is on a remote server — a cloud VM, a shared development server, or a Kubernetes pod — run Claude Code directly on the remote:</p>
+    <div class="code-block">
+      <div class="cb-header"><span class="cb-lang">bash</span><span class="cb-title">SSH into remote and run Claude Code there</span></div>
+      <pre><code># SSH to remote dev machine
+ssh dev-server.example.com
+
+# Navigate to the repo (already checked out on remote)
+cd /home/user/myapp
+
+# Run Claude Code directly on the remote
+claude "Add rate limiting to the API handlers"</code></pre>
+    </div>
+    <p>This pattern gives Claude Code direct access to the remote filesystem, local environment variables, and any tools installed on the remote machine — without any file syncing or network overhead.</p>
+
+    <h3>Dev Container Workflow</h3>
+    <p>Dev containers standardize the development environment. Claude Code works inside a dev container just as it does on your local machine:</p>
+    <div class="code-block">
+      <div class="cb-header"><span class="cb-lang">bash</span><span class="cb-title">Claude Code inside a dev container</span></div>
+      <pre><code># Option A: Open VS Code in devcontainer, use integrated terminal
+# The terminal runs inside the container — claude has full container access
+
+# Option B: exec into a running container directly
+docker exec -it myapp-dev bash
+claude "Run the tests and fix any failures"</code></pre>
+    </div>
+
+    <div class="callout tip">
+      <strong>Tip:</strong> When running Claude Code inside a dev container, the CLAUDE.md file in the repo is automatically available. Add container-specific commands (e.g., how to run the database, how to run migrations) to CLAUDE.md so Claude Code knows the container's development workflow without being told each time.
+    </div>
+
+    <h3>Cost and Performance Considerations</h3>
+    <p>Remote execution means every file read and shell command result travels over the network between the remote machine and the Anthropic API. For large codebases on high-latency connections, this can noticeably affect task duration. Mitigations:</p>
+    <ul>
+      <li>Use <span class="ic">.claudeignore</span> to exclude large directories (build artifacts, node_modules, vendor/) from file reads</li>
+      <li>Run Claude Code on a machine geographically close to your code — not from a laptop on the other side of the world</li>
+      <li>For very large repos, pre-summarize key files in CLAUDE.md so Claude spends fewer tokens on initial exploration</li>
+    </ul>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- SECTION: Mobile -->
+<section class="section" id="mobile">
+  <div class="section-eyebrow"><span class="s-cat">Mobile</span></div>
+  <h2>Claude Code Mobile</h2>
+  <p class="lead">Claude Code is available on iOS and Android for review and oversight of agent work. Mobile is optimized for the "check in and approve" workflow — not for driving complex coding sessions, but for staying connected to what your agents are doing.</p>
+
+  <div class="sub">
+    <h3>Mobile Use Cases</h3>
+    <ul>
+      <li><strong>Reviewing agent progress</strong> — check what a background cloud agent has done while you were away</li>
+      <li><strong>Approving plans</strong> — an agent paused for confirmation can be unblocked from your phone</li>
+      <li><strong>Reading diffs</strong> — review code changes before they get merged</li>
+      <li><strong>Simple interactions</strong> — quick questions, context additions, clarifications</li>
+    </ul>
+
+    <h3>Mobile vs Desktop Comparison</h3>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Capability</th>
+            <th>Mobile</th>
+            <th>Desktop</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Check agent progress</td>
+            <td>Yes</td>
+            <td>Yes</td>
+          </tr>
+          <tr>
+            <td>Approve pending decisions</td>
+            <td>Yes</td>
+            <td>Yes</td>
+          </tr>
+          <tr>
+            <td>Start new background agents</td>
+            <td>Limited</td>
+            <td>Yes</td>
+          </tr>
+          <tr>
+            <td>Multi-file editing sessions</td>
+            <td>No</td>
+            <td>Yes</td>
+          </tr>
+          <tr>
+            <td>Git worktree management</td>
+            <td>No</td>
+            <td>Yes</td>
+          </tr>
+          <tr>
+            <td>Use anywhere (commute, meetings)</td>
+            <td>Yes</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout info">
+      <strong>Note:</strong> Mobile is best for "check in and approve" workflows where background cloud agents handle the heavy lifting. Complex coding sessions, multi-file edits, and context-heavy debugging belong on desktop where you have full keyboard and screen real estate.
+    </div>
+  </div>
+</section>
+
+<!-- Chapter nav footer -->
+<div style="display:flex;justify-content:space-between;padding-top:32px;border-top:1px solid var(--border-dim);">
+  <a href="chapter-10.html" class="btn-secondary" style="text-decoration:none">← Agent Skills</a>
+  <a href="chapter-12.html" class="btn-primary" style="text-decoration:none">Deep Agents →</a>
+</div>
+
+</main>
+<aside class="toc-panel"><div id="page-toc"></div></aside>
+</div>
+
+<div id="back-to-top">↑</div>
+<div id="sidebar-overlay"></div>
+<div id="cmd-overlay">
+  <div id="cmd-palette">
+    <div class="cmd-search">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398l3.85 3.85a1 1 0 0 0 1.415-1.415l-3.868-3.833zm-5.242 1.156a5 5 0 1 1 0-10 5 5 0 0 1 0 10z"/></svg>
+      <input type="text" id="cmd-input" placeholder="Search chapters and sections..." autocomplete="off" spellcheck="false">
+      <kbd>esc</kbd>
+    </div>
+    <div class="cmd-results" id="cmd-results"></div>
+    <div class="cmd-footer">
+      <span class="cmd-hint"><kbd>↑↓</kbd> navigate</span>
+      <span class="cmd-hint"><kbd>↵</kbd> open</span>
+      <span class="cmd-hint"><kbd>esc</kbd> close</span>
+    </div>
+  </div>
+</div>
+<script src="assets/app.js"></script>
+</body>
+</html>

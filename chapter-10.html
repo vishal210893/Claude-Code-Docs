@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ch.10 — Agent Skills</title>
+<link rel="stylesheet" href="assets/styles.css">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+</head>
+<body>
+<div id="progress-bar"></div>
+
+<nav class="top-nav">
+  <button class="mobile-menu-btn" id="mobile-menu-btn"><span class="material-symbols-rounded">menu</span></button>
+  <a class="nav-logo" href="index.html">
+    <div class="nav-logo-icon">CC</div>
+    <span class="nav-logo-text">Claude <em>Code</em></span>
+  </a>
+  <span class="nav-ver">Docs v1.0</span>
+  <div class="nav-spacer"></div>
+  <button class="search-trigger"><span class="st-icon"><span class="material-symbols-rounded" style="font-size:16px">search</span></span><span>Search docs...</span><kbd>⌘K</kbd></button>
+  <button class="theme-toggle" id="theme-toggle"><span class="material-symbols-rounded">light_mode</span></button>
+</nav>
+
+<div class="page-header">
+  <div class="breadcrumb">
+    <a href="index.html">Home</a><span class="sep">/</span>
+    <span class="cur">Chapter 10 — Agent Skills</span>
+  </div>
+  <h1>Agent Skills</h1>
+  <p class="subtitle">Skills are reusable, shareable custom slash commands that encode complex workflows into a single invocation. They are the simplest way to build consistent, team-level automation into Claude Code without any infrastructure.</p>
+  <div class="tag-row">
+    <span class="tag purple">Chapter 10</span>
+    <span class="tag blue">Agent Skills</span>
+    <span class="tag green">Custom Commands</span>
+    <span class="tag orange">MCP Comparison</span>
+  </div>
+</div>
+
+<div class="layout">
+<aside class="sidebar">
+  <div class="sb-section">
+    <div class="sb-label">Documentation</div>
+    <a class="sb-link" href="index.html">Overview</a>
+  </div>
+  <div class="sb-section">
+    <div class="sb-label">Chapters</div>
+    <a class="sb-link" href="chapter-01.html"><span class="ch-n">01</span>Introduction</a>
+    <a class="sb-link" href="chapter-02.html"><span class="ch-n">02</span>Context Engineering</a>
+    <a class="sb-link" href="chapter-03.html"><span class="ch-n">03</span>Claude Code Essentials</a>
+    <a class="sb-link" href="chapter-04.html"><span class="ch-n">04</span>Essential Commands</a>
+    <a class="sb-link" href="chapter-05.html"><span class="ch-n">05</span>MCP</a>
+    <a class="sb-link" href="chapter-06.html"><span class="ch-n">06</span>GitHub Integration</a>
+    <a class="sb-link" href="chapter-07.html"><span class="ch-n">07</span>Advanced Workflows</a>
+    <a class="sb-link" href="chapter-08.html"><span class="ch-n">08</span>Subagents</a>
+    <a class="sb-link" href="chapter-09.html"><span class="ch-n">09</span>Output Styles</a>
+    <a class="sb-link active" href="chapter-10.html"><span class="ch-n">10</span>Agent Skills</a>
+    <a class="sb-link" href="chapter-11.html"><span class="ch-n">11</span>Desktop</a>
+    <a class="sb-link" href="chapter-12.html"><span class="ch-n">12</span>Deep Agents</a>
+    <a class="sb-link" href="chapter-13.html"><span class="ch-n">13</span>Security</a>
+  </div>
+</aside>
+
+<main class="main-content">
+
+<!-- SECTION: What Are Agent Skills -->
+<section class="section" id="what-are-skills">
+  <div class="section-eyebrow">
+    <span class="s-badge">Chapter 10</span>
+    <span class="s-cat">Foundations</span>
+  </div>
+  <h2>What Are Agent Skills?</h2>
+  <p class="lead">Skills are reusable, shareable custom slash commands that encapsulate complex workflows. Stored as markdown files, they are invoked by name and their content is inserted as a user message — giving Claude detailed, consistent instructions every time.</p>
+
+  <div class="sub">
+    <h3>How Skills Work</h3>
+    <p>A skill is a prompt template. When you run <span class="ic">/skill-name</span>, Claude Code reads the corresponding markdown file and inserts its content into the conversation as your message. The skill file is the instruction set — you are the one who encoded your best practices into it once, so you never have to repeat yourself.</p>
+    <p>Skills are stored as markdown files:</p>
+    <ul>
+      <li><span class="ic">.claude/commands/</span> — project-scoped, committed to the repo</li>
+      <li><span class="ic">~/.claude/commands/</span> — user-scoped, available in every project</li>
+    </ul>
+
+    <div class="callout note">
+      <strong>Note:</strong> Skills are also called "custom slash commands" in the Claude Code documentation. The term "skill" emphasizes that they encode expertise — not just shortcuts. Every skill you write is a piece of team knowledge made executable.
+    </div>
+
+    <h3>Skills vs Slash Commands vs MCP — The Quick Distinction</h3>
+    <p>These three concepts often get confused because they all extend what Claude Code can do:</p>
+    <ul>
+      <li><strong>Skills (custom slash commands)</strong> — markdown files you write that become <span class="ic">/commands</span>. Zero infrastructure. No runtime. Just text instructions.</li>
+      <li><strong>Built-in slash commands</strong> — commands like <span class="ic">/help</span>, <span class="ic">/clear</span>, <span class="ic">/todo</span> that are built into Claude Code itself. You cannot redefine these.</li>
+      <li><strong>MCP (Model Context Protocol)</strong> — a separate server process that exposes structured tools and live data. Requires a running process, network communication, and a schema definition.</li>
+    </ul>
+    <p>The decision rule is simple: if your workflow can be expressed as a sequence of instructions in a markdown file, use a skill. If you need to query a live API, database, or external system and get a structured response back, use MCP.</p>
+
+    <div class="callout tip">
+      <strong>Tip:</strong> Start with a skill. You can always upgrade to MCP later if you outgrow it. Most teams discover that skills cover 80% of their automation needs with 5% of the setup effort of MCP.
+    </div>
+
+    <h3>When Claude Auto-Invokes vs Waits</h3>
+    <p>Skills are always explicitly user-invoked via the slash command — Claude Code does not auto-invoke skills on its own. However, you can reference skills in your CLAUDE.md to suggest when they should be used. For example:</p>
+    <div class="code-block">
+      <div class="cb-header"><span class="cb-lang">markdown</span><span class="cb-title">CLAUDE.md — skill usage hint</span></div>
+      <pre><code>## Workflow Guidelines
+When a task is complete and ready for merge, suggest running /create-pr.
+Before any deployment, run /pre-deploy-check.</code></pre>
+    </div>
+    <p>With this in CLAUDE.md, Claude will suggest the relevant skill at the right moment — but you still type the command to trigger it.</p>
+  </div>
+
+  <div class="feature-grid">
+    <div class="feature-card">
+      <div class="fc-icon"><span class="material-symbols-rounded">recycling</span></div>
+      <div class="fc-title">Reusable Workflows</div>
+      <div class="fc-body">Encode a multi-step process once. Invoke it with a single slash command every time.</div>
+    </div>
+    <div class="feature-card">
+      <div class="fc-icon"><span class="material-symbols-rounded">handshake</span></div>
+      <div class="fc-title">Team Sharing</div>
+      <div class="fc-body">Commit skills to the repository. Every team member gets the same commands and conventions automatically.</div>
+    </div>
+    <div class="feature-card">
+      <div class="fc-icon"><span class="material-symbols-rounded">assignment</span></div>
+      <div class="fc-title">Best Practice Encoding</div>
+      <div class="fc-body">Capture your review checklist, PR format, deployment steps — make them executable rather than just documented.</div>
+    </div>
+    <div class="feature-card">
+      <div class="fc-icon"><span class="material-symbols-rounded">language</span></div>
+      <div class="fc-title">Cross-Project Skills</div>
+      <div class="fc-body">User-scoped skills in <span class="ic">~/.claude/commands/</span> are available in every project without any setup.</div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- SECTION: Creating Skills -->
+<section class="section" id="creating-skills">
+  <div class="section-eyebrow"><span class="s-cat">Setup</span></div>
+  <h2>Creating Skills: Step-by-Step</h2>
+  <p class="lead">Create a <span class="ic">.md</span> file in <span class="ic">.claude/commands/</span>. The file name becomes the slash command. The file content becomes the prompt that Claude Code executes when you invoke it.</p>
+
+  <div class="sub">
+    <h3>Directory Setup</h3>
+    <div class="code-block">
+      <div class="cb-header"><span class="cb-lang">bash</span><span class="cb-title">Create the commands directory</span></div>
+      <pre><code># Project-scoped skills (committed to repo, shared with team)
+mkdir -p .claude/commands
+
+# User-scoped skills (personal, available in every project)
+mkdir -p ~/.claude/commands</code></pre>
+    </div>
+
+    <div class="callout info">
+      <strong>Note:</strong> The file name becomes the slash command. <span class="ic">.claude/commands/create-pr.md</span> becomes <span class="ic">/create-pr</span>. Use hyphens for multi-word names — they become hyphens in the slash command. Spaces are not supported in command names.
+    </div>
+
+    <h3>Skill File Structure</h3>
+    <p>A skill file is a standard markdown file. There is no special frontmatter required — the entire file content becomes the prompt. However, a good skill file follows a consistent structure:</p>
+    <div class="code-block">
+      <div class="cb-header"><span class="cb-lang">markdown</span><span class="cb-title">Anatomy of a skill file</span></div>
+      <pre><code># Skill Name (H1 — becomes the skill title in /help)
+
+One paragraph describing what this skill does and when to use it.
+
+## Steps (optional — for sequential workflows)
+1. First step with specific tool instructions
+2. Second step building on the first
+3. ...
+
+## Acceptance Criteria (optional — tells Claude when it's done)
+- The output must include...
+- The result must pass...
+
+## Format (optional — tells Claude how to format output)
+Return results as a markdown table with columns: ...</code></pre>
+    </div>
+
+    <h3>Example: PR Creation Skill</h3>
+    <p>Create <span class="ic">.claude/commands/create-pr.md</span> to invoke with <span class="ic">/create-pr</span>:</p>
+
+    <div class="code-block">
+      <div class="cb-header"><span class="cb-lang">markdown</span><span class="cb-title">.claude/commands/create-pr.md</span></div>
+      <pre><code># Create Pull Request
+
+Analyze the git diff between current branch and main.
+
+Steps:
+1. Run `git log --oneline main..HEAD` to see commits
+2. Run `git diff main...HEAD --stat` for changed files
+3. Create a PR with:
+   - Title: [type]: description (max 72 chars)
+   - Summary: 3 bullet points max
+   - Problem: why this change was needed
+   - Testing: how to verify it works
+   - Breaking changes: if any</code></pre>
+    </div>
+
+    <h3>Example: Deploy Skill with Pre-Flight Checks</h3>
+    <div class="code-block">
+      <div class="cb-header"><span class="cb-lang">markdown</span><span class="cb-title">.claude/commands/deploy.md</span></div>
+      <pre><code># Deploy to Staging
+
+Target environment: $ARGUMENTS (default: staging)
+
+Pre-flight checklist — verify each before proceeding:
+1. Run `go test ./...` — all tests must pass
+2. Run `go build ./...` — build must succeed
+3. Run `git status` — no uncommitted changes
+4. Check `git log --oneline origin/main..HEAD` — confirm commits to deploy
+
+If all checks pass, proceed:
+5. Run `make docker-build` to build the image
+6. Run `make deploy ENV=$ARGUMENTS` to deploy
+7. Run `kubectl rollout status deployment/app -n staging` to verify rollout
+8. Report the deployed version and pod status</code></pre>
+    </div>
+
+    <h3>Example: Code Review Skill</h3>
+    <div class="code-block">
+      <div class="cb-header"><span class="cb-lang">markdown</span><span class="cb-title">.claude/commands/review.md</span></div>
+      <pre><code># Code Review
+
+Review the code changes specified by $ARGUMENTS (or the current branch diff if no argument).
+
+Run: `git diff main...HEAD -- $ARGUMENTS`
+
+Review for:
+1. **Correctness** — does the logic achieve what the commit messages claim?
+2. **Edge cases** — are nil/empty/boundary conditions handled?
+3. **Error handling** — are all errors checked and handled appropriately?
+4. **Security** — input validation, no hardcoded secrets, no SQL injection risk
+5. **Tests** — are new functions covered by tests?
+6. **Naming** — are identifiers clear and consistent with the codebase style?
+
+Output format:
+- Critical issues (must fix before merge)
+- Suggestions (optional improvements)
+- Positive observations (what was done well)</code></pre>
+    </div>
+
+    <div class="callout tip">
+      <strong>Tip:</strong> Skills support a <span class="ic">$ARGUMENTS</span> placeholder. Use <span class="ic">/skill-name some args</span> and <span class="ic">$ARGUMENTS</span> in your skill file will be replaced with <span class="ic">some args</span>. This lets a single skill file handle parameterized invocations — for example, <span class="ic">/review-pr 142</span> where <span class="ic">142</span> is passed as the PR number.
+    </div>
+
+    <h3>Best Practices for Writing Effective Skill Descriptions</h3>
+    <ul>
+      <li><strong>Be specific about outputs</strong> — tell Claude exactly what format to return results in. Vague instructions produce inconsistent outputs.</li>
+      <li><strong>Encode acceptance criteria</strong> — skills are most powerful when they define "done." Include explicit success conditions so Claude knows when to stop.</li>
+      <li><strong>Reference concrete commands</strong> — write the exact shell commands you want Claude to run, rather than describing them abstractly. <span class="ic">Run: `go test ./...`</span> is better than "run the tests."</li>
+      <li><strong>Order steps carefully</strong> — Claude follows the order of steps in your skill file. Put validation and read-only checks before write operations.</li>
+      <li><strong>Keep skills focused</strong> — one skill, one workflow. A skill that tries to do three different things is harder to maintain and produces unpredictable results.</li>
+    </ul>
+
+    <div class="callout warning">
+      <strong>Warning:</strong> Skills do not restrict what tools Claude Code can use. A skill that says "review the code" can still trigger file writes if the model decides that is appropriate. If you need to restrict Claude's actions, use permission settings in <span class="ic">.claude/settings.json</span>, not the skill file itself.
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- SECTION: Custom Skills with Auxiliary Scripts -->
+<section class="section" id="auxiliary-scripts">
+  <div class="section-eyebrow"><span class="s-cat">Advanced</span></div>
+  <h2>Custom Skills with Auxiliary Scripts</h2>
+  <p class="lead">Skills can reference and run scripts. The pattern is powerful: the skill file describes the workflow and provides Claude with the analytical task, while a script handles the deterministic, structured work — scanning, linting, coverage checks — that Claude interprets.</p>
+
+  <div class="sub">
+    <h3>Script-Backed Skill Pattern</h3>
+    <p>Store scripts in <span class="ic">.claude/scripts/</span> and reference them from your skill file:</p>
+
+    <div class="code-block">
+      <div class="cb-header"><span class="cb-lang">markdown</span><span class="cb-title">.claude/commands/security-audit.md</span></div>
+      <pre><code># Security Audit
+
+First, run: `bash .claude/scripts/security-scan.sh`
+
+Then analyze the output and:
+1. Categorize findings by severity (Critical/High/Medium/Low)
+2. For each Critical/High finding, suggest a specific fix
+3. Output a structured report with actionable remediation steps</code></pre>
+    </div>
+
+    <h3>Example: Coverage Report Skill</h3>
+    <p>A script gathers coverage data; the skill instructs Claude what to do with it:</p>
+    <div class="code-block">
+      <div class="cb-header"><span class="cb-lang">bash</span><span class="cb-title">.claude/scripts/coverage.sh</span></div>
+      <pre><code>#!/bin/bash
+go test -coverprofile=coverage.out ./...
+go tool cover -func=coverage.out | tail -1
+go tool cover -func=coverage.out | grep -E "^[^t].*[0-9]\.0%$" | head -20</code></pre>
+    </div>
+    <div class="code-block">
+      <div class="cb-header"><span class="cb-lang">markdown</span><span class="cb-title">.claude/commands/coverage.md</span></div>
+      <pre><code># Test Coverage Analysis
+
+Run: `bash .claude/scripts/coverage.sh`
+
+Analyze the output:
+1. Report overall coverage percentage
+2. List the 10 packages with the lowest coverage
+3. For each low-coverage package, identify which functions lack tests
+4. Suggest which 3 functions would provide the highest value to test next,
+   based on complexity and criticality</code></pre>
+    </div>
+
+    <h3>Skill Composition: Skills That Reference Other Skills</h3>
+    <p>You can document in a skill file that the user should run another skill first — creating a manual composition chain. This is not automatic, but it encodes the correct workflow order for your team:</p>
+    <div class="code-block">
+      <div class="cb-header"><span class="cb-lang">markdown</span><span class="cb-title">.claude/commands/release.md</span></div>
+      <pre><code># Release Workflow
+
+This skill runs the full release sequence. Before starting, ensure
+`/pre-deploy-check` has passed cleanly.
+
+Steps:
+1. Run `git tag -a v$ARGUMENTS -m "Release v$ARGUMENTS"`
+2. Run `git push origin v$ARGUMENTS`
+3. Run `make release-notes VERSION=$ARGUMENTS`
+4. Create the GitHub release with the generated notes
+5. Monitor the CI pipeline until the release artifacts are published
+
+Acceptance criteria:
+- Git tag exists on origin
+- GitHub release is published
+- CI pipeline shows green for the release workflow</code></pre>
+    </div>
+
+    <div class="callout info">
+      <strong>Note:</strong> Scripts in <span class="ic">.claude/scripts/</span> are a great place to put deterministic checks — linting, dependency scanning, test coverage reports — that feed into Claude's analysis. The script does the data gathering; Claude does the interpretation and recommendation.
+    </div>
+
+    <div class="callout tip">
+      <strong>Tip:</strong> Make your scripts exit with non-zero codes on failure. Claude Code will see the failed exit code in the Bash tool result and will naturally report the failure rather than silently treating bad output as success.
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- SECTION: Real-World Skill Examples -->
+<section class="section" id="real-world-skills">
+  <div class="section-eyebrow"><span class="s-cat">Examples</span></div>
+  <h2>Real-World Skill Examples</h2>
+  <p class="lead">The following are complete, production-ready skill files. Each encodes a real workflow that teams use repeatedly. Copy and adapt them to your project's conventions.</p>
+
+  <div class="sub">
+    <h3>Skill 1: Incident Debug</h3>
+    <p>Used when an alert fires and you need a fast investigation. Pass the service name or error message as <span class="ic">$ARGUMENTS</span>.</p>
+    <div class="code-block">
+      <div class="cb-header"><span class="cb-lang">markdown</span><span class="cb-title">.claude/commands/debug-incident.md</span></div>
+      <pre><code># Debug Incident
+
+Investigate the issue: $ARGUMENTS
+
+Investigation steps:
+1. Search for recent changes related to this area:
+   `git log --oneline --since="3 days ago" -- $ARGUMENTS`
+2. Check current error patterns in logs (if log file exists):
+   `tail -100 logs/app.log | grep -i "error\|panic\|fatal"`
+3. Read the relevant source files for the component mentioned
+4. Check if any config values look suspicious
+5. Look for recent dependency changes in go.sum or package-lock.json
+
+Output:
+- Root cause hypothesis (most likely cause based on evidence)
+- Evidence supporting the hypothesis
+- Immediate mitigation steps (what to do right now)
+- Fix recommendation (what code change resolves this permanently)</code></pre>
+    </div>
+
+    <h3>Skill 2: Database Migration Scaffolding</h3>
+    <div class="code-block">
+      <div class="cb-header"><span class="cb-lang">markdown</span><span class="cb-title">.claude/commands/new-migration.md</span></div>
+      <pre><code># New Database Migration
+
+Create a database migration for: $ARGUMENTS
+
+Steps:
+1. Check the latest migration file in `db/migrations/` to determine the
+   next version number
+2. Create a new migration file: `db/migrations/NNNN_$ARGUMENTS.sql`
+3. Write the UP migration (schema change)
+4. Write the DOWN migration (rollback) — this is required, not optional
+5. Create a corresponding struct update in the appropriate model file
+   if this migration adds or removes columns from an existing table
+6. Add a test that verifies the migration applies cleanly
+
+Constraints:
+- Every migration must be reversible
+- Column names must use snake_case
+- Foreign key constraints must be named explicitly</code></pre>
+    </div>
+
+    <h3>Skill 3: Architecture Decision Record</h3>
+    <div class="code-block">
+      <div class="cb-header"><span class="cb-lang">markdown</span><span class="cb-title">.claude/commands/new-adr.md</span></div>
+      <pre><code># New Architecture Decision Record
+
+Create an ADR for: $ARGUMENTS
+
+Steps:
+1. Find the next ADR number by listing `docs/adr/` directory
+2. Create `docs/adr/NNNN-$ARGUMENTS.md` with this structure:
+
+# ADR-NNNN: [Title]
+
+## Status
+Proposed
+
+## Context
+[What is the situation that requires a decision?]
+
+## Decision
+[What did we decide?]
+
+## Consequences
+### Positive
+- ...
+### Negative
+- ...
+### Risks
+- ...
+
+## Alternatives Considered
+[What other options were evaluated and why were they rejected?]
+
+3. Link the new ADR from `docs/adr/README.md`</code></pre>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- SECTION: Skills vs MCP -->
+<section class="section" id="skills-vs-mcp">
+  <div class="section-eyebrow"><span class="s-cat">Comparison</span></div>
+  <h2>Skills vs MCP</h2>
+  <p class="lead">Skills and MCP solve different problems. Skills encode workflows and best practices into reusable prompts. MCP provides structured access to live external systems. Choosing the right tool depends on whether you need static workflow instructions or dynamic external data.</p>
+
+  <div class="sub">
+    <h3>Comparison Table</h3>
+    <div class="data-table">
+      <table>
+        <thead>
+          <tr>
+            <th>Aspect</th>
+            <th>Skills</th>
+            <th>MCP</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>What it is</td>
+            <td>Prompt template / slash command</td>
+            <td>External tool server with structured APIs</td>
+          </tr>
+          <tr>
+            <td>Setup complexity</td>
+            <td>Low — just a <span class="ic">.md</span> file</td>
+            <td>Medium-High — separate server process</td>
+          </tr>
+          <tr>
+            <td>Capabilities</td>
+            <td>Text instructions + file access</td>
+            <td>Real-time data, external APIs, databases</td>
+          </tr>
+          <tr>
+            <td>Persistence</td>
+            <td>Stateless — each invocation fresh</td>
+            <td>Can maintain state in server</td>
+          </tr>
+          <tr>
+            <td>Best for</td>
+            <td>Repeatable workflows, best practices</td>
+            <td>External integrations, live data</td>
+          </tr>
+          <tr>
+            <td>Distribution</td>
+            <td>Commit to repo</td>
+            <td>Publish npm package or run server</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout info">
+      <div class="ct">Decision Rule</div>
+      <p>Choose Skills when you are encoding a workflow. Choose MCP when you need real-time external data or structured tool APIs that return dynamic results.</p>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- SECTION: Skills vs Subagents -->
+<section class="section" id="skills-vs-subagents">
+  <div class="section-eyebrow"><span class="s-cat">Comparison</span></div>
+  <h2>Skills vs Subagents</h2>
+  <p class="lead">Skills are user-initiated prompt templates. Subagents are programmatically spawned by the main agent to run work in parallel isolated context windows. The distinction is who controls invocation and whether parallelism is needed.</p>
+
+  <div class="sub">
+    <h3>Comparison Table</h3>
+    <div class="data-table">
+      <table>
+        <thead>
+          <tr>
+            <th>Aspect</th>
+            <th>Skills</th>
+            <th>Subagents</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Invocation</td>
+            <td>Slash command by user</td>
+            <td>Spawned by main agent programmatically</td>
+          </tr>
+          <tr>
+            <td>Context</td>
+            <td>Shares main agent context</td>
+            <td>Isolated context window</td>
+          </tr>
+          <tr>
+            <td>Parallelism</td>
+            <td>Sequential</td>
+            <td>Parallel — multiple subagents at once</td>
+          </tr>
+          <tr>
+            <td>Control</td>
+            <td>User-initiated</td>
+            <td>Agent-initiated</td>
+          </tr>
+          <tr>
+            <td>Best for</td>
+            <td>Repeatable user workflows</td>
+            <td>Parallel agent tasks, batch operations</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout tip">
+      <div class="ct">Which to Use</div>
+      <p>Use Skills for things you want to invoke manually on demand. Use Subagents when the main agent needs to delegate and parallelize work without user involvement.</p>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- SECTION: Tradeoffs -->
+<section class="section" id="tradeoffs">
+  <div class="section-eyebrow"><span class="s-cat">Guidance</span></div>
+  <h2>Skills Tradeoffs</h2>
+  <p class="lead">Skills are intentionally simple. That simplicity is a strength in most cases and a limitation in others. Understanding where skills excel and where they fall short prevents choosing the wrong abstraction.</p>
+
+  <div class="sub">
+    <div class="compare-panel">
+      <div class="cp-col">
+        <div class="cp-head">When to Use Skills</div>
+        <ul class="cp-list">
+          <li>Code review templates</li>
+          <li>PR creation and description generation</li>
+          <li>Deployment checklists</li>
+          <li>Documentation generation</li>
+          <li>Repeatable analysis workflows</li>
+          <li>Team-standard task sequences</li>
+          <li>Anything version-control distributable</li>
+        </ul>
+      </div>
+      <div class="cp-col">
+        <div class="cp-head">When Not to Use Skills</div>
+        <ul class="cp-list">
+          <li>Querying live databases</li>
+          <li>Calling external REST APIs</li>
+          <li>Maintaining conversation state across runs</li>
+          <li>Real-time data retrieval</li>
+          <li>Tasks needing structured tool responses</li>
+          <li>Anything requiring server-side logic</li>
+        </ul>
+      </div>
+    </div>
+
+    <h3>Good vs Anti-Pattern</h3>
+    <div class="compare">
+      <div class="compare-col good">
+        <h4>✓ Good Practice</h4>
+        <div class="code-block">
+          <div class="cb-header"><span class="cb-lang">markdown</span><span class="cb-title">Focused, actionable skill</span></div>
+          <pre><code># Create PR
+1. Run `git log --oneline main..HEAD`
+2. Run `git diff main...HEAD --stat`
+3. Create PR with title format: type: description
+4. Add summary, problem, and testing sections</code></pre>
+        </div>
+      </div>
+      <div class="compare-col bad">
+        <h4>✗ Anti-Pattern</h4>
+        <div class="code-block">
+          <div class="cb-header"><span class="cb-lang">markdown</span><span class="cb-title">Vague, over-broad skill</span></div>
+          <pre><code># Help me
+Do whatever needs to be done to
+get this code ready. Review it,
+fix bugs, write tests, make a PR,
+and deploy if everything looks good.</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <h3>Summary</h3>
+    <ul>
+      <li><strong>Pros:</strong> dead simple to create, no infrastructure required, shareable via git, fully version-controlled, zero runtime dependencies</li>
+      <li><strong>Cons:</strong> text-only instructions, no structured API responses, no real-time data access, no state persistence between invocations</li>
+    </ul>
+
+    <h3>Best Practices Checklist</h3>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Practice</th>
+            <th>Why It Matters</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Use concrete shell commands, not abstract descriptions</td>
+            <td>Claude will run the exact command rather than guessing what command to use</td>
+          </tr>
+          <tr>
+            <td>Define an explicit output format</td>
+            <td>Produces consistent, parseable results across invocations</td>
+          </tr>
+          <tr>
+            <td>Include acceptance criteria ("done when...")</td>
+            <td>Prevents Claude from continuing indefinitely or stopping too early</td>
+          </tr>
+          <tr>
+            <td>One skill per workflow — keep them focused</td>
+            <td>Easier to maintain, test, and reason about</td>
+          </tr>
+          <tr>
+            <td>Commit project skills to the repo</td>
+            <td>Team gets them automatically; they evolve with the codebase</td>
+          </tr>
+          <tr>
+            <td>Test new skills with a dry run</td>
+            <td>Run the skill on a branch first — verify it behaves as expected before using on main</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- Chapter nav footer -->
+<div style="display:flex;justify-content:space-between;padding-top:32px;border-top:1px solid var(--border-dim);">
+  <a href="chapter-09.html" class="btn-secondary" style="text-decoration:none">← Output Styles</a>
+  <a href="chapter-11.html" class="btn-primary" style="text-decoration:none">Desktop →</a>
+</div>
+
+</main>
+<aside class="toc-panel"><div id="page-toc"></div></aside>
+</div>
+
+<div id="back-to-top">↑</div>
+<div id="sidebar-overlay"></div>
+<div id="cmd-overlay">
+  <div id="cmd-palette">
+    <div class="cmd-search">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398l3.85 3.85a1 1 0 0 0 1.415-1.415l-3.868-3.833zm-5.242 1.156a5 5 0 1 1 0-10 5 5 0 0 1 0 10z"/></svg>
+      <input type="text" id="cmd-input" placeholder="Search chapters and sections..." autocomplete="off" spellcheck="false">
+      <kbd>esc</kbd>
+    </div>
+    <div class="cmd-results" id="cmd-results"></div>
+    <div class="cmd-footer">
+      <span class="cmd-hint"><kbd>↑↓</kbd> navigate</span>
+      <span class="cmd-hint"><kbd>↵</kbd> open</span>
+      <span class="cmd-hint"><kbd>esc</kbd> close</span>
+    </div>
+  </div>
+</div>
+<script src="assets/app.js"></script>
+</body>
+</html>

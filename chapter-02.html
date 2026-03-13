@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ch.02 — Context Engineering</title>
+<link rel="stylesheet" href="assets/styles.css">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+</head>
+<body>
+<div id="progress-bar"></div>
+
+<nav class="top-nav">
+  <button class="mobile-menu-btn" id="mobile-menu-btn"><span class="material-symbols-rounded">menu</span></button>
+  <a class="nav-logo" href="index.html">
+    <div class="nav-logo-icon">CC</div>
+    <span class="nav-logo-text">Claude <em>Code</em></span>
+  </a>
+  <span class="nav-ver">Docs v1.0</span>
+  <div class="nav-spacer"></div>
+  <button class="search-trigger"><span class="st-icon"><span class="material-symbols-rounded" style="font-size:16px">search</span></span><span>Search docs...</span><kbd>⌘K</kbd></button>
+  <button class="theme-toggle" id="theme-toggle"><span class="material-symbols-rounded">light_mode</span></button>
+</nav>
+
+<div class="page-header">
+  <div class="breadcrumb">
+    <a href="index.html">Home</a><span class="sep">/</span>
+    <span class="cur">Chapter 02 — Context Engineering</span>
+  </div>
+  <h1>Context Engineering</h1>
+  <p class="subtitle">The discipline of providing AI agents with the right information, at the right time, in the right form. Context engineering is the key lever that separates brittle demos from reliable production agents.</p>
+  <div class="tag-row">
+    <span class="tag purple">Chapter 02</span>
+    <span class="tag orange">Core Concepts</span>
+    <span class="tag blue">CLAUDE.md</span>
+    <span class="tag green">Memory Architecture</span>
+  </div>
+</div>
+
+<div class="layout">
+<aside class="sidebar">
+  <div class="sb-section">
+    <div class="sb-label">Documentation</div>
+    <a class="sb-link" href="index.html">Overview</a>
+  </div>
+  <div class="sb-section">
+    <div class="sb-label">Chapters</div>
+    <a class="sb-link" href="chapter-01.html"><span class="ch-n">01</span>Introduction</a>
+    <a class="sb-link active" href="chapter-02.html"><span class="ch-n">02</span>Context Engineering</a>
+    <a class="sb-link" href="chapter-03.html"><span class="ch-n">03</span>Claude Code Essentials</a>
+    <a class="sb-link" href="chapter-04.html"><span class="ch-n">04</span>Essential Commands</a>
+    <a class="sb-link" href="chapter-05.html"><span class="ch-n">05</span>MCP</a>
+    <a class="sb-link" href="chapter-06.html"><span class="ch-n">06</span>GitHub Integration</a>
+    <a class="sb-link" href="chapter-07.html"><span class="ch-n">07</span>Advanced Workflows</a>
+    <a class="sb-link" href="chapter-08.html"><span class="ch-n">08</span>Subagents</a>
+    <a class="sb-link" href="chapter-09.html"><span class="ch-n">09</span>Output Styles</a>
+    <a class="sb-link" href="chapter-10.html"><span class="ch-n">10</span>Agent Skills</a>
+    <a class="sb-link" href="chapter-11.html"><span class="ch-n">11</span>Desktop</a>
+    <a class="sb-link" href="chapter-12.html"><span class="ch-n">12</span>Deep Agents</a>
+    <a class="sb-link" href="chapter-13.html"><span class="ch-n">13</span>Security</a>
+  </div>
+</aside>
+
+<main class="main-content">
+
+<!-- SECTION: What Is It -->
+<section class="section" id="what-is-ce">
+  <div class="section-eyebrow">
+    <span class="s-badge">Chapter 02</span>
+    <span class="s-cat">Foundations</span>
+  </div>
+  <h2>What is Context Engineering?</h2>
+  <p class="lead">Context engineering is the practice of designing what information an LLM receives — when it receives it, in what form, and how much of it. It has superseded "prompt engineering" as the primary skill in building reliable AI agents.</p>
+
+  <div class="sub" id="context-sources">
+    <h3><span class="material-symbols-rounded">inbox</span> Where Context Comes From</h3>
+    <p>Every LLM interaction draws from multiple context sources that accumulate in the context window simultaneously:</p>
+
+    <div class="mechanism">
+      <div class="mech-step">
+        <div class="mech-icon purple">1</div>
+        <div class="mech-body">
+          <h5>Developer context</h5>
+          <p>Instructions, memory files, system prompts, and project specifications you have intentionally loaded. This is the context you <em>design</em>.</p>
+        </div>
+      </div>
+      <div class="mech-step">
+        <div class="mech-icon blue">2</div>
+        <div class="mech-body">
+          <h5>User context</h5>
+          <p>The current message, follow-up questions, and any material the user pastes inline during the session.</p>
+        </div>
+      </div>
+      <div class="mech-step">
+        <div class="mech-icon orange">3</div>
+        <div class="mech-body">
+          <h5>Interaction history</h5>
+          <p>Every prior turn in the conversation — both messages and model responses — accumulates and grows throughout the session.</p>
+        </div>
+      </div>
+      <div class="mech-step">
+        <div class="mech-icon green">4</div>
+        <div class="mech-body">
+          <h5>Tool call results</h5>
+          <p>The output of every file read, shell command, web fetch, and MCP tool call is added to the context. Long outputs compound quickly.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout concept">
+      <div class="ct"><span class="material-symbols-rounded">key</span> Garbage In, Garbage Out</div>
+      <p>The quality of an agent's output is bounded by the quality of its context. Irrelevant, contradictory, or stale information in the context window directly degrades response quality — regardless of model capability. Context engineering is the act of keeping that window clean, relevant, and appropriately sized.</p>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- SECTION: Degradation -->
+<section class="section" id="degradation">
+  <div class="section-eyebrow"><span class="s-cat">Problems</span></div>
+  <h2>Context Degradation</h2>
+  <p class="lead">Long-running agentic tasks accumulate context, and as the window fills, performance degrades in three distinct ways. Understanding these patterns is necessary to diagnose and prevent them.</p>
+
+  <div class="sub">
+    <h3><span class="material-symbols-rounded">warning</span> The Three Degradation Types</h3>
+
+    <div class="feature-grid">
+      <div class="feature-card" style="border-top-color:var(--red)">
+        <span class="fc-icon"><span class="material-symbols-rounded">dangerous</span></span>
+        <h4>Context Poisoning</h4>
+        <p>The model generates incorrect information that gets appended to history. Subsequent turns treat the hallucination as fact, compounding the error.</p>
+      </div>
+      <div class="feature-card" style="border-top-color:var(--orange)">
+        <span class="fc-icon"><span class="material-symbols-rounded">waves</span></span>
+        <h4>Context Confusion</h4>
+        <p>The model receives more information than is relevant to the current task. Signal-to-noise ratio drops, causing inconsistent behavior and missed instructions.</p>
+      </div>
+      <div class="feature-card" style="border-top-color:var(--blue)">
+        <span class="fc-icon"><span class="material-symbols-rounded">bolt</span></span>
+        <h4>Context Clash</h4>
+        <p>Contradictory instructions from different sources (system prompt vs user message vs memory file) create ambiguity the model resolves unpredictably.</p>
+      </div>
+    </div>
+
+    <p>The root cause of all three is the same: <span class="hl-orange">context growing beyond what is useful for the current task</span>. The four strategies below are direct mitigations.</p>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- SECTION: Four Strategies -->
+<section class="section" id="four-strategies">
+  <div class="section-eyebrow"><span class="s-cat">Solutions</span></div>
+  <h2>The Four Strategies</h2>
+  <p class="lead">Claude Code implements context engineering through four complementary strategies. Each addresses a different aspect of the context management problem.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Strategy</th><th>Problem It Solves</th><th>Mechanism</th></tr></thead>
+      <tbody>
+        <tr><td>Persistent Memory</td><td>Context lost between sessions</td><td>Structured memory files loaded automatically</td></tr>
+        <tr><td>Intelligent Retrieval</td><td>Loading irrelevant context</td><td>Dynamic, conditional context injection</td></tr>
+        <tr><td>Compression</td><td>Context window overflow</td><td>/clear and /compact commands</td></tr>
+        <tr><td>Isolation</td><td>Context contamination across tasks</td><td>Specialized subagents with focused windows</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- SECTION: Persistent Memory -->
+<section class="section" id="persistent-memory">
+  <div class="section-eyebrow"><span class="s-cat">Strategy 1</span></div>
+  <h2>Persistent Memory Architecture</h2>
+  <p class="lead">Claude Code implements a three-tier memory hierarchy using <span class="ic">CLAUDE.md</span> files at different scopes. Each tier serves a distinct purpose and audience.</p>
+
+  <div class="sub">
+    <h3><span class="material-symbols-rounded">folder_open</span> The Three Memory Tiers</h3>
+
+    <div class="stats">
+      <div class="stat-card purple">
+        <div class="stat-val">Tier 1</div>
+        <div class="stat-lbl">Project Memory<br><small>CLAUDE.md in repo root</small></div>
+      </div>
+      <div class="stat-card blue">
+        <div class="stat-val">Tier 2</div>
+        <div class="stat-lbl">User Memory<br><small>~/.claude/CLAUDE.md</small></div>
+      </div>
+      <div class="stat-card green">
+        <div class="stat-val">Tier 3</div>
+        <div class="stat-lbl">Dynamic Imports<br><small>@ syntax at runtime</small></div>
+      </div>
+    </div>
+
+    <h4>Tier 1 — Project Memory</h4>
+    <p>A <span class="ic">CLAUDE.md</span> file in your repository root is automatically loaded every time Claude Code starts in that directory. It is version-controlled and shared with the entire team.</p>
+    <p>This file is the canonical source of truth for:</p>
+    <ul>
+      <li><strong>Architecture overview</strong> — how the project is structured and why</li>
+      <li><strong>Technology stack</strong> — frameworks, libraries, key dependencies</li>
+      <li><strong>Coding conventions</strong> — style rules, naming patterns, anti-patterns to avoid</li>
+      <li><strong>Build and test commands</strong> — how to run, build, lint, and test</li>
+      <li><strong>Key file locations</strong> — where the important code lives</li>
+    </ul>
+
+    <div class="code-block">
+      <div class="code-header"><span class="lang-label">markdown — CLAUDE.md</span><button class="copy-btn">Copy</button></div>
+      <pre><code><span class="cc"># Project: Auth Service</span>
+
+<span class="cs">## Architecture</span>
+Go microservice using chi router. PostgreSQL via pgx. JWT auth.
+All handlers in internal/handlers/, business logic in internal/service/.
+
+<span class="cs">## Commands</span>
+- Build: `make build`
+- Test:  `go test ./...`
+- Lint:  `golangci-lint run`
+
+<span class="cs">## Conventions</span>
+- Errors always wrapped with context: `fmt.Errorf("handler: %w", err)`
+- Table-driven tests with t.Run()
+- Never use global state</code></pre>
+    </div>
+
+    <h4>Tier 2 — User Memory</h4>
+    <p>Located at <span class="ic">~/.claude/CLAUDE.md</span>, this file is personal and never committed. It encodes your preferences, working style, and cross-project instructions.</p>
+    <ul>
+      <li>Preferred response verbosity</li>
+      <li>Personal coding conventions (e.g., "always use early returns")</li>
+      <li>Tools and aliases you use across projects</li>
+      <li>Tone and formatting preferences</li>
+    </ul>
+
+    <h4>Tier 3 — Dynamic Imports</h4>
+    <p>Reference any file in a prompt using the <span class="ic">@</span> prefix. The contents are injected inline at the point of reference:</p>
+    <div class="code-block">
+      <div class="code-header"><span class="lang-label">prompt</span><button class="copy-btn">Copy</button></div>
+      <pre><code>Review the implementation against @docs/spec/auth.md and suggest improvements</code></pre>
+    </div>
+    <p>Dynamic imports are ideal for context that is only relevant to specific tasks. Don't load every spec file by default — import them when needed.</p>
+
+    <div class="callout tip">
+      <div class="ct"><span class="material-symbols-rounded">lightbulb</span> Specificity Wins</div>
+      <p>Claude Code traverses parent directories and inherits memory files. A <span class="ic">CLAUDE.md</span> inside <span class="ic">internal/service/</span> will be loaded when working in that directory, in addition to the root one. Use this to give subsystems their own focused context without polluting the top-level file.</p>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- SECTION: Intelligent Retrieval -->
+<section class="section" id="context-retrieval">
+  <div class="section-eyebrow"><span class="s-cat">Strategy 2</span></div>
+  <h2>Intelligent Context Retrieval</h2>
+  <p class="lead">Rather than loading all available context upfront, Claude Code retrieves context conditionally — based on directory, file type, tool use, and explicit user signals.</p>
+
+  <div class="sub">
+    <h3><span class="material-symbols-rounded">search</span> Discovery Mechanisms</h3>
+    <h4>Automatic Folder Traversal</h4>
+    <p>When Claude Code opens or edits a file, it checks for <span class="ic">CLAUDE.md</span> files in that file's directory and all parent directories up to the project root. More specific context takes priority over general context.</p>
+
+    <h4>Tool-Specific Context</h4>
+    <p>Claude Code can inject context when specific tools are invoked. For example, a terminal tool use might load a <span class="ic">COMMANDS.md</span> reference automatically — without that reference being in the context when only reading files.</p>
+
+    <h4>User Quick-Add with <span class="ic">#</span></h4>
+    <p>Type <span class="ic">#</span> in the Claude Code REPL to surface a file picker. Selected files are injected into the current context for that turn only — useful for ad-hoc reference without permanently adding to memory.</p>
+
+    <div class="callout info">
+      <div class="ct"><span class="material-symbols-rounded">info</span> Conditional Loading Pattern</div>
+      <p>A common pattern is to keep a general <span class="ic">CLAUDE.md</span> at root and store domain-specific memory in subdirectory files (e.g., <span class="ic">frontend/CLAUDE.md</span>, <span class="ic">api/CLAUDE.md</span>). Claude Code loads subsystem context only when actually working in that subsystem — reducing total context without losing coverage.</p>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- SECTION: Compression -->
+<section class="section" id="compression">
+  <div class="section-eyebrow"><span class="s-cat">Strategy 3</span></div>
+  <h2>Context Compression</h2>
+  <p class="lead">When the conversation history grows too large to be useful, two commands let you reclaim context window space without losing the persistent memory you've invested in.</p>
+
+  <div class="sub">
+    <h3><span class="material-symbols-rounded">compress</span> /clear vs /compact</h3>
+
+    <div class="compare">
+      <div class="compare-col good">
+        <div class="ch4-head" style="color:var(--blue)">/clear — Wipe Conversation</div>
+        <p>Removes all conversation history from the context window. Memory files (<span class="ic">CLAUDE.md</span>) are <strong>preserved</strong> and reloaded in the new context.</p>
+        <p style="margin-top:10px;font-size:0.8rem;color:var(--text-3)">Use when: Starting a new task, context is polluted, or the conversation history is no longer relevant.</p>
+      </div>
+      <div class="compare-col bad">
+        <div class="ch4-head" style="color:var(--purple)">/compact — Compress Conversation</div>
+        <p>Summarizes the conversation into a compressed representation. Key decisions, code changes, and context are retained in condensed form.</p>
+        <p style="margin-top:10px;font-size:0.8rem;color:var(--text-3)">Use when: You want to continue a long task but the history has grown unwieldy.</p>
+      </div>
+    </div>
+
+    <h4>Starting Fresh Sessions</h4>
+    <p>For major task switches, the most reliable approach is to exit Claude Code entirely and start a new session. Memory files are reloaded clean, without any prior turn residue.</p>
+
+    <div class="code-block">
+      <div class="code-header"><span class="lang-label">bash</span><button class="copy-btn">Copy</button></div>
+      <pre><code><span class="cc"># Inside REPL — wipe conversation history, keep memory files</span>
+<span class="cg">/clear</span>
+
+<span class="cc"># Inside REPL — compress history to essential context</span>
+<span class="cg">/compact</span>
+
+<span class="cc"># Exit completely, start fresh next run</span>
+<span class="cg">/exit</span></code></pre>
+    </div>
+
+    <div class="callout warn">
+      <div class="ct"><span class="material-symbols-rounded">warning</span> When to Intervene</div>
+      <p>Watch for these signals that context needs compression: responses becoming less precise, Claude Code "forgetting" constraints you set earlier in the session, or noticeably slower/more expensive responses. These indicate the context window is filling with low-signal content.</p>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- SECTION: Isolation -->
+<section class="section" id="isolation">
+  <div class="section-eyebrow"><span class="s-cat">Strategy 4</span></div>
+  <h2>Context Isolation via Subagents</h2>
+  <p class="lead">The most powerful context engineering technique is using specialized subagents — each with a narrow, focused context window — rather than doing all work in a single accumulating session.</p>
+
+  <div class="sub">
+    <h3><span class="material-symbols-rounded">smart_toy</span> The Specialization Principle</h3>
+    <p>When the main Claude Code instance needs a code review, it spawns a <span class="hl-purple">dedicated code reviewer subagent</span> with only the diff as context. That agent has never seen the debugging session, the failed test attempts, or the earlier design discussions. It reviews with fresh eyes.</p>
+
+    <p>Common subagent specializations:</p>
+    <ul>
+      <li><strong>Code Reviewer</strong> — reads only the diff, applies quality standards</li>
+      <li><strong>Security Auditor</strong> — scans for vulnerabilities, no business logic context needed</li>
+      <li><strong>Test Writer</strong> — receives the implementation and test framework context only</li>
+      <li><strong>Documentation Writer</strong> — sees the public API surface, not the implementation details</li>
+      <li><strong>Research Agent</strong> — performs web search and synthesis without modifying code</li>
+    </ul>
+
+    <div class="callout concept">
+      <div class="ct"><span class="material-symbols-rounded">key</span> Why Isolation Improves Quality</div>
+      <p>An agent with 200k tokens of mixed context — debugging, refactoring, configuration, planning — will produce lower quality specialized output than an agent with 10k tokens of precisely relevant context. Context isolation is a direct quality multiplier, not just an efficiency optimization.</p>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- SECTION: System Prompt -->
+<section class="section" id="system-prompt">
+  <div class="section-eyebrow"><span class="s-cat">Advanced</span></div>
+  <h2>System Prompt Design</h2>
+  <p class="lead">The system prompt (primarily your <span class="ic">CLAUDE.md</span>) is the most stable and influential piece of context. Designing it well requires avoiding two opposite failure modes.</p>
+
+  <div class="sub">
+    <h3><span class="material-symbols-rounded">balance</span> The Goldilocks Zone</h3>
+
+    <div class="compare">
+      <div class="compare-col good">
+        <div class="ch4-head"><span class="material-symbols-rounded">cancel</span> Too Specific (Brittle)</div>
+        <p>Treating the LLM as a deterministic state machine. Exhaustive enumeration of every case. Hardcoded logic and decision trees. Maintenance nightmare — any uncovered case falls through to undefined behavior.</p>
+        <div style="margin-top:12px;font-size:0.8rem;color:var(--red)">
+          "If the user asks about X, do Y. If they ask about Z, do W. If both X and Z, do..."
+        </div>
+      </div>
+      <div class="compare-col bad">
+        <div class="ch4-head"><span class="material-symbols-rounded">cancel</span> Too Vague (Unpredictable)</div>
+        <p>Insufficient signal. False assumptions about default behavior. Undefined boundaries lead to inconsistent results. "Do the right thing" without defining what right means for this context.</p>
+        <div style="margin-top:12px;font-size:0.8rem;color:var(--orange)">
+          "Be helpful and write good code."
+        </div>
+      </div>
+    </div>
+
+    <h4>The Balanced Approach</h4>
+    <p>Effective system prompts <span class="hl-purple">establish principles rather than procedures</span>. LLMs excel at applying general rules to specific situations — lean into that capability instead of fighting it.</p>
+
+    <div class="code-block">
+      <div class="code-header"><span class="lang-label">markdown — effective CLAUDE.md pattern</span><button class="copy-btn">Copy</button></div>
+      <pre><code><span class="cc"># Identity and scope (clear, not exhaustive)</span>
+You are working on the Auth Service — a Go microservice handling JWT authentication.
+
+<span class="cc"># Principles (not procedures)</span>
+- Prioritize correctness over cleverness
+- When uncertain between two approaches, prefer the simpler one
+- Security boundaries are hard constraints, not guidelines
+
+<span class="cc"># Boundaries (what NOT to do)</span>
+- Never modify the public API contract without flagging it
+- Do not add dependencies not already in go.mod without asking
+
+<span class="cc"># Reasoning framework</span>
+For any non-trivial change: state what you are changing, why, and what could break.</code></pre>
+    </div>
+
+    <div class="callout tip">
+      <div class="ct"><span class="material-symbols-rounded">lightbulb</span> Principles Over Rules</div>
+      <p>A single well-stated principle handles more situations than ten specific rules. "Prefer the simpler implementation" handles thousands of micro-decisions. A rule like "use early returns when the condition has more than 2 branches" handles only one. Write principles; let the model apply them.</p>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- SECTION: Context Window Explained -->
+<section class="section" id="context-window">
+  <div class="section-eyebrow"><span class="s-cat">Foundations</span></div>
+  <h2>The Context Window Explained</h2>
+  <p class="lead">Before you can manage context effectively, you need to understand what it is and why it degrades. The context window is the single most important constraint in working with any LLM agent.</p>
+
+  <div class="sub" id="context-window-analogy">
+    <h3><span class="material-symbols-rounded">memory</span> Context Window as Working Memory</h3>
+    <p>Think of the context window as <span class="hl-purple">RAM for the AI</span>. Just as a computer loads the currently-needed program data into RAM to work with it, Claude loads the currently-needed information into its context window to reason about it.</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Analogy</th><th>Context Window Equivalent</th><th>Implication</th></tr></thead>
+        <tbody>
+          <tr><td>RAM capacity</td><td>Token limit (e.g., 200k tokens)</td><td>There is a hard upper bound — fill it and things break</td></tr>
+          <tr><td>Programs loaded in RAM</td><td>Files read + conversation history</td><td>Everything Claude has "seen" this session is in context</td></tr>
+          <tr><td>RAM getting full</td><td>Context window nearing limit</td><td>Performance degrades before the hard limit is hit</td></tr>
+          <tr><td>Closing programs to free RAM</td><td>/clear or /compact</td><td>Reclaim context space without losing persistent memory</td></tr>
+          <tr><td>Hard disk (persistent storage)</td><td>CLAUDE.md files</td><td>Survives session end; reloaded into context on next start</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>The key insight from this analogy: <span class="hl-orange">not everything needs to be in RAM at once</span>. A well-designed CLAUDE.md is a compact summary that fits in context efficiently. A badly managed session loads entire files and lengthy tool outputs that are no longer relevant, wasting context space on stale data.</p>
+
+    <div class="callout note">
+      <strong>Note:</strong> Tokens are roughly 3-4 characters of text. A 200k token context window sounds enormous — but a single large file read, a few test outputs, and a long conversation can fill it faster than you expect. Context engineering is the discipline of using that space deliberately.
+    </div>
+  </div>
+
+  <div class="sub" id="what-consumes-context">
+    <h3><span class="material-symbols-rounded">data_usage</span> What Consumes Context</h3>
+    <p>Every item below adds tokens to the context window and is never removed until you run <span class="ic">/clear</span> or <span class="ic">/compact</span>:</p>
+
+    <div class="feature-grid">
+      <div class="feature-card" style="border-top-color:var(--purple)">
+        <span class="fc-icon"><span class="material-symbols-rounded">chat</span></span>
+        <h4>Conversation History</h4>
+        <p>Every message you send and every response Claude gives is added to history. A 100-turn session has 100x the baseline context of a fresh start.</p>
+      </div>
+      <div class="feature-card" style="border-top-color:var(--blue)">
+        <span class="fc-icon"><span class="material-symbols-rounded">folder_open</span></span>
+        <h4>File Reads</h4>
+        <p>When Claude reads a file — even one you did not ask it to read — the full file contents enter the context window and stay there for the session.</p>
+      </div>
+      <div class="feature-card" style="border-top-color:var(--orange)">
+        <span class="fc-icon"><span class="material-symbols-rounded">terminal</span></span>
+        <h4>Command Output</h4>
+        <p>Running tests, builds, or linters generates verbose output. A failing test suite output can be thousands of tokens of stack traces and log lines.</p>
+      </div>
+      <div class="feature-card" style="border-top-color:var(--green)">
+        <span class="fc-icon"><span class="material-symbols-rounded">description</span></span>
+        <h4>CLAUDE.md Files</h4>
+        <p>Memory files are loaded automatically. A bloated CLAUDE.md with 5,000 tokens of content uses 5,000 tokens of context before a single turn happens.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- SECTION: CLAUDE.md Deep Dive -->
+<section class="section" id="claudemd-deep-dive">
+  <div class="section-eyebrow"><span class="s-cat">Strategy 1 — Deep Dive</span></div>
+  <h2>CLAUDE.md Deep Dive</h2>
+  <p class="lead">CLAUDE.md is the most powerful context management tool available. Investing 30 minutes to write a good one returns that investment on the first non-trivial session. Here is everything you need to know to write one effectively.</p>
+
+  <div class="sub" id="claudemd-hierarchy">
+    <h3><span class="material-symbols-rounded">account_tree</span> The Hierarchy: Global → Project → Local</h3>
+    <p>Claude Code loads CLAUDE.md files in a specific precedence order. More specific files take priority over more general ones:</p>
+
+    <div class="mechanism">
+      <div class="mech-step">
+        <div class="mech-icon blue">1</div>
+        <div class="mech-body">
+          <h5>Global — <span class="ic">~/.claude/CLAUDE.md</span></h5>
+          <p>Personal preferences that apply to every project on your machine. Never committed to version control. Contains your individual coding style, preferred response format, and cross-project tools.</p>
+        </div>
+      </div>
+      <div class="mech-step">
+        <div class="mech-icon purple">2</div>
+        <div class="mech-body">
+          <h5>Project Root — <span class="ic">./CLAUDE.md</span></h5>
+          <p>Committed to the repository. Shared with the entire team. The primary source of project-specific context: architecture, stack, commands, conventions.</p>
+        </div>
+      </div>
+      <div class="mech-step">
+        <div class="mech-icon green">3</div>
+        <div class="mech-body">
+          <h5>Subdirectory — <span class="ic">./internal/service/CLAUDE.md</span></h5>
+          <p>Loaded automatically when Claude Code is working in that subdirectory. Use for subsystem-specific context that would clutter the root file.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout info">
+      <strong>Info:</strong> All three levels are loaded simultaneously and merged. If the global CLAUDE.md says "use early returns" and the project CLAUDE.md says "this service uses a specific error wrapping pattern", both instructions are active. There is no conflict unless they directly contradict each other.
+    </div>
+  </div>
+
+  <div class="sub" id="claudemd-what-to-include">
+    <h3><span class="material-symbols-rounded">checklist</span> What to Put in CLAUDE.md</h3>
+    <p>A well-structured project CLAUDE.md covers these sections. Not all are required for every project — include what is genuinely non-obvious.</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Section</th><th>What to Include</th><th>Priority</th></tr></thead>
+        <tbody>
+          <tr><td>Architecture Overview</td><td>Service boundaries, key components, how the system fits together</td><td class="td-req">High</td></tr>
+          <tr><td>Tech Stack</td><td>Language version, frameworks, key libraries and why they were chosen</td><td class="td-req">High</td></tr>
+          <tr><td>Build & Test Commands</td><td>Exact commands to build, test, lint, and run locally</td><td class="td-req">High</td></tr>
+          <tr><td>Coding Conventions</td><td>Naming patterns, error handling style, anti-patterns to avoid</td><td class="td-opt">High</td></tr>
+          <tr><td>Key File Locations</td><td>Where the important code lives — handlers, models, config, tests</td><td class="td-opt">Medium</td></tr>
+          <tr><td>Out-of-Bounds Areas</td><td>Files or patterns Claude should never modify without explicit instruction</td><td class="td-opt">Medium</td></tr>
+          <tr><td>Known Gotchas</td><td>Subtle constraints, legacy decisions, non-obvious rules</td><td class="td-ok">Medium</td></tr>
+          <tr><td>PR/Commit Conventions</td><td>Commit message format, branch naming, PR description format</td><td class="td-ok">Low</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="sub" id="claudemd-full-example">
+    <h3><span class="material-symbols-rounded">article</span> Full Example CLAUDE.md</h3>
+    <p>This is a production-quality CLAUDE.md for a Go microservice. Use it as a template — replace the specifics with your own project's details.</p>
+
+    <div class="code-block">
+      <div class="code-header">
+        <span class="lang-label">markdown — CLAUDE.md (project root)</span>
+        <button class="copy-btn">Copy</button>
+      </div>
+      <pre><code># Auth Service
+
+## Architecture
+Go microservice for JWT authentication and user management.
+Exposes a REST API on port 8080. Communicates with PostgreSQL for
+user storage and Redis for token blacklisting.
+
+Service layout:
+- cmd/server/         — entry point, dependency wiring
+- internal/handlers/  — HTTP handlers (chi router)
+- internal/service/   — business logic (no HTTP concerns)
+- internal/store/     — database access (pgx, no ORM)
+- internal/middleware/ — auth, logging, recovery middleware
+- pkg/jwt/            — JWT utility package (shared with other services)
+
+## Tech Stack
+- Go 1.23
+- chi v5 (router)
+- pgx v5 (PostgreSQL driver — never use database/sql)
+- Redis 7 via go-redis v9
+- JWT via golang-jwt/jwt v5
+- Testify for unit tests, no test framework for integration tests
+
+## Commands
+- Build:     make build
+- Test:      go test ./...
+- Lint:      golangci-lint run
+- Run local: make run (requires POSTGRES_URL and REDIS_URL in .env)
+- Migrate:   make migrate-up / make migrate-down
+
+## Coding Conventions
+- All errors must be wrapped with context: fmt.Errorf("handler.CreateUser: %w", err)
+- Use early returns for error handling — do not nest success paths
+- Table-driven tests with t.Run() for all unit tests
+- SQL queries use named parameters, never positional ($1, $2) for readability
+- No global state. All dependencies injected through struct fields.
+- HTTP handler functions must not contain business logic — delegate to service layer
+
+## Key Constraints
+- Never modify pkg/jwt/ — it is shared with other services and has its own release cycle
+- Do not add new direct PostgreSQL queries in handlers/ — route through store/ layer
+- Do not add dependencies to go.mod without asking — dependency changes need team review
+- The /health endpoint must remain side-effect free (no DB calls)
+
+## Known Gotchas
+- The User struct has both ID (int64) and PublicID (uuid) — external APIs use PublicID only
+- Token expiry is in UTC. The clock skew tolerance is 30 seconds (configured in pkg/jwt/config.go)
+- Redis connection pool size is tuned for the production cluster — do not change pool settings</code></pre>
+    </div>
+
+    <div class="callout tip">
+      <strong>Tip:</strong> Keep CLAUDE.md under 500 lines. If it grows larger, split it: move subsystem-specific content into subdirectory CLAUDE.md files. The root file should be a quick orientation, not an exhaustive manual.
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- SECTION: Practical /compact Usage -->
+<section class="section" id="compact-in-practice">
+  <div class="section-eyebrow"><span class="s-cat">Strategy 3 — In Practice</span></div>
+  <h2>Practical /compact Usage</h2>
+  <p class="lead">The <span class="ic">/compact</span> command is a precision tool — it compresses your conversation history into a condensed summary without erasing your memory files or losing the thread of a long task.</p>
+
+  <div class="sub" id="compact-what-preserved">
+    <h3><span class="material-symbols-rounded">save</span> What Gets Preserved vs. Lost</h3>
+
+    <div class="compare">
+      <div class="compare-col good">
+        <h4><strong>✓</strong> Preserved After /compact</h4>
+        <div class="code-block">
+          <div class="code-header"><span class="lang-label">preserved</span><button class="copy-btn">Copy</button></div>
+          <pre><code>CLAUDE.md memory files (reloaded)
+Key decisions made in the session
+Which files were edited and how
+The current task goal and progress
+Code that was written or changed
+Errors encountered and how they were resolved</code></pre>
+        </div>
+      </div>
+      <div class="compare-col bad">
+        <h4><strong>✗</strong> Lost After /compact</h4>
+        <div class="code-block">
+          <div class="code-header"><span class="lang-label">lost</span><button class="copy-btn">Copy</button></div>
+          <pre><code>Verbatim conversation turns
+Exact tool call inputs/outputs
+Intermediate reasoning steps
+Full file contents that were read
+Specific error messages and stack traces
+The chronological sequence of actions</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout warning">
+      <strong>Warning:</strong> After <span class="ic">/compact</span>, Claude Code works from a summary, not the original history. If you need to reference a specific intermediate state or exact error message from earlier in the session, note it down before compacting. The summary may omit details you consider important.
+    </div>
+  </div>
+
+  <div class="sub" id="compact-when-to-use">
+    <h3><span class="material-symbols-rounded">schedule</span> When to Use /compact</h3>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Situation</th><th>Use /compact?</th><th>Alternative</th></tr></thead>
+        <tbody>
+          <tr><td>Long task, still in progress, history getting unwieldy</td><td class="td-req">Yes — /compact</td><td>—</td></tr>
+          <tr><td>Task complete, starting something new</td><td class="td-ok">No</td><td>/clear is cleaner</td></tr>
+          <tr><td>Context poisoning — bad info in history</td><td class="td-ok">No</td><td>/clear removes the bad info entirely</td></tr>
+          <tr><td>Approaching token limit warning</td><td class="td-req">Yes — /compact first</td><td>New session if task can be split</td></tr>
+          <tr><td>Debugging session, need to try different approach</td><td class="td-ok">Optional</td><td>/clear gives truly fresh eyes</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- SECTION: Context Strategies in Practice -->
+<section class="section" id="strategies-in-practice">
+  <div class="section-eyebrow"><span class="s-cat">Applied Patterns</span></div>
+  <h2>Context Strategies in Practice</h2>
+  <p class="lead">Theory is only useful if it changes behavior. These before/after examples show what good and bad context management look like in real usage.</p>
+
+  <div class="sub">
+    <h3><span class="material-symbols-rounded">compare_arrows</span> Before and After</h3>
+
+    <div class="compare">
+      <div class="compare-col bad">
+        <h4><strong>✗</strong> Poor Context Management</h4>
+        <div class="code-block">
+          <div class="code-header"><span class="lang-label">session — problematic</span><button class="copy-btn">Copy</button></div>
+          <pre><code>// Monday morning: debug a login bug
+// ... 40 turns of debugging ...
+// ... fixes auth middleware ...
+
+// Same session, Monday afternoon:
+"Now can you add a new /metrics endpoint?"
+
+// Claude still has 40 turns of auth
+// debugging context. It will:
+// - Reference auth code unnecessarily
+// - Potentially apply auth patterns to
+//   metrics that do not need them
+// - Use more tokens for worse results</code></pre>
+        </div>
+      </div>
+      <div class="compare-col good">
+        <h4><strong>✓</strong> Good Context Management</h4>
+        <div class="code-block">
+          <div class="code-header"><span class="lang-label">session — effective</span><button class="copy-btn">Copy</button></div>
+          <pre><code>// Monday morning: debug a login bug
+// ... 40 turns of debugging ...
+// ... fixes committed to git ...
+
+/clear  // ← wipe auth debugging context
+
+// Monday afternoon (clean context):
+"Add a /metrics endpoint that exposes
+Prometheus-format runtime stats.
+See @spec/metrics.md for requirements."
+
+// Claude now has: CLAUDE.md + spec only
+// Clean, focused, no auth residue</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="compare">
+      <div class="compare-col bad">
+        <h4><strong>✗</strong> Overloaded CLAUDE.md</h4>
+        <div class="code-block">
+          <div class="code-header"><span class="lang-label">markdown</span><button class="copy-btn">Copy</button></div>
+          <pre><code># Project Context
+[2,000 lines of documentation,
+every API endpoint listed,
+full database schema,
+all historical decisions,
+meeting notes from last quarter,
+onboarding guide for new engineers,
+deployment runbook,
+incident postmortems...]</code></pre>
+        </div>
+        <p>Loaded on every session whether relevant or not. Most of it noise for any given task.</p>
+      </div>
+      <div class="compare-col good">
+        <h4><strong>✓</strong> Focused CLAUDE.md with Dynamic Imports</h4>
+        <div class="code-block">
+          <div class="code-header"><span class="lang-label">markdown</span><button class="copy-btn">Copy</button></div>
+          <pre><code># Project Context (root — always loaded)
+Architecture overview: 5 lines
+Stack: 5 lines
+Build commands: 5 lines
+Conventions: 10 lines
+Key constraints: 5 lines
+
+# When needed, load explicitly:
+"Review @docs/api-schema.md and
+implement the /users endpoint"</code></pre>
+        </div>
+        <p>Root file is compact. Detailed references loaded only when the task requires them.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- SECTION: System Prompt Design Best Practices -->
+<section class="section" id="system-prompt-best-practices">
+  <div class="section-eyebrow"><span class="s-cat">Advanced — System Prompts</span></div>
+  <h2>System Prompt Design Best Practices</h2>
+  <p class="lead">The system prompt (via CLAUDE.md) is the highest-priority context in every session. These patterns make it consistently effective rather than just occasionally useful.</p>
+
+  <div class="sub">
+    <h3><span class="material-symbols-rounded">format_list_bulleted</span> Concrete Patterns That Work</h3>
+
+    <h4>1. State Identity and Scope First</h4>
+    <p>The first lines of CLAUDE.md should answer: what is this project and what is Claude's role in it? This anchors every subsequent decision.</p>
+    <div class="code-block">
+      <div class="code-header"><span class="lang-label">markdown — effective opening</span><button class="copy-btn">Copy</button></div>
+      <pre><code>You are working on the Payments Service — a Go microservice that
+processes credit card transactions. All changes must maintain PCI-DSS
+compliance. When in doubt, choose the more conservative implementation.</code></pre>
+    </div>
+
+    <h4>2. Prefer Principles Over Procedures</h4>
+    <p>A principle handles infinitely more situations than a procedure. Do not enumerate every case — state the rule that governs all cases.</p>
+    <div class="compare">
+      <div class="compare-col bad">
+        <h4><strong>✗</strong> Procedural (Brittle)</h4>
+        <div class="code-block">
+          <div class="code-header"><span class="lang-label">markdown</span><button class="copy-btn">Copy</button></div>
+          <pre><code>If adding a function, wrap errors.
+If editing a function, wrap errors.
+If the function calls another function,
+wrap those errors too.
+If the function is in handlers/, prefix
+with "handler.FunctionName:".
+If it is in service/, prefix with
+"service.FunctionName:"...</code></pre>
+        </div>
+      </div>
+      <div class="compare-col good">
+        <h4><strong>✓</strong> Principled (Flexible)</h4>
+        <div class="code-block">
+          <div class="code-header"><span class="lang-label">markdown</span><button class="copy-btn">Copy</button></div>
+          <pre><code>Always wrap errors with the calling
+function's package and name as context:
+fmt.Errorf("package.FuncName: %w", err)
+This applies everywhere in the codebase.</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <h4>3. Make Boundaries Explicit</h4>
+    <p>List what Claude should never do without explicit permission. Hard constraints prevent well-intentioned overreach.</p>
+    <div class="code-block">
+      <div class="code-header"><span class="lang-label">markdown — effective constraints section</span><button class="copy-btn">Copy</button></div>
+      <pre><code>## Hard Constraints (never do without asking)
+- Do not add entries to go.mod
+- Do not modify database migration files
+- Do not change any exported function signatures in pkg/
+- Do not commit or push to git</code></pre>
+    </div>
+
+    <h4>4. Include a Reasoning Framework</h4>
+    <p>Tell Claude how to approach ambiguity. A short reasoning protocol prevents guessing behavior on edge cases.</p>
+    <div class="code-block">
+      <div class="code-header"><span class="lang-label">markdown — reasoning framework</span><button class="copy-btn">Copy</button></div>
+      <pre><code>## When Uncertain
+- If a change touches more than 3 files, describe the plan before executing
+- If two approaches are equally valid, choose the one that changes fewer files
+- If a requirement is ambiguous, ask before implementing</code></pre>
+    </div>
+
+    <div class="callout tip">
+      <strong>Tip:</strong> After writing a CLAUDE.md, test it immediately with a fresh session. Ask Claude Code to summarize what it knows about the project. If the summary is accurate and complete, the context file is working. If it misses key constraints, add them and retest.
+    </div>
+  </div>
+</section>
+
+<!-- Chapter nav footer -->
+<div style="display:flex;justify-content:space-between;padding-top:32px;border-top:1px solid var(--border-dim);">
+  <a href="chapter-01.html" class="btn-secondary" style="text-decoration:none">← Introduction</a>
+  <a href="chapter-03.html" class="btn-primary" style="text-decoration:none">Claude Code Essentials →</a>
+</div>
+
+</main>
+
+<aside class="toc-panel"><div id="page-toc"></div></aside>
+</div>
+
+<div id="back-to-top">↑</div>
+<div id="sidebar-overlay"></div>
+
+<div id="cmd-overlay">
+  <div id="cmd-palette">
+    <div class="cmd-search">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398l3.85 3.85a1 1 0 0 0 1.415-1.415l-3.868-3.833zm-5.242 1.156a5 5 0 1 1 0-10 5 5 0 0 1 0 10z"/></svg>
+      <input type="text" id="cmd-input" placeholder="Search chapters and sections..." autocomplete="off" spellcheck="false">
+      <kbd>esc</kbd>
+    </div>
+    <div class="cmd-results" id="cmd-results"></div>
+    <div class="cmd-footer">
+      <span class="cmd-hint"><kbd>↑↓</kbd> navigate</span>
+      <span class="cmd-hint"><kbd>↵</kbd> open</span>
+      <span class="cmd-hint"><kbd>esc</kbd> close</span>
+    </div>
+  </div>
+</div>
+
+<script src="assets/app.js"></script>
+</body>
+</html>

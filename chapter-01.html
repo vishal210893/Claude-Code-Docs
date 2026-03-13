@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ch.01 — Introduction to Claude Code</title>
+<link rel="stylesheet" href="assets/styles.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
+</head>
+<body>
+
+<div id="progress-bar"></div>
+
+<!-- ── Navbar ── -->
+<nav class="top-nav">
+  <button class="mobile-menu-btn" id="mobile-menu-btn" title="Menu"><span class="material-symbols-rounded">menu</span></button>
+  <a class="nav-logo" href="index.html">
+    <div class="nav-logo-icon">CC</div>
+    <span class="nav-logo-text">Claude <em>Code</em></span>
+  </a>
+  <span class="nav-ver">Docs v1.0</span>
+  <div class="nav-spacer"></div>
+  <button class="search-trigger">
+    <span class="material-symbols-rounded">search</span>
+    <span>Search docs...</span>
+    <kbd>⌘K</kbd>
+  </button>
+  <button class="theme-toggle" id="theme-toggle"><span class="material-symbols-rounded">light_mode</span></button>
+</nav>
+
+<!-- ── Page Header ── -->
+<div class="page-header">
+  <div class="breadcrumb">
+    <a href="index.html">Home</a>
+    <span class="sep">/</span>
+    <span class="cur">Chapter 01 — Introduction</span>
+  </div>
+  <h1>Introduction to Claude Code</h1>
+  <p class="subtitle">Claude Code is Anthropic's official agentic coding CLI — it gives Claude direct access to your codebase, terminal, and development environment to complete engineering tasks autonomously, end-to-end.</p>
+  <div class="tag-row">
+    <span class="tag purple">Chapter 01</span>
+    <span class="tag green">Getting Started</span>
+    <span class="tag blue">Prerequisites</span>
+    <span class="tag orange">Installation</span>
+  </div>
+</div>
+
+<div class="layout">
+
+<!-- ── Sidebar ── -->
+<aside class="sidebar">
+  <div class="sb-section">
+    <div class="sb-label">Documentation</div>
+    <a class="sb-link" href="index.html">Overview</a>
+  </div>
+  <div class="sb-section">
+    <div class="sb-label">Chapters</div>
+    <a class="sb-link active" href="chapter-01.html"><span class="ch-n">01</span>Introduction</a>
+    <a class="sb-link" href="chapter-02.html"><span class="ch-n">02</span>Context Engineering</a>
+    <a class="sb-link" href="chapter-03.html"><span class="ch-n">03</span>Claude Code Essentials</a>
+    <a class="sb-link" href="chapter-04.html"><span class="ch-n">04</span>Essential Commands</a>
+    <a class="sb-link" href="chapter-05.html"><span class="ch-n">05</span>MCP</a>
+    <a class="sb-link" href="chapter-06.html"><span class="ch-n">06</span>GitHub Integration</a>
+    <a class="sb-link" href="chapter-07.html"><span class="ch-n">07</span>Advanced Workflows</a>
+    <a class="sb-link" href="chapter-08.html"><span class="ch-n">08</span>Subagents</a>
+    <a class="sb-link" href="chapter-09.html"><span class="ch-n">09</span>Output Styles</a>
+    <a class="sb-link" href="chapter-10.html"><span class="ch-n">10</span>Agent Skills</a>
+    <a class="sb-link" href="chapter-11.html"><span class="ch-n">11</span>Desktop</a>
+    <a class="sb-link" href="chapter-12.html"><span class="ch-n">12</span>Deep Agents</a>
+    <a class="sb-link" href="chapter-13.html"><span class="ch-n">13</span>Security</a>
+  </div>
+</aside>
+
+<!-- ── Main ── -->
+<main class="main-content">
+
+<!-- SECTION: Overview -->
+<section class="section" id="overview">
+  <div class="section-eyebrow">
+    <span class="s-badge">Chapter 01</span>
+    <span class="s-cat">Introduction</span>
+  </div>
+  <h2 id="what-is-cc">What is Claude Code?</h2>
+  <p class="lead">Claude Code is a command-line tool that embeds Claude directly into your development workflow. Unlike a chat interface, it operates autonomously within your terminal — reading files, running commands, editing code, managing git, and coordinating multiple specialized agents — all to complete engineering tasks end-to-end.</p>
+
+  <div class="sub" id="agentic-shift">
+    <h3><span class="material-symbols-rounded">bolt</span> The Agentic Shift</h3>
+    <p>Traditional AI coding tools operate in a <span class="hl-orange">request-response loop</span>. You write a prompt, get a suggestion, accept or reject it. Claude Code operates differently.</p>
+
+    <div class="compare">
+      <div class="compare-col good">
+        <div class="ch4-head"><span class="material-symbols-rounded">warning</span> Traditional AI Coding Assistant</div>
+        <p>You ask a question. It responds. You apply the change manually. Every step requires your explicit action. The model has no knowledge of your filesystem, running processes, or git state unless you paste it in.</p>
+      </div>
+      <div class="compare-col bad">
+        <div class="ch4-head"><span class="material-symbols-rounded">check_circle</span> Claude Code (Agentic)</div>
+        <p>You describe a goal. Claude Code reads your codebase, plans a sequence of actions, edits files, runs tests, checks git status, and reports back with results — all autonomously. You review the outcome, not every step.</p>
+      </div>
+    </div>
+
+    <p>This distinction has direct implications for how you work: rather than crafting precise prompts for individual edits, you define <span class="hl-purple">goals and constraints</span>, then let Claude Code figure out the path.</p>
+
+    <div class="callout concept">
+      <div class="ct"><span class="material-symbols-rounded">key</span> Core Mental Model</div>
+      <p>Claude Code is not a smarter autocomplete. It is an autonomous agent that takes multi-step actions. The shift from "assistant that suggests" to "agent that executes" is the single most important reframe when working with it.</p>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- SECTION: How Claude Code Works -->
+<section class="section" id="how-it-works">
+  <div class="section-eyebrow">
+    <span class="s-cat">Under the Hood</span>
+  </div>
+  <h2 id="agentic-loop">How Claude Code Works</h2>
+  <p class="lead">Claude Code is not just a language model with file access. It operates through a structured <span class="hl-purple">agentic loop</span> — a repeating cycle of perception, planning, action, and observation that continues until the task is complete.</p>
+
+  <div class="sub" id="perceive-plan-act">
+    <h3><span class="material-symbols-rounded">cycle</span> The Perceive → Plan → Act → Observe Loop</h3>
+    <p>Every Claude Code interaction — whether a single command or a multi-hour task — runs through the same four-phase cycle:</p>
+
+    <div class="mechanism">
+      <div class="mech-step">
+        <div class="mech-icon purple">1</div>
+        <div class="mech-body">
+          <h5>Perceive</h5>
+          <p>Claude Code reads its inputs: your prompt, the CLAUDE.md memory files, conversation history, and any files or tool outputs already in context. This is what the model "knows" before it acts.</p>
+        </div>
+      </div>
+      <div class="mech-step">
+        <div class="mech-icon blue">2</div>
+        <div class="mech-body">
+          <h5>Plan</h5>
+          <p>The model reasons about what tools to invoke, in what order, and with what parameters. It decides: "I need to read auth.go first, then check the test file, then make the edit." This planning happens as internal reasoning before any tool is called.</p>
+        </div>
+      </div>
+      <div class="mech-step">
+        <div class="mech-icon orange">3</div>
+        <div class="mech-body">
+          <h5>Act</h5>
+          <p>Claude Code executes one or more tool calls: reading a file, writing a diff, running a shell command, or spawning a subagent. Each tool call produces a result that flows back into the context.</p>
+        </div>
+      </div>
+      <div class="mech-step">
+        <div class="mech-icon green">4</div>
+        <div class="mech-body">
+          <h5>Observe</h5>
+          <p>The result of the action is appended to the context window. Claude Code reads the output — a file's contents, a test failure, a build log — and decides whether to loop again or report completion.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout note">
+      <strong>Note:</strong> The loop continues autonomously until Claude Code determines the task is done or it hits a decision point that requires your input (such as a permission prompt or ambiguous requirement). You are reviewing outcomes, not steering every step.
+    </div>
+  </div>
+
+  <div class="sub" id="tool-use-mechanics">
+    <h3><span class="material-symbols-rounded">build</span> Tool Use Mechanics</h3>
+    <p>Claude Code interacts with your system exclusively through a defined set of tools. It cannot do anything outside these tools — which is also what makes it auditable and safe to run with permission boundaries.</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Tool Category</th><th>What It Does</th><th>Examples</th></tr></thead>
+        <tbody>
+          <tr><td>File Read</td><td>Reads file contents into context</td><td>Reading source files, configs, specs</td></tr>
+          <tr><td>File Write</td><td>Creates or overwrites files</td><td>Generating new files, writing tests</td></tr>
+          <tr><td>File Edit</td><td>Targeted string replacements in existing files</td><td>Bug fixes, refactors, adding imports</td></tr>
+          <tr><td>Bash</td><td>Runs shell commands</td><td>Build, test, lint, git operations</td></tr>
+          <tr><td>Glob / Search</td><td>Finds files by pattern or content</td><td>Locating all usages of a function</td></tr>
+          <tr><td>Subagent</td><td>Spawns a focused child agent</td><td>Code review, security audit</td></tr>
+          <tr><td>MCP Tools</td><td>External integrations</td><td>Browser, GitHub, databases</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout tip">
+      <strong>Tip:</strong> When Claude Code asks for permission before running a command, it is because that tool call has a side effect — it writes to disk, runs a process, or makes a network request. Read-only operations (file reads, searches) typically do not require explicit approval.
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- SECTION: First Steps -->
+<section class="section" id="first-steps">
+  <div class="section-eyebrow">
+    <span class="s-cat">Beginner Walkthrough</span>
+  </div>
+  <h2>First Steps with Claude Code</h2>
+  <p class="lead">The first time you run Claude Code in a real project, the pattern that works best is: orient, then ask questions, then give tasks. Do not start by asking it to rewrite something — start by asking it to explain.</p>
+
+  <div class="sub" id="first-command">
+    <h3><span class="material-symbols-rounded">terminal</span> Your First Commands</h3>
+    <p>Open your terminal, navigate to a code project you know well, and run:</p>
+
+    <div class="code-block">
+      <div class="code-header">
+        <span class="lang-label">bash</span>
+        <button class="copy-btn">Copy</button>
+      </div>
+      <pre><code><span class="cc"># Step 1 — enter the REPL</span>
+<span class="ck">claude</span>
+
+<span class="cc"># Step 2 — let Claude Code orient itself (ask a question first)</span>
+<span class="cs">What does this project do and how is it structured?</span>
+
+<span class="cc"># Step 3 — go deeper on something specific</span>
+<span class="cs">Walk me through how a request flows through the authentication middleware.</span>
+
+<span class="cc"># Step 4 — give a small, concrete task</span>
+<span class="cs">Add input validation to the CreateUser handler. The email field must be a valid email address.</span></code></pre>
+    </div>
+
+    <div class="callout tip">
+      <strong>Tip:</strong> Asking Claude Code to explain your codebase before giving it tasks accomplishes two things: it confirms context loading is working correctly, and it surfaces any misunderstandings before they turn into incorrect edits. Treat it like onboarding a new developer — orient first.
+    </div>
+  </div>
+
+  <div class="sub" id="questions-vs-tasks">
+    <h3><span class="material-symbols-rounded">question_mark</span> Asking Questions vs. Giving Tasks</h3>
+    <p>Claude Code handles both questions and tasks, but they have different properties. Understanding the distinction helps you use each effectively.</p>
+
+    <div class="compare">
+      <div class="compare-col good">
+        <h4><strong>✓</strong> Questions (Safe to Ask Freely)</h4>
+        <div class="code-block">
+          <div class="code-header"><span class="lang-label">prompt</span><button class="copy-btn">Copy</button></div>
+          <pre><code>What are all the places this function is called?
+Why does this test fail?
+What would break if I changed this interface?
+How does the retry logic work in this service?</code></pre>
+        </div>
+        <p>Questions only read — they never write. Use them freely to build understanding without risk.</p>
+      </div>
+      <div class="compare-col bad">
+        <h4><strong>✗</strong> Vague Tasks (Avoid)</h4>
+        <div class="code-block">
+          <div class="code-header"><span class="lang-label">prompt</span><button class="copy-btn">Copy</button></div>
+          <pre><code>Improve the code.
+Fix the tests.
+Refactor this.
+Make it better.</code></pre>
+        </div>
+        <p>Vague tasks lead to unpredictable changes. Claude Code will do <em>something</em> — but not necessarily what you meant.</p>
+      </div>
+    </div>
+
+    <div class="callout warning">
+      <strong>Warning:</strong> Unlike asking a question to a human colleague, asking Claude Code to "refactor this file" will immediately start making changes. There is no soft intent to infer — Claude Code takes action. Be specific about what you want changed and why.
+    </div>
+  </div>
+
+  <div class="sub" id="iterative-workflow">
+    <h3><span class="material-symbols-rounded">loop</span> The Iterative Workflow</h3>
+    <p>Claude Code works best iteratively. Break large goals into stages, verify each stage before moving forward.</p>
+
+    <div class="mechanism">
+      <div class="mech-step">
+        <div class="mech-icon purple">1</div>
+        <div class="mech-body">
+          <h5>Start with Plan Mode</h5>
+          <p>Press <span class="ic">Shift+Tab</span> to enter read-only Plan Mode. Describe what you want. Review the proposed approach before any files are touched.</p>
+        </div>
+      </div>
+      <div class="mech-step">
+        <div class="mech-icon blue">2</div>
+        <div class="mech-body">
+          <h5>Execute in Small Steps</h5>
+          <p>Give Claude Code one well-defined task at a time. After each step, run the tests or build to verify nothing broke before continuing.</p>
+        </div>
+      </div>
+      <div class="mech-step">
+        <div class="mech-icon orange">3</div>
+        <div class="mech-body">
+          <h5>Review Changes with Git</h5>
+          <p>After each set of edits, run <span class="ic">git diff</span> to review what changed. Claude Code's changes are real code — review them as you would any PR.</p>
+        </div>
+      </div>
+      <div class="mech-step">
+        <div class="mech-icon green">4</div>
+        <div class="mech-body">
+          <h5>Commit and Continue</h5>
+          <p>Commit working increments frequently. This gives you safe recovery points and makes it easy to revert a Claude Code change that did not work as expected.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- SECTION: Getting Started Best Practices -->
+<section class="section" id="best-practices">
+  <div class="section-eyebrow">
+    <span class="s-cat">Best Practices</span>
+  </div>
+  <h2>Best Practices for Getting Started</h2>
+  <p class="lead">These patterns consistently produce better results with Claude Code. They apply to beginners and experienced users equally — they encode the lessons that take most people a week of usage to discover.</p>
+
+  <div class="sub" id="writing-good-prompts">
+    <h3><span class="material-symbols-rounded">edit_note</span> Writing Good Prompts</h3>
+    <p>A good Claude Code prompt has four elements: <span class="hl-purple">context, goal, constraints, and output format</span>. You do not need all four every time, but including them reduces back-and-forth significantly.</p>
+
+    <div class="compare">
+      <div class="compare-col good">
+        <h4><strong>✓</strong> Specific and Bounded</h4>
+        <div class="code-block">
+          <div class="code-header"><span class="lang-label">prompt</span><button class="copy-btn">Copy</button></div>
+          <pre><code>In internal/handlers/user.go, add input
+validation to the CreateUser function.
+Validate that email is a valid email
+format and name is non-empty.
+Return a 400 with a JSON error body.
+Do not change the handler signature.</code></pre>
+        </div>
+      </div>
+      <div class="compare-col bad">
+        <h4><strong>✗</strong> Vague and Unbounded</h4>
+        <div class="code-block">
+          <div class="code-header"><span class="lang-label">prompt</span><button class="copy-btn">Copy</button></div>
+          <pre><code>Add validation to the user handler.</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <h4>The Constraints Habit</h4>
+    <p>Always include what Claude Code should <em>not</em> do. Constraints are as important as goals — they prevent well-intentioned scope creep that turns a 5-file task into a 20-file refactor.</p>
+
+    <div class="callout tip">
+      <strong>Tip:</strong> End prompts with explicit scope limits: "Only change files in <span class="ic">internal/handlers/</span>." or "Do not modify the database schema." or "Do not add new dependencies." These are not obvious to the model — make them explicit.
+    </div>
+  </div>
+
+  <div class="sub" id="breaking-down-tasks">
+    <h3><span class="material-symbols-rounded">account_tree</span> Breaking Down Large Tasks</h3>
+    <p>Large tasks produce worse results than small tasks. When a task touches many files or requires multiple decisions, break it into sequential phases:</p>
+
+    <div class="code-block">
+      <div class="code-header">
+        <span class="lang-label">prompt — phased approach</span>
+        <button class="copy-btn">Copy</button>
+      </div>
+      <pre><code><span class="cc"># Phase 1 — understand before acting</span>
+Read the existing auth implementation and describe how tokens are validated.
+
+<span class="cc"># Phase 2 — plan</span>
+[Shift+Tab to Plan Mode]
+I want to add refresh token support. What changes are needed and in which files?
+
+<span class="cc"># Phase 3 — implement incrementally</span>
+Implement step 1 from your plan: add the RefreshToken field to the User model.
+
+<span class="cc"># Phase 4 — verify before continuing</span>
+Run the tests for the auth package and tell me if anything fails.</code></pre>
+    </div>
+  </div>
+
+  <div class="sub" id="when-to-clear">
+    <h3><span class="material-symbols-rounded">cleaning</span> When to Use /clear</h3>
+    <p>Context window health is a real concern in long sessions. These are the signals that tell you it is time to run <span class="ic">/clear</span>:</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Signal</th><th>What It Means</th><th>Action</th></tr></thead>
+        <tbody>
+          <tr><td>Claude Code "forgets" a constraint you set 30 turns ago</td><td>That instruction has been pushed out of attention by volume</td><td>/clear and restate it</td></tr>
+          <tr><td>Responses start referencing earlier (now irrelevant) code</td><td>Context confusion — old context polluting new task</td><td>/clear</td></tr>
+          <tr><td>You are starting a completely different task</td><td>Different goal = different context</td><td>/clear or new session</td></tr>
+          <tr><td>A hallucination crept into the conversation</td><td>Context poisoning — bad info now in history</td><td>/clear immediately</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- SECTION: Common Mistakes -->
+<section class="section" id="common-mistakes">
+  <div class="section-eyebrow">
+    <span class="s-cat">Pitfalls</span>
+  </div>
+  <h2>Common Mistakes</h2>
+  <p class="lead">These are the patterns that cause the most friction for new Claude Code users. Each is avoidable once you know to watch for it.</p>
+
+  <div class="sub">
+    <h3><span class="material-symbols-rounded">report_problem</span> The Most Common Anti-Patterns</h3>
+
+    <div class="callout warning">
+      <strong>Warning — Too Vague:</strong> "Improve the codebase" is not a task. Claude Code will make changes, but they will reflect its judgment, not your intent. Always specify the file, the behavior, the constraint, and the reason.
+    </div>
+
+    <div class="callout warning">
+      <strong>Warning — Too Much at Once:</strong> Asking Claude Code to implement an entire feature in one prompt degrades quality. The model loses precision as scope expands. Break it into phases: model first, then API, then tests, then documentation.
+    </div>
+
+    <div class="callout warning">
+      <strong>Warning — Not Reviewing Changes:</strong> Claude Code writes real code. Review it with <span class="ic">git diff</span> before committing, the same way you would review any contributor's PR. Autonomous does not mean infallible.
+    </div>
+
+    <div class="callout warning">
+      <strong>Warning — Reusing Sessions Across Tasks:</strong> Running a debugging session and then immediately asking for a new feature in the same session allows the debugging context to bleed into the feature work. Use <span class="ic">/clear</span> between unrelated tasks.
+    </div>
+
+    <div class="compare">
+      <div class="compare-col good">
+        <h4><strong>✓</strong> Effective Task Framing</h4>
+        <div class="code-block">
+          <div class="code-header"><span class="lang-label">prompt</span><button class="copy-btn">Copy</button></div>
+          <pre><code>In pkg/auth/token.go, the ValidateToken
+function returns true for expired tokens
+when the clock skew is > 30s.
+Fix the comparison on line 47 so
+expiry is checked against the adjusted
+time. Do not change the function
+signature or add new dependencies.</code></pre>
+        </div>
+      </div>
+      <div class="compare-col bad">
+        <h4><strong>✗</strong> Common Anti-Pattern</h4>
+        <div class="code-block">
+          <div class="code-header"><span class="lang-label">prompt</span><button class="copy-btn">Copy</button></div>
+          <pre><code>The token validation is broken, can you
+fix it and also improve the auth code
+generally while you're in there?</code></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- SECTION: When to Use Claude Code -->
+<section class="section" id="when-to-use">
+  <div class="section-eyebrow">
+    <span class="s-cat">Use Cases</span>
+  </div>
+  <h2>When to Use Claude Code</h2>
+  <p class="lead">Claude Code is most effective for tasks with clear inputs and verifiable outputs. Understanding where it excels — and where it is less suited — helps you integrate it effectively into your workflow.</p>
+
+  <div class="sub">
+    <h3><span class="material-symbols-rounded">check_circle</span> High-Leverage Scenarios</h3>
+
+    <div class="feature-grid">
+      <div class="feature-card">
+        <span class="fc-icon"><span class="material-symbols-rounded">search</span></span>
+        <h4>Codebase Exploration</h4>
+        <p>Onboarding to a new codebase. "Explain how request routing works in this service" saves hours of manual tracing through unfamiliar code.</p>
+      </div>
+      <div class="feature-card">
+        <span class="fc-icon"><span class="material-symbols-rounded">bug_report</span></span>
+        <h4>Debugging</h4>
+        <p>Paste a stack trace and ask Claude Code to trace the failure path through the actual source files. It reads the relevant code rather than guessing.</p>
+      </div>
+      <div class="feature-card">
+        <span class="fc-icon"><span class="material-symbols-rounded">science</span></span>
+        <h4>Test Generation</h4>
+        <p>Generate unit and integration tests for existing code. Provide the implementation and the testing framework — Claude Code writes coverage that matches your patterns.</p>
+      </div>
+      <div class="feature-card">
+        <span class="fc-icon"><span class="material-symbols-rounded">swap_horiz</span></span>
+        <h4>Repetitive Refactors</h4>
+        <p>Rename a function across 40 files. Update all callers to a new API signature. Convert a pattern consistently across a large codebase. These take seconds with Claude Code.</p>
+      </div>
+      <div class="feature-card">
+        <span class="fc-icon"><span class="material-symbols-rounded">rate_review</span></span>
+        <h4>Code Review Assistance</h4>
+        <p>Before submitting a PR, ask Claude Code to review the diff for edge cases, missing error handling, or security issues. A second set of eyes that never gets tired.</p>
+      </div>
+      <div class="feature-card">
+        <span class="fc-icon"><span class="material-symbols-rounded">description</span></span>
+        <h4>Documentation</h4>
+        <p>Generate README sections, API documentation, and inline comments from the actual implementation — not from memory or guesswork.</p>
+      </div>
+    </div>
+
+    <div class="callout note">
+      <strong>Note:</strong> Claude Code is less suited for tasks with no verifiable output — subjective architectural decisions, product strategy, or anything that requires deep domain knowledge that is not captured in the codebase. Use it where the correctness signal is clear: tests pass, build succeeds, the diff looks right.
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- SECTION: Capabilities -->
+<section class="section" id="capabilities">
+  <div class="section-eyebrow">
+    <span class="s-cat">What It Can Do</span>
+  </div>
+  <h2>Core Capabilities</h2>
+  <p class="lead">Claude Code integrates deeply with your development environment across the entire software development lifecycle — from initial design through deployment and monitoring.</p>
+
+  <div class="feature-grid">
+    <div class="feature-card">
+      <span class="fc-icon"><span class="material-symbols-rounded">folder_open</span></span>
+      <h4>Codebase Understanding</h4>
+      <p>Reads and reasons across your entire project. Understands architecture, dependencies, naming conventions, and existing patterns before making changes.</p>
+    </div>
+    <div class="feature-card">
+      <span class="fc-icon"><span class="material-symbols-rounded">build</span></span>
+      <h4>File & Terminal Operations</h4>
+      <p>Creates, edits, deletes files. Runs shell commands, builds, tests, and linters. Interacts with git, docker, npm, and any CLI tool in your environment.</p>
+    </div>
+    <div class="feature-card">
+      <span class="fc-icon"><span class="material-symbols-rounded">psychology</span></span>
+      <h4>Context Engineering</h4>
+      <p>Manages its own memory through <span class="ic">CLAUDE.md</span> files, <span class="ic">/compact</span> and <span class="ic">/clear</span> commands, and a three-tier memory hierarchy that persists across sessions.</p>
+    </div>
+    <div class="feature-card">
+      <span class="fc-icon"><span class="material-symbols-rounded">smart_toy</span></span>
+      <h4>Multi-Agent Orchestration</h4>
+      <p>Spawns specialized subagents — code reviewers, test writers, security auditors — each with its own focused context. The main instance acts as orchestrator.</p>
+    </div>
+    <div class="feature-card">
+      <span class="fc-icon"><span class="material-symbols-rounded">power</span></span>
+      <h4>MCP Integrations</h4>
+      <p>Connects to external tools via the Model Context Protocol. Browser automation (Playwright), GitHub, databases, Slack, and any custom MCP server.</p>
+    </div>
+    <div class="feature-card">
+      <span class="fc-icon"><span class="material-symbols-rounded">settings</span></span>
+      <h4>Hooks & Automation</h4>
+      <p>Executes custom shell commands on lifecycle events (pre-tool, post-tool, session stop). Enables automation pipelines, audit logging, and workflow integration.</p>
+    </div>
+  </div>
+
+  <div class="sub" id="multi-agent">
+    <h3><span class="material-symbols-rounded">shuffle</span> Multi-Agent Workflows</h3>
+    <p>One of the most powerful capabilities is the ability to <span class="hl-purple">orchestrate fleets of specialized agents</span>. Rather than doing everything in a single context window — which degrades quality as complexity grows — Claude Code delegates:</p>
+
+    <div class="mechanism">
+      <div class="mech-step">
+        <div class="mech-icon purple">1</div>
+        <div class="mech-body">
+          <h5>Task Decomposition</h5>
+          <p>The main agent breaks a complex task into independent subtasks that can be parallelized or sequenced.</p>
+        </div>
+      </div>
+      <div class="mech-step">
+        <div class="mech-icon blue">2</div>
+        <div class="mech-body">
+          <h5>Subagent Dispatch</h5>
+          <p>Specialized subagents (code reviewer, security auditor, test writer) are spawned with focused contexts — each has exactly the information it needs, no more.</p>
+        </div>
+      </div>
+      <div class="mech-step">
+        <div class="mech-icon green">3</div>
+        <div class="mech-body">
+          <h5>Result Synthesis</h5>
+          <p>The orchestrating agent collects outputs, resolves conflicts, and assembles the final result without any individual agent's context becoming polluted.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout tip">
+      <div class="ct"><span class="material-symbols-rounded">lightbulb</span> Key Insight</div>
+      <p>Context isolation is not just an optimization — it is a quality guarantee. A code reviewer that only sees the diff it needs to review will produce sharper feedback than an agent that has been doing refactoring, debugging, and documentation all session.</p>
+    </div>
+  </div>
+
+  <div class="sub" id="production-topics">
+    <h3><span class="material-symbols-rounded">factory</span> Production-Grade Topics</h3>
+    <p>Claude Code is designed for production software engineering, not just prototyping. This documentation covers the full production readiness surface:</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Topic</th><th>Coverage</th><th>Why It Matters</th></tr></thead>
+        <tbody>
+          <tr><td>Testing</td><td>Unit, integration, E2E generation</td><td>Agents that write and run their own tests close the feedback loop</td></tr>
+          <tr><td>Logging</td><td>Structured output, audit trails</td><td>Observability into what the agent did and why</td></tr>
+          <tr><td>Monitoring</td><td>Token usage, cost tracking</td><td>Prevent runaway usage in automated pipelines</td></tr>
+          <tr><td>Alerting</td><td>Hook-based event notifications</td><td>React to agent actions in real-time</td></tr>
+          <tr><td>Security</td><td>Permission scoping, prompt injection defense</td><td>Agentic tools have a larger blast radius than chat interfaces</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- SECTION: Prerequisites -->
+<section class="section" id="prerequisites">
+  <div class="section-eyebrow">
+    <span class="s-cat">Before You Start</span>
+  </div>
+  <h2>Prerequisites</h2>
+  <p class="lead">Claude Code is a developer tool for working software engineers. It assumes you are comfortable with your terminal, understand version control, and can read code in at least one language. No machine learning background required.</p>
+
+  <div class="sub">
+    <h3><span class="material-symbols-rounded">assignment</span> Required Knowledge</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Area</th><th>Level</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td>Programming language</td><td class="td-req">Required</td><td>Python or TypeScript/JavaScript fluency. Can read and write production code, not just scripts.</td></tr>
+          <tr><td>Git</td><td class="td-req">Required</td><td>Branching, committing, pushing. Claude Code interacts with git constantly.</td></tr>
+          <tr><td>Terminal / CLI</td><td class="td-req">Required</td><td>Comfortable running commands, reading output, setting environment variables.</td></tr>
+          <tr><td>Virtual environments</td><td class="td-req">Required</td><td><span class="ic">venv</span>, <span class="ic">nvm</span>, or equivalent. Required for clean dependency management.</td></tr>
+          <tr><td>Node.js / npm</td><td class="td-opt">Recommended</td><td>Claude Code is installed via npm. Node.js 18+ required.</td></tr>
+          <tr><td>Docker</td><td class="td-opt">Recommended</td><td>Useful for sandboxed execution and MCP server containers.</td></tr>
+          <tr><td>Machine learning</td><td class="td-ok">Not Required</td><td>No ML background needed. You are using the model, not training it.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout warn">
+      <div class="ct"><span class="material-symbols-rounded">warning</span> Audience Note</div>
+      <p>Claude Code is designed for software engineers, data scientists, and experienced developers who write production code regularly. If you are new to programming, focus on language fundamentals first — Claude Code is significantly more useful once you can evaluate the quality of its output.</p>
+    </div>
+  </div>
+
+  <div class="sub">
+    <h3><span class="material-symbols-rounded">desktop_mac</span> System Requirements</h3>
+    <ul>
+      <li><strong>Operating system:</strong> macOS, Linux, or Windows with WSL2</li>
+      <li><strong>Node.js:</strong> v18 or later — check with <span class="ic">node --version</span></li>
+      <li><strong>npm:</strong> v8 or later (bundled with Node.js)</li>
+      <li><strong>Anthropic API key:</strong> Required — obtain from <span class="ic">console.anthropic.com</span></li>
+      <li><strong>Network access:</strong> Claude Code makes API calls to Anthropic's servers per request</li>
+    </ul>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- SECTION: Installation -->
+<section class="section" id="installation">
+  <div class="section-eyebrow">
+    <span class="s-cat">Setup</span>
+  </div>
+  <h2>Installation</h2>
+  <p class="lead">Claude Code is distributed as an npm package. Install it globally so it is available from any project directory in your terminal.</p>
+
+  <div class="sub" id="first-run">
+    <h3><span class="material-symbols-rounded">rocket_launch</span> Install & Authenticate</h3>
+
+    <div class="code-block">
+      <div class="code-header">
+        <span class="lang-label">bash</span>
+        <button class="copy-btn">Copy</button>
+      </div>
+      <pre><code><span class="cc"># Install Claude Code globally</span>
+<span class="ck">npm</span> install <span class="cs">-g</span> @anthropic-ai/claude-code
+
+<span class="cc"># Verify installation</span>
+<span class="ck">claude</span> <span class="cs">--version</span>
+
+<span class="cc"># Authenticate with your API key</span>
+<span class="ck">claude</span> auth login</code></pre>
+    </div>
+
+    <p>After running <span class="ic">claude auth login</span>, you will be prompted to enter your Anthropic API key. It is stored securely in your system keychain — you will not need to re-enter it per session.</p>
+
+    <h4>Initialize in a Project</h4>
+    <p>Navigate to any code repository and run <span class="ic">/init</span> to have Claude Code analyze your project and generate a <span class="ic">CLAUDE.md</span> context file:</p>
+
+    <div class="code-block">
+      <div class="code-header">
+        <span class="lang-label">bash</span>
+        <button class="copy-btn">Copy</button>
+      </div>
+      <pre><code><span class="cc"># Navigate to your project</span>
+<span class="ck">cd</span> /path/to/your/project
+
+<span class="cc"># Launch Claude Code REPL</span>
+<span class="ck">claude</span>
+
+<span class="cc"># Inside the REPL — initialize project context</span>
+<span class="cg">/init</span></code></pre>
+    </div>
+
+    <p>The <span class="ic">/init</span> command traverses your directory structure, identifies the tech stack, infers architectural patterns, and writes a <span class="ic">CLAUDE.md</span> file that is automatically loaded in all future sessions.</p>
+
+    <div class="callout tip">
+      <div class="ct"><span class="material-symbols-rounded">lightbulb</span> Best Practice</div>
+      <p>Commit your <span class="ic">CLAUDE.md</span> to version control. It serves as shared context for every team member using Claude Code on the project — equivalent to an always-loaded engineering brief that every AI session reads first.</p>
+    </div>
+
+    <h4>Verify the Setup</h4>
+    <div class="code-block">
+      <div class="code-header">
+        <span class="lang-label">bash</span>
+        <button class="copy-btn">Copy</button>
+      </div>
+      <pre><code><span class="cc"># Quick sanity check — one-shot mode (no REPL)</span>
+<span class="ck">claude</span> <span class="cs">-p</span> <span class="cs">"Describe the architecture of this project in 3 sentences"</span>
+
+<span class="cc"># Expected: coherent description of your stack and structure</span>
+<span class="cc"># Not expected: confusion or hallucinated file paths</span></code></pre>
+    </div>
+
+    <p>If the response accurately reflects your project's structure, context loading is working correctly and you are ready to start.</p>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- SECTION: Resources -->
+<section class="section" id="resources">
+  <div class="section-eyebrow">
+    <span class="s-cat">Reference</span>
+  </div>
+  <h2>Resources & Community</h2>
+  <p class="lead">Claude Code is under active development. The official documentation is authoritative for current features; the community is the fastest path to help with edge cases and workflow questions.</p>
+
+  <div class="sub">
+    <h3><span class="material-symbols-rounded">menu_book</span> Official References</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Resource</th><th>What It Covers</th></tr></thead>
+        <tbody>
+          <tr><td><span class="ic">docs.anthropic.com/claude-code</span></td><td>Full reference: CLI flags, configuration, hook events, MCP integration, security model</td></tr>
+          <tr><td><span class="ic">console.anthropic.com</span></td><td>API key management, usage dashboards, billing, model selection</td></tr>
+          <tr><td><span class="ic">github.com/anthropics/claude-code</span></td><td>Issue tracker, changelog, community discussions, bug reports</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="sub">
+    <h3><span class="material-symbols-rounded">chat</span> Getting Help</h3>
+    <p>When you run into an issue, the community is the most reliable source of up-to-date answers — especially for recent releases where documentation may lag behind the release.</p>
+
+    <div class="callout info">
+      <div class="ct"><span class="material-symbols-rounded">info</span> Support Channels</div>
+      <p><strong>GitHub Issues</strong> — for reproducible bugs and feature requests. Include Claude Code version (<span class="ic">claude --version</span>), OS, and a minimal reproduction case.<br><br>
+      <strong>Anthropic Discord</strong> — for workflow questions, configuration help, and pattern discussion. Response times are typically fast during weekday hours.<br><br>
+      <strong>Community Forums</strong> — for longer-form questions about architecture and design tradeoffs.</p>
+    </div>
+
+    <div class="callout tip">
+      <div class="ct"><span class="material-symbols-rounded">lightbulb</span> Next Step</div>
+      <p>Continue to <strong><a href="chapter-02.html" style="color:var(--accent)">Chapter 02 — Context Engineering</a></strong> to understand the theory behind how Claude Code manages information across sessions, and how to architect memory for maximum effectiveness.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Chapter nav footer -->
+<div style="display:flex;justify-content:flex-end;padding-top:32px;border-top:1px solid var(--border-dim);">
+  <a href="chapter-02.html" class="btn-primary" style="text-decoration:none">Context Engineering →</a>
+</div>
+
+</main>
+
+<!-- ── Right ToC ── -->
+<aside class="toc-panel">
+  <div id="page-toc"></div>
+</aside>
+
+</div>
+
+<!-- Back to Top -->
+<div id="back-to-top" title="Back to top"><span class="material-symbols-rounded">keyboard_arrow_up</span></div>
+
+<!-- Mobile Sidebar Overlay -->
+<div id="sidebar-overlay"></div>
+
+<!-- Command Palette -->
+<div id="cmd-overlay">
+  <div id="cmd-palette">
+    <div class="cmd-search">
+      <span class="material-symbols-rounded">search</span>
+      <input type="text" id="cmd-input" placeholder="Search chapters and sections..." autocomplete="off" spellcheck="false">
+      <kbd>esc</kbd>
+    </div>
+    <div class="cmd-results" id="cmd-results"></div>
+    <div class="cmd-footer">
+      <span class="cmd-hint"><kbd>↑↓</kbd> navigate</span>
+      <span class="cmd-hint"><kbd>↵</kbd> open</span>
+      <span class="cmd-hint"><kbd>esc</kbd> close</span>
+    </div>
+  </div>
+</div>
+
+<script src="assets/app.js"></script>
+</body>
+</html>

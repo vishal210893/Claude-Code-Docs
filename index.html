@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claude Code — Complete Documentation</title>
+<link rel="stylesheet" href="assets/styles.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
+</head>
+<body>
+
+<div id="progress-bar"></div>
+
+<nav class="top-nav">
+  <a class="nav-logo" href="index.html">
+    <div class="nav-logo-icon">CC</div>
+    <span class="nav-logo-text">Claude <em>Code</em></span>
+  </a>
+  <span class="nav-ver">Docs v1.0</span>
+  <div class="nav-spacer"></div>
+  <button class="search-trigger" id="search-open">
+    <span class="material-symbols-rounded">search</span>
+    <span>Search docs...</span>
+    <kbd>⌘K</kbd>
+  </button>
+  <button class="theme-toggle" id="theme-toggle" title="Toggle theme"><span class="material-symbols-rounded">light_mode</span></button>
+</nav>
+
+<div class="hero">
+  <div class="hero-badge">📚 Developer Documentation</div>
+  <h1>Master <span class="grad">Claude Code</span><br>from First Principles</h1>
+  <p>A complete reference for Claude Code — covering context engineering, multi-agent workflows, MCP integrations, production patterns, and everything in between. From first run to advanced agentic systems.</p>
+  <div class="hero-cta">
+    <a class="btn-primary" href="chapter-01.html">Get Started →</a>
+    <a class="btn-secondary" href="chapter-02.html">Context Engineering</a>
+  </div>
+  <img src="https://getillustra.blr1.cdn.digitaloceanspaces.com/illustrations/youmind/images/youmind01.webp" class="hero-illus" alt="" loading="lazy">
+</div>
+
+<div class="chapters-section">
+  <div class="section-heading">All Chapters</div>
+  <div class="chapters-grid">
+
+    <a class="ch-card" href="chapter-01.html">
+      <span class="ch-card-num">Chapter 01</span>
+      <h3>Introduction to Claude Code</h3>
+      <p>What Claude Code is, how it differs from chat-based tools, core capabilities, prerequisites, and getting your first project running.</p>
+      <div class="ch-card-topics">
+        <span class="ch-topic">Getting Started</span>
+        <span class="ch-topic">Installation</span>
+        <span class="ch-topic">Prerequisites</span>
+      </div>
+      <img src="https://getillustra.blr1.cdn.digitaloceanspaces.com/illustrations/youmind/images/youmind01.webp" class="ch-card-illus" alt="" loading="lazy">
+    </a>
+
+    <a class="ch-card" href="chapter-02.html">
+      <span class="ch-card-num">Chapter 02</span>
+      <h3>Context Engineering</h3>
+      <p>The theory and practice of providing LLMs with the right information at the right time. Memory architecture, compression, isolation, and system prompts.</p>
+      <div class="ch-card-topics">
+        <span class="ch-topic">CLAUDE.md</span>
+        <span class="ch-topic">Memory Tiers</span>
+        <span class="ch-topic">System Prompts</span>
+      </div>
+      <img src="https://getillustra.blr1.cdn.digitaloceanspaces.com/illustrations/youmind/images/youmind02.webp" class="ch-card-illus" alt="" loading="lazy">
+    </a>
+
+    <a class="ch-card" href="chapter-03.html">
+      <span class="ch-card-num">Chapter 03</span>
+      <h3>Claude Code Essentials</h3>
+      <p>Setting up a real project with Claude Code. Spec-driven development, plan mode, model selection, and managing context across sessions.</p>
+      <div class="ch-card-topics">
+        <span class="ch-topic">Plan Mode</span>
+        <span class="ch-topic">Spec Files</span>
+        <span class="ch-topic">Sessions</span>
+      </div>
+      <img src="https://getillustra.blr1.cdn.digitaloceanspaces.com/illustrations/youmind/images/youmind03.webp" class="ch-card-illus" alt="" loading="lazy">
+    </a>
+
+    <a class="ch-card" href="chapter-04.html">
+      <span class="ch-card-num">Chapter 04</span>
+      <h3>Essential Commands</h3>
+      <p>A complete tour of the Claude Code CLI — slash commands, flags, REPL mode, headless mode, and workflow shortcuts.</p>
+      <div class="ch-card-topics">
+        <span class="ch-topic">CLI Reference</span>
+        <span class="ch-topic">Slash Commands</span>
+        <span class="ch-topic">Flags</span>
+      </div>
+      <img src="https://getillustra.blr1.cdn.digitaloceanspaces.com/illustrations/amplemarket/images/04.webp" class="ch-card-illus" alt="" loading="lazy">
+    </a>
+
+    <a class="ch-card" href="chapter-05.html">
+      <span class="ch-card-num">Chapter 05</span>
+      <h3>Model Context Protocol</h3>
+      <p>Deep dive into MCP — how it works, how to connect servers, tool schemas, and common pitfalls. Browser automation, GitHub, database integrations.</p>
+      <div class="ch-card-topics">
+        <span class="ch-topic">MCP Servers</span>
+        <span class="ch-topic">Tool Schemas</span>
+        <span class="ch-topic">Playwright</span>
+      </div>
+      <img src="https://getillustra.blr1.cdn.digitaloceanspaces.com/illustrations/amplemarket/images/05.webp" class="ch-card-illus" alt="" loading="lazy">
+    </a>
+
+    <a class="ch-card" href="chapter-06.html">
+      <span class="ch-card-num">Chapter 06</span>
+      <h3>GitHub Integration</h3>
+      <p>Automating your development workflow with GitHub. PR reviews, issue management, CI/CD pipelines, and automated code generation.</p>
+      <div class="ch-card-topics">
+        <span class="ch-topic">GitHub Actions</span>
+        <span class="ch-topic">PR Automation</span>
+        <span class="ch-topic">CI/CD</span>
+      </div>
+      <img src="https://getillustra.blr1.cdn.digitaloceanspaces.com/illustrations/amplemarket/images/06.webp" class="ch-card-illus" alt="" loading="lazy">
+    </a>
+
+    <a class="ch-card" href="chapter-07.html">
+      <span class="ch-card-num">Chapter 07</span>
+      <h3>Advanced Workflows</h3>
+      <p>Complex multi-step agentic patterns — chaining tasks, parallel execution, error recovery, and designing workflows that scale.</p>
+      <div class="ch-card-topics">
+        <span class="ch-topic">Orchestration</span>
+        <span class="ch-topic">Parallelism</span>
+        <span class="ch-topic">Error Recovery</span>
+      </div>
+      <img src="https://getillustra.blr1.cdn.digitaloceanspaces.com/illustrations/youmind/images/youmind07.webp" class="ch-card-illus" alt="" loading="lazy">
+    </a>
+
+    <a class="ch-card" href="chapter-08.html">
+      <span class="ch-card-num">Chapter 08</span>
+      <h3>Subagents</h3>
+      <p>Spawning and orchestrating specialized subagents — code reviewers, test writers, security auditors — with focused context isolation.</p>
+      <div class="ch-card-topics">
+        <span class="ch-topic">Delegation</span>
+        <span class="ch-topic">Context Isolation</span>
+        <span class="ch-topic">Specialization</span>
+      </div>
+      <img src="https://getillustra.blr1.cdn.digitaloceanspaces.com/illustrations/youmind/images/youmind08.webp" class="ch-card-illus" alt="" loading="lazy">
+    </a>
+
+    <a class="ch-card" href="chapter-09.html">
+      <span class="ch-card-num">Chapter 09</span>
+      <h3>Output Styles</h3>
+      <p>Controlling and customizing how Claude Code formats and presents its output — structured responses, markdown, JSON, and custom templates.</p>
+      <div class="ch-card-topics">
+        <span class="ch-topic">Formatting</span>
+        <span class="ch-topic">Templates</span>
+        <span class="ch-topic">JSON Output</span>
+      </div>
+      <img src="https://getillustra.blr1.cdn.digitaloceanspaces.com/illustrations/youmind/images/youmind09.webp" class="ch-card-illus" alt="" loading="lazy">
+    </a>
+
+    <a class="ch-card" href="chapter-10.html">
+      <span class="ch-card-num">Chapter 10</span>
+      <h3>Agent Skills</h3>
+      <p>Building and deploying custom skills — reusable agent capabilities that encode domain expertise, workflows, and specialized behaviors.</p>
+      <div class="ch-card-topics">
+        <span class="ch-topic">Custom Skills</span>
+        <span class="ch-topic">Reusability</span>
+        <span class="ch-topic">Deployment</span>
+      </div>
+      <img src="https://getillustra.blr1.cdn.digitaloceanspaces.com/illustrations/youmind/images/youmind10.webp" class="ch-card-illus" alt="" loading="lazy">
+    </a>
+
+    <a class="ch-card" href="chapter-11.html">
+      <span class="ch-card-num">Chapter 11</span>
+      <h3>Claude Code Desktop</h3>
+      <p>The Claude Code desktop application — extended thinking, longer context, visual debugging, and integrations beyond the CLI.</p>
+      <div class="ch-card-topics">
+        <span class="ch-topic">Desktop App</span>
+        <span class="ch-topic">Extended Thinking</span>
+        <span class="ch-topic">Visual Tools</span>
+      </div>
+      <img src="https://getillustra.blr1.cdn.digitaloceanspaces.com/illustrations/youmind/images/youmind11.webp" class="ch-card-illus" alt="" loading="lazy">
+    </a>
+
+    <a class="ch-card" href="chapter-12.html">
+      <span class="ch-card-num">Chapter 12</span>
+      <h3>Deep Agents</h3>
+      <p>Under the hood of long-running, multi-step agentic tasks — how deep agents think, plan, recover from failure, and manage complex state.</p>
+      <div class="ch-card-topics">
+        <span class="ch-topic">Long-Running Tasks</span>
+        <span class="ch-topic">State Management</span>
+        <span class="ch-topic">Planning</span>
+      </div>
+      <img src="https://getillustra.blr1.cdn.digitaloceanspaces.com/illustrations/youmind/images/youmind12.webp" class="ch-card-illus" alt="" loading="lazy">
+    </a>
+
+    <a class="ch-card" href="chapter-13.html">
+      <span class="ch-card-num">Chapter 13</span>
+      <h3>Agentic Security</h3>
+      <p>Security considerations unique to agentic coding tools — permission scoping, prompt injection defense, secrets management, and blast radius.</p>
+      <div class="ch-card-topics">
+        <span class="ch-topic">Permissions</span>
+        <span class="ch-topic">Prompt Injection</span>
+        <span class="ch-topic">Secrets</span>
+      </div>
+      <img src="https://getillustra.blr1.cdn.digitaloceanspaces.com/illustrations/amplemarket/images/13.webp" class="ch-card-illus" alt="" loading="lazy">
+    </a>
+
+  </div>
+</div>
+
+<!-- Command Palette -->
+<div id="cmd-overlay">
+  <div id="cmd-palette">
+    <div class="cmd-search">
+      <span class="material-symbols-rounded">search</span>
+      <input type="text" id="cmd-input" placeholder="Search chapters and sections..." autocomplete="off" spellcheck="false">
+      <kbd>esc</kbd>
+    </div>
+    <div class="cmd-results" id="cmd-results"></div>
+    <div class="cmd-footer">
+      <span class="cmd-hint"><kbd>↑↓</kbd> navigate</span>
+      <span class="cmd-hint"><kbd>↵</kbd> open</span>
+      <span class="cmd-hint"><kbd>esc</kbd> close</span>
+    </div>
+  </div>
+</div>
+
+<div id="back-to-top" title="Back to top"><span class="material-symbols-rounded">keyboard_arrow_up</span></div>
+
+<script src="assets/app.js"></script>
+</body>
+</html>

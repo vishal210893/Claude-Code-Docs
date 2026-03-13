@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ch.05 — Model Context Protocol</title>
+<link rel="stylesheet" href="assets/styles.css">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+</head>
+<body>
+<div id="progress-bar"></div>
+
+<nav class="top-nav">
+  <button class="mobile-menu-btn" id="mobile-menu-btn"><span class="material-symbols-rounded">menu</span></button>
+  <a class="nav-logo" href="index.html">
+    <div class="nav-logo-icon">CC</div>
+    <span class="nav-logo-text">Claude <em>Code</em></span>
+  </a>
+  <span class="nav-ver">Docs v1.0</span>
+  <div class="nav-spacer"></div>
+  <button class="search-trigger"><span class="st-icon"><span class="material-symbols-rounded" style="font-size:16px">search</span></span><span>Search docs...</span><kbd>⌘K</kbd></button>
+  <button class="theme-toggle" id="theme-toggle"><span class="material-symbols-rounded">light_mode</span></button>
+</nav>
+
+<div class="page-header">
+  <div class="breadcrumb">
+    <a href="index.html">Home</a><span class="sep">/</span>
+    <span class="cur">Chapter 05 — Model Context Protocol</span>
+  </div>
+  <h1>Model Context Protocol</h1>
+  <p class="subtitle">MCP is the standard for connecting AI agents to external tools and data sources. Understanding its architecture, strengths, and current limitations is essential for building reliable agentic systems.</p>
+  <div class="tag-row">
+    <span class="tag purple">Chapter 05</span>
+    <span class="tag orange">MCP Architecture</span>
+    <span class="tag blue">Tool Schemas</span>
+    <span class="tag orange">Known Pitfalls</span>
+  </div>
+</div>
+
+<div class="layout">
+<aside class="sidebar">
+  <div class="sb-section">
+    <div class="sb-label">Documentation</div>
+    <a class="sb-link" href="index.html">Overview</a>
+  </div>
+  <div class="sb-section">
+    <div class="sb-label">Chapters</div>
+    <a class="sb-link" href="chapter-01.html"><span class="ch-n">01</span>Introduction</a>
+    <a class="sb-link" href="chapter-02.html"><span class="ch-n">02</span>Context Engineering</a>
+    <a class="sb-link" href="chapter-03.html"><span class="ch-n">03</span>Claude Code Essentials</a>
+    <a class="sb-link" href="chapter-04.html"><span class="ch-n">04</span>Essential Commands</a>
+    <a class="sb-link active" href="chapter-05.html"><span class="ch-n">05</span>MCP</a>
+    <a class="sb-link" href="chapter-06.html"><span class="ch-n">06</span>GitHub Integration</a>
+    <a class="sb-link" href="chapter-07.html"><span class="ch-n">07</span>Advanced Workflows</a>
+    <a class="sb-link" href="chapter-08.html"><span class="ch-n">08</span>Subagents</a>
+    <a class="sb-link" href="chapter-09.html"><span class="ch-n">09</span>Output Styles</a>
+    <a class="sb-link" href="chapter-10.html"><span class="ch-n">10</span>Agent Skills</a>
+    <a class="sb-link" href="chapter-11.html"><span class="ch-n">11</span>Desktop</a>
+    <a class="sb-link" href="chapter-12.html"><span class="ch-n">12</span>Deep Agents</a>
+    <a class="sb-link" href="chapter-13.html"><span class="ch-n">13</span>Security</a>
+  </div>
+</aside>
+
+<main class="main-content">
+
+<!-- SECTION: What Is MCP -->
+<section class="section" id="what-is-mcp">
+  <div class="section-eyebrow">
+    <span class="s-badge">Chapter 05</span>
+    <span class="s-cat">Foundations</span>
+  </div>
+  <h2>What is MCP?</h2>
+  <p class="lead">The Model Context Protocol (MCP) is an open standard that defines how AI models communicate with external tools and data sources. Before MCP, every tool integration was bespoke — each agent had its own proprietary protocol. MCP proposes one universal interface that any model and any tool can speak.</p>
+
+  <div class="sub">
+    <h3><span class="material-symbols-rounded">gps_fixed</span> The Core Problem MCP Solves</h3>
+    <p>Prior to MCP, integrating an AI agent with, say, GitHub required writing custom code to translate between the agent's expectations and GitHub's API. The same was true for every other tool: databases, filesystems, Slack, browsers, monitoring systems.</p>
+    <p>MCP standardizes this by defining:</p>
+    <ul>
+      <li><strong>How tools describe themselves</strong> — JSON Schema-based tool definitions</li>
+      <li><strong>How agents invoke tools</strong> — a standard request/response protocol</li>
+      <li><strong>How results are returned</strong> — structured responses the model can reason over</li>
+      <li><strong>Transport options</strong> — stdio (local processes), SSE (remote servers), HTTP</li>
+    </ul>
+
+    <div class="callout concept">
+      <div class="ct"><span class="material-symbols-rounded">key</span> The Value Proposition</div>
+      <p>One GitHub MCP server works with Claude Code, GPT-4, Gemini, and any other MCP-compatible agent. One investment in a well-designed MCP server creates a reusable integration asset. The standardization goal is valid and compelling — the current implementation has specific limitations covered in the <a href="#pitfalls" style="color:var(--accent)">Pitfalls section</a>.</p>
+    </div>
+
+    <h4>MCP vs Direct Tool Calls — What's the Difference?</h4>
+    <p>Claude Code has built-in tools (Read, Edit, Bash, WebSearch). MCP servers add additional tools on top of these. Think of built-in tools as the standard library, and MCP servers as installable packages that extend what Claude Code can do.</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Capability</th><th>Built-in Tools</th><th>MCP Servers</th></tr></thead>
+        <tbody>
+          <tr><td>Read/write local files</td><td>Yes (Read, Edit, Write)</td><td>Via filesystem MCP (extends scope)</td></tr>
+          <tr><td>Run shell commands</td><td>Yes (Bash)</td><td>Not typically — Bash handles this</td></tr>
+          <tr><td>GitHub API access</td><td>No</td><td>Yes (GitHub MCP)</td></tr>
+          <tr><td>Browser automation</td><td>No</td><td>Yes (Playwright MCP)</td></tr>
+          <tr><td>Database queries</td><td>No</td><td>Yes (Postgres MCP, etc.)</td></tr>
+          <tr><td>Persistent memory</td><td>No</td><td>Yes (Memory MCP)</td></tr>
+          <tr><td>Web scraping</td><td>Limited (WebSearch)</td><td>Yes (Playwright, Fetch MCP)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- SECTION: Architecture -->
+<section class="section" id="architecture">
+  <div class="section-eyebrow"><span class="s-cat">How It Works</span></div>
+  <h2>Architecture</h2>
+  <p class="lead">MCP uses a client-server model. Claude Code is the MCP <em>client</em>. External tools run as MCP <em>servers</em>. The model sends requests to servers and receives structured results.</p>
+
+  <div class="sub">
+    <h3><span class="material-symbols-rounded">refresh</span> Request Flow</h3>
+
+    <div class="flow-diagram">
+<svg viewBox="0 0 760 465" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <linearGradient id="s5-gu" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#6d28d9"/><stop offset="100%" stop-color="#a78bfa"/></linearGradient>
+  <linearGradient id="s5-gc" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#1e40af"/><stop offset="100%" stop-color="#60a5fa"/></linearGradient>
+  <linearGradient id="s5-gm" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#065f46"/><stop offset="100%" stop-color="#34d399"/></linearGradient>
+  <linearGradient id="s5-gt" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#92400e"/><stop offset="100%" stop-color="#fbbf24"/></linearGradient>
+  <filter id="s5-sh"><feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#00000030"/></filter>
+  <marker id="s5-ah" markerWidth="8" markerHeight="6" refX="6" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#6e7681"/></marker>
+  <marker id="s5-ahr" markerWidth="8" markerHeight="6" refX="6" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#4b5563"/></marker>
+</defs>
+
+<!-- Participant pills -->
+<rect x="15" y="18" width="140" height="40" rx="20" fill="url(#s5-gu)" filter="url(#s5-sh)"/>
+<text x="85" y="43" text-anchor="middle" fill="white" font-size="12" font-weight="700" font-family="inherit">User</text>
+
+<rect x="178" y="18" width="154" height="40" rx="20" fill="url(#s5-gc)" filter="url(#s5-sh)"/>
+<text x="255" y="36" text-anchor="middle" fill="white" font-size="11" font-weight="700" font-family="inherit">Claude Code</text>
+<text x="255" y="51" text-anchor="middle" fill="rgba(255,255,255,0.82)" font-size="10" font-family="inherit">Client</text>
+
+<rect x="372" y="18" width="148" height="40" rx="20" fill="url(#s5-gm)" filter="url(#s5-sh)"/>
+<text x="446" y="43" text-anchor="middle" fill="white" font-size="11" font-weight="700" font-family="inherit">MCP Server</text>
+
+<rect x="558" y="18" width="176" height="40" rx="20" fill="url(#s5-gt)" filter="url(#s5-sh)"/>
+<text x="646" y="36" text-anchor="middle" fill="white" font-size="11" font-weight="700" font-family="inherit">External Tool</text>
+<text x="646" y="51" text-anchor="middle" fill="rgba(255,255,255,0.82)" font-size="10" font-family="inherit">/ API</text>
+
+<!-- Lifelines -->
+<line x1="85" y1="58" x2="85" y2="450" stroke="#30363d" stroke-width="1.5" stroke-dasharray="4,4"/>
+<line x1="255" y1="58" x2="255" y2="450" stroke="#30363d" stroke-width="1.5" stroke-dasharray="4,4"/>
+<line x1="446" y1="58" x2="446" y2="450" stroke="#30363d" stroke-width="1.5" stroke-dasharray="4,4"/>
+<line x1="646" y1="58" x2="646" y2="450" stroke="#30363d" stroke-width="1.5" stroke-dasharray="4,4"/>
+
+<!-- Activation bars -->
+<rect x="249" y="98" width="12" height="318" rx="3" fill="#7c3aed" opacity="0.4"/>
+<rect x="440" y="175" width="12" height="186" rx="3" fill="#059669" opacity="0.4"/>
+<rect x="640" y="226" width="12" height="86" rx="3" fill="#b45309" opacity="0.4"/>
+
+<!-- Lifeline end dots -->
+<circle cx="85" cy="450" r="5" fill="#30363d"/>
+<circle cx="255" cy="450" r="5" fill="#30363d"/>
+<circle cx="446" cy="450" r="5" fill="#30363d"/>
+<circle cx="646" cy="450" r="5" fill="#30363d"/>
+
+<!-- M1: User → Claude -->
+<line x1="85" y1="112" x2="249" y2="112" stroke="#6e7681" stroke-width="1.5" marker-end="url(#s5-ah)"/>
+<text x="167" y="104" text-anchor="middle" fill="#8b949e" font-size="10.5" font-family="inherit">"Check the open PRs in my repo"</text>
+
+<!-- Note on Claude -->
+<rect x="196" y="128" width="136" height="26" rx="6" fill="#1c2128" stroke="#a78bfa" stroke-width="1"/>
+<text x="264" y="145" text-anchor="middle" fill="#a78bfa" font-size="10" font-family="inherit">Selects github_list_prs tool</text>
+
+<!-- M2: Claude → MCP -->
+<line x1="261" y1="190" x2="440" y2="190" stroke="#6e7681" stroke-width="1.5" marker-end="url(#s5-ah)"/>
+<text x="350" y="182" text-anchor="middle" fill="#8b949e" font-size="10.5" font-family="inherit">tools/call { github_list_prs, args }</text>
+
+<!-- M3: MCP → Tool -->
+<line x1="452" y1="240" x2="640" y2="240" stroke="#6e7681" stroke-width="1.5" marker-end="url(#s5-ah)"/>
+<text x="546" y="232" text-anchor="middle" fill="#8b949e" font-size="10.5" font-family="inherit">GitHub API request</text>
+
+<!-- M4: Tool → MCP (dashed return) -->
+<line x1="640" y1="296" x2="452" y2="296" stroke="#4b5563" stroke-width="1.5" stroke-dasharray="6,3" marker-end="url(#s5-ahr)"/>
+<text x="546" y="288" text-anchor="middle" fill="#6e7681" font-size="10.5" font-family="inherit">JSON response</text>
+
+<!-- M5: MCP → Claude (dashed return) -->
+<line x1="440" y1="350" x2="261" y2="350" stroke="#4b5563" stroke-width="1.5" stroke-dasharray="6,3" marker-end="url(#s5-ahr)"/>
+<text x="350" y="342" text-anchor="middle" fill="#6e7681" font-size="10.5" font-family="inherit">Tool result (structured)</text>
+
+<!-- M6: Claude → User -->
+<line x1="249" y1="408" x2="85" y2="408" stroke="#6e7681" stroke-width="1.5" marker-end="url(#s5-ah)"/>
+<text x="167" y="400" text-anchor="middle" fill="#8b949e" font-size="10.5" font-family="inherit">Summary of open PRs</text>
+</svg>
+    </div>
+
+    <h4>Transport Mechanisms</h4>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Transport</th><th>How It Works</th><th>Best For</th></tr></thead>
+        <tbody>
+          <tr><td><span class="ic">stdio</span></td><td>Claude Code spawns a local process and communicates via stdin/stdout</td><td>Local tools, filesystem access, system integrations</td></tr>
+          <tr><td><span class="ic">SSE</span></td><td>Remote server pushes events over HTTP Server-Sent Events</td><td>Remote APIs, shared team servers, cloud tools</td></tr>
+          <tr><td><span class="ic">HTTP</span></td><td>Standard request/response over HTTP</td><td>Simple integrations, REST API wrappers</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h4>How Tool Discovery Works</h4>
+    <p>When Claude Code starts and MCP servers are configured, it performs a <strong>tool discovery handshake</strong>. Here is what happens step by step:</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Step</th><th>What Happens</th></tr></thead>
+        <tbody>
+          <tr><td>1. Server Start</td><td>Claude Code launches the MCP server process (stdio) or connects to the remote URL (SSE/HTTP)</td></tr>
+          <tr><td>2. Capability Negotiation</td><td>Client and server exchange supported MCP protocol versions and capability flags</td></tr>
+          <tr><td>3. Tool List Request</td><td>Claude Code sends a <span class="ic">tools/list</span> request to enumerate all available tools</td></tr>
+          <tr><td>4. Schema Injection</td><td>All tool schemas from all configured servers are loaded into the active context window</td></tr>
+          <tr><td>5. Ready</td><td>Claude Code can now invoke any discovered tool by sending a <span class="ic">tools/call</span> request with arguments</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout note">
+      <strong>Note:</strong> Step 4 is the source of the context pollution problem described in the Pitfalls section. All tool schemas are injected at startup, not on demand. A server with 40 tools injects 40 schemas even if you only use 2 of them. This is a current limitation of the MCP protocol.
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- SECTION: Connecting -->
+<section class="section" id="connecting">
+  <div class="section-eyebrow"><span class="s-cat">Setup</span></div>
+  <h2>Connecting MCP Servers</h2>
+  <p class="lead">Claude Code provides first-class commands for installing, configuring, and managing MCP servers at both user and project scope.</p>
+
+  <div class="sub">
+    <h3><span class="material-symbols-rounded">inventory_2</span> Installation Commands</h3>
+    <div class="code-block">
+      <div class="code-header"><span class="lang-label">bash</span><button class="copy-btn">Copy</button></div>
+      <pre><code><span class="cc"># Install from npm package</span>
+<span class="ck">claude</span> mcp install @anthropic-ai/mcp-server-github <span class="cs">-s</span> user
+
+<span class="cc"># Install from a local path</span>
+<span class="ck">claude</span> mcp install /path/to/my-mcp-server <span class="cs">-s</span> project
+
+<span class="cc"># Add with environment variables (for API keys)</span>
+<span class="ck">claude</span> mcp add github \
+  <span class="cs">--transport</span> stdio \
+  <span class="cs">--command</span> <span class="cs">"npx @anthropic-ai/mcp-server-github"</span> \
+  <span class="cs">--env</span> GITHUB_TOKEN=<span class="co">$GITHUB_TOKEN</span>
+
+<span class="cc"># List installed servers</span>
+<span class="ck">claude</span> mcp list
+
+<span class="cc"># Remove a server</span>
+<span class="ck">claude</span> mcp remove github</code></pre>
+    </div>
+
+    <h4>Manual Configuration</h4>
+    <p>MCP server configurations are stored in <span class="ic">.claude/settings.json</span> (project) or <span class="ic">~/.claude/settings.json</span> (user). You can edit them directly:</p>
+
+    <div class="code-block">
+      <div class="cb-header">
+        <span class="cb-lang">json</span>
+        <span class="cb-title">settings.json — multiple MCP servers</span>
+      </div>
+      <pre><code>{
+  "mcpServers": {
+    "playwright": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["@playwright/mcp@latest"]
+    },
+    "github": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["@anthropic-ai/mcp-server-github"],
+      "env": { "GITHUB_TOKEN": "${GITHUB_TOKEN}" }
+    },
+    "postgres": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["@anthropic-ai/mcp-server-postgres"],
+      "env": { "DATABASE_URL": "${DATABASE_URL}" }
+    },
+    "remote-api": {
+      "type": "sse",
+      "url": "https://mcp.example.com/sse",
+      "headers": { "Authorization": "Bearer ${API_TOKEN}" }
+    }
+  }
+}</code></pre>
+    </div>
+
+    <h4>Configuration Scopes</h4>
+    <p>MCP servers can be configured at different scopes, controlling who has access to which servers:</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Scope</th><th>File</th><th>Who Has Access</th><th>Use Case</th></tr></thead>
+        <tbody>
+          <tr><td>User global</td><td><span class="ic">~/.claude/settings.json</span></td><td>You, in all projects</td><td>Personal tools: your GitHub token, personal Postgres</td></tr>
+          <tr><td>Project shared</td><td><span class="ic">.claude/settings.json</span></td><td>All team members</td><td>Team tools: shared staging DB, company GitHub server</td></tr>
+          <tr><td>Project local</td><td><span class="ic">.claude/settings.local.json</span></td><td>Only you, in this project</td><td>Developer overrides: local DB instance, personal test tokens</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout tip">
+      <strong>Tip:</strong> Commit <span class="ic">.claude/settings.json</span> (project shared) to give your whole team access to the same MCP servers with the same configuration. Add <span class="ic">.claude/settings.local.json</span> to <span class="ic">.gitignore</span> so individual developer overrides (personal tokens, local URLs) are never committed.
+    </div>
+
+    <h4>Step-by-Step: Setting Up the Filesystem MCP</h4>
+    <p>The filesystem MCP gives Claude Code access to directories outside the current working directory. Useful for reading documentation, configuration files, or shared resources in other locations.</p>
+
+    <div class="code-block">
+      <div class="cb-header">
+        <span class="cb-lang">bash</span>
+        <span class="cb-title">Install filesystem MCP</span>
+      </div>
+      <pre><code><span class="cc"># Step 1: Install the package globally</span>
+npm install -g @anthropic-ai/mcp-server-filesystem
+
+<span class="cc"># Step 2: Add to user-level settings</span>
+claude mcp add filesystem \
+  --transport stdio \
+  --command "mcp-server-filesystem" \
+  --args "/Users/me/Documents" "/Users/me/projects" \
+  -s user
+
+<span class="cc"># Step 3: Verify it is listed</span>
+claude mcp list
+
+<span class="cc"># Step 4: Test in REPL</span>
+<span class="cc"># Type this in Claude Code:</span>
+<span class="cc"># "List all Markdown files in /Users/me/Documents/notes/"</span></code></pre>
+    </div>
+
+    <h4>Step-by-Step: Setting Up the Playwright MCP</h4>
+    <p>Playwright MCP gives Claude Code the ability to control a browser — navigate pages, click elements, fill forms, take screenshots, and extract content.</p>
+
+    <div class="code-block">
+      <div class="cb-header">
+        <span class="cb-lang">bash</span>
+        <span class="cb-title">Install Playwright MCP</span>
+      </div>
+      <pre><code><span class="cc"># Step 1: No separate install needed — npx handles it</span>
+<span class="cc"># Add directly to settings.json:</span>
+claude mcp add playwright \
+  --transport stdio \
+  --command "npx" \
+  --args "@playwright/mcp@latest" \
+  -s user
+
+<span class="cc"># Step 2: Install browser binaries (one-time)</span>
+npx playwright install chromium
+
+<span class="cc"># Step 3: Test in REPL:</span>
+<span class="cc"># "Navigate to docs.anthropic.com and take a screenshot"</span></code></pre>
+    </div>
+
+    <h4>Step-by-Step: Setting Up the GitHub MCP</h4>
+
+    <div class="code-block">
+      <div class="cb-header">
+        <span class="cb-lang">bash</span>
+        <span class="cb-title">Install GitHub MCP</span>
+      </div>
+      <pre><code><span class="cc"># Step 1: Create a GitHub Personal Access Token</span>
+<span class="cc"># Go to: GitHub → Settings → Developer settings → Personal access tokens → Fine-grained</span>
+<span class="cc"># Required scopes: repo, read:org, workflow (if using Actions)</span>
+
+<span class="cc"># Step 2: Add the token to your shell profile</span>
+echo 'export GITHUB_TOKEN="ghp_your_token_here"' >> ~/.zshrc
+source ~/.zshrc
+
+<span class="cc"># Step 3: Install the MCP server</span>
+claude mcp add github \
+  --transport stdio \
+  --command "npx" \
+  --args "-y @anthropic-ai/mcp-server-github" \
+  --env GITHUB_TOKEN="${GITHUB_TOKEN}" \
+  -s user
+
+<span class="cc"># Step 4: Verify connection in REPL:</span>
+<span class="cc"># "List my 5 most recently updated repositories"</span></code></pre>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- SECTION: Common Servers -->
+<section class="section" id="common-servers">
+  <div class="section-eyebrow"><span class="s-cat">Reference</span></div>
+  <h2>Common MCP Servers</h2>
+  <p class="lead">A growing ecosystem of MCP servers is available for common development tools. These are the ones most relevant to typical Claude Code workflows.</p>
+
+  <div class="sub">
+    <h3><span class="material-symbols-rounded">power</span> Recommended Servers</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Server</th><th>Package</th><th>Key Capabilities</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>Playwright</td>
+            <td><span class="ic">@playwright/mcp</span></td>
+            <td>Browser control, screenshots, form filling, scraping, visual testing</td>
+          </tr>
+          <tr>
+            <td>GitHub</td>
+            <td><span class="ic">@anthropic-ai/mcp-server-github</span></td>
+            <td>PR management, issue tracking, file access, search, workflow triggers</td>
+          </tr>
+          <tr>
+            <td>Filesystem</td>
+            <td><span class="ic">@anthropic-ai/mcp-server-filesystem</span></td>
+            <td>Read/write arbitrary paths outside Claude Code's default scope</td>
+          </tr>
+          <tr>
+            <td>Fetch</td>
+            <td><span class="ic">@anthropic-ai/mcp-server-fetch</span></td>
+            <td>HTTP requests to external APIs and web pages</td>
+          </tr>
+          <tr>
+            <td>Memory</td>
+            <td><span class="ic">@anthropic-ai/mcp-server-memory</span></td>
+            <td>Persistent key-value storage across sessions</td>
+          </tr>
+          <tr>
+            <td>Postgres</td>
+            <td><span class="ic">@anthropic-ai/mcp-server-postgres</span></td>
+            <td>Database queries, schema inspection, data analysis</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- SECTION: Tool Schemas -->
+<section class="section" id="tool-schemas">
+  <div class="section-eyebrow"><span class="s-cat">Internals</span></div>
+  <h2>Tool Schemas</h2>
+  <p class="lead">Every MCP tool is described by a JSON Schema definition. Claude Code loads these schemas at startup — they define what tools exist and what arguments they accept. The quality of these schemas directly affects how well the model uses the tools.</p>
+
+  <div class="sub">
+    <h3><span class="material-symbols-rounded">straighten</span> Schema Structure</h3>
+    <div class="code-block">
+      <div class="code-header"><span class="lang-label">json — example tool definition</span><button class="copy-btn">Copy</button></div>
+      <pre><code>{
+  <span class="ck">"name"</span>: <span class="cs">"github_create_pull_request"</span>,
+  <span class="ck">"description"</span>: <span class="cs">"Create a pull request in a GitHub repository"</span>,
+  <span class="ck">"inputSchema"</span>: {
+    <span class="ck">"type"</span>: <span class="cs">"object"</span>,
+    <span class="ck">"properties"</span>: {
+      <span class="ck">"owner"</span>:  { <span class="ck">"type"</span>: <span class="cs">"string"</span>, <span class="ck">"description"</span>: <span class="cs">"Repository owner"</span> },
+      <span class="ck">"repo"</span>:   { <span class="ck">"type"</span>: <span class="cs">"string"</span>, <span class="ck">"description"</span>: <span class="cs">"Repository name"</span> },
+      <span class="ck">"title"</span>:  { <span class="ck">"type"</span>: <span class="cs">"string"</span>, <span class="ck">"description"</span>: <span class="cs">"PR title"</span> },
+      <span class="ck">"body"</span>:   { <span class="ck">"type"</span>: <span class="cs">"string"</span>, <span class="ck">"description"</span>: <span class="cs">"PR body in Markdown"</span> },
+      <span class="ck">"head"</span>:   { <span class="ck">"type"</span>: <span class="cs">"string"</span>, <span class="ck">"description"</span>: <span class="cs">"Source branch"</span> },
+      <span class="ck">"base"</span>:   { <span class="ck">"type"</span>: <span class="cs">"string"</span>, <span class="ck">"description"</span>: <span class="cs">"Target branch"</span> }
+    },
+    <span class="ck">"required"</span>: [<span class="cs">"owner"</span>, <span class="cs">"repo"</span>, <span class="cs">"title"</span>, <span class="cs">"head"</span>, <span class="cs">"base"</span>]
+  }
+}</code></pre>
+    </div>
+
+    <p>The model reads these schemas to understand what tools are available and how to use them. Better descriptions mean better tool usage — vague or minimal descriptions lead to misuse or omission.</p>
+
+    <h4>What Makes a Good Tool Schema?</h4>
+    <p>The difference between a tool that Claude uses correctly 95% of the time versus 60% of the time is almost entirely in the quality of its schema description. Here is what separates good from bad:</p>
+
+    <div class="compare">
+      <div class="compare-col good">
+        <h4>✓ Good Schema Description</h4>
+        <div class="code-block">
+          <div class="cb-header"><span class="cb-lang">json</span></div>
+          <pre><code>{
+  "name": "search_issues",
+  "description": "Search GitHub issues and PRs using GitHub's search syntax. Use this when you need to find specific issues by keyword, label, state, or author. For listing all open issues, use list_issues instead. Example: q='is:open label:bug' searches for open bugs.",
+  "inputSchema": {
+    "properties": {
+      "q": {
+        "type": "string",
+        "description": "GitHub search query. Supports: is:open, is:closed, label:name, author:username, created:>2024-01-01. Required."
+      },
+      "per_page": {
+        "type": "integer",
+        "description": "Results per page, 1-100. Default: 30.",
+        "default": 30
+      }
+    }
+  }
+}</code></pre>
+        </div>
+      </div>
+      <div class="compare-col bad">
+        <h4>✗ Poor Schema Description</h4>
+        <div class="code-block">
+          <div class="cb-header"><span class="cb-lang">json</span></div>
+          <pre><code>{
+  "name": "search_issues",
+  "description": "Search issues",
+  "inputSchema": {
+    "properties": {
+      "q": {
+        "type": "string"
+      },
+      "per_page": {
+        "type": "integer"
+      }
+    }
+  }
+}</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <h4>Building a Simple MCP Server — Conceptual Walkthrough</h4>
+    <p>Understanding what an MCP server does internally helps you evaluate third-party servers and debug issues. An MCP server is a process (any language) that:</p>
+    <ul>
+      <li><strong>Implements the MCP protocol</strong> — responds to <span class="ic">initialize</span>, <span class="ic">tools/list</span>, and <span class="ic">tools/call</span> requests</li>
+      <li><strong>Declares its tools</strong> — returns JSON Schema definitions in response to <span class="ic">tools/list</span></li>
+      <li><strong>Executes tool calls</strong> — when Claude sends <span class="ic">tools/call</span> with a tool name and arguments, it performs the actual work and returns a structured result</li>
+      <li><strong>Handles errors gracefully</strong> — returns structured error responses rather than crashing</li>
+    </ul>
+
+    <div class="code-block">
+      <div class="cb-header">
+        <span class="cb-lang">typescript</span>
+        <span class="cb-title">Minimal MCP server structure (conceptual)</span>
+      </div>
+      <pre><code>import { Server } from "@modelcontextprotocol/sdk/server/index.js";
+import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+
+const server = new Server(
+  { name: "my-server", version: "1.0.0" },
+  { capabilities: { tools: {} } }
+);
+
+server.setRequestHandler("tools/list", async () => ({
+  tools: [
+    {
+      name: "get_weather",
+      description: "Get current weather for a city. Returns temperature and conditions.",
+      inputSchema: {
+        type: "object",
+        properties: {
+          city: { type: "string", description: "City name, e.g. 'London'" }
+        },
+        required: ["city"]
+      }
+    }
+  ]
+}));
+
+server.setRequestHandler("tools/call", async (request) => {
+  if (request.params.name === "get_weather") {
+    const { city } = request.params.arguments;
+    const data = await fetchWeatherAPI(city);
+    return { content: [{ type: "text", text: JSON.stringify(data) }] };
+  }
+  throw new Error(`Unknown tool: ${request.params.name}`);
+});
+
+const transport = new StdioServerTransport();
+await server.connect(transport);</code></pre>
+    </div>
+
+    <div class="callout note">
+      <strong>Note:</strong> You do not typically need to write MCP servers from scratch. The community ecosystem already covers most common tools. Building custom servers makes sense when you need to expose proprietary internal APIs, connect to internal databases not exposed to the internet, or create highly specialized tools for your specific workflow.
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- SECTION: Pitfalls -->
+<section class="section" id="pitfalls">
+  <div class="section-eyebrow"><span class="s-cat">Critical Reading</span></div>
+  <h2>Known Pitfalls</h2>
+  <p class="lead">MCP's current implementation has structural limitations that matter at production scale. Being aware of these prevents common failure modes in agentic systems.</p>
+
+  <div class="sub">
+    <h3><span class="material-symbols-rounded">warning</span> Context Pollution</h3>
+    <p>MCP servers load all their tool schemas into the context window at startup — regardless of which tools will actually be used. A server with 50 tools injects 50 schema definitions even if only 2 are needed for the task.</p>
+    <p>At scale, this causes:</p>
+    <ul>
+      <li><span class="hl-red">Token waste</span> — every request pays for irrelevant tool definitions</li>
+      <li><span class="hl-orange">Degraded selection</span> — the model must search a larger tool space, increasing mis-selection probability</li>
+      <li><span class="hl-orange">Context pressure</span> — tool schemas compete with actual task content for context window space</li>
+    </ul>
+    <p><strong>Mitigation:</strong> Install only the servers you need. For large servers, prefer minimal servers that expose only what's needed for the current workflow.</p>
+  </div>
+
+  <div class="sub">
+    <h3><span class="material-symbols-rounded">warning</span> Round-Trip Inefficiency</h3>
+    <p>Complex tasks that require multiple tool calls execute as a sequence of individual round trips: model → tool → model → tool → model. Each round trip is a full API call with full context.</p>
+    <p>A task requiring 8 tool calls requires 8 complete round trips. As context grows with each result, later calls become more expensive and slower than earlier ones.</p>
+    <p><strong>Mitigation:</strong> Design workflows to minimize sequential tool calls. Where possible, batch operations or use subagents to parallelize independent tool sequences.</p>
+  </div>
+
+  <div class="sub">
+    <h3><span class="material-symbols-rounded">warning</span> Shallow Tool Definitions</h3>
+    <p>JSON Schema captures parameter types and names — but not usage patterns, failure modes, or best practices. A schema tells the model <em>what</em> a tool accepts, not <em>how</em> to use it effectively.</p>
+    <p>The gap between "schema describes the tool" and "model uses the tool well" is bridged by:</p>
+    <ul>
+      <li>Rich <span class="ic">description</span> fields with usage examples</li>
+      <li>Explicit notes about common mistakes in parameter values</li>
+      <li>Tool-specific context in your <span class="ic">CLAUDE.md</span> files</li>
+    </ul>
+
+    <div class="callout warning">
+      <strong>Warning:</strong> When writing custom MCP servers, the description field in your tool schema is as important as the implementation. Include: what the tool does, when to use it vs alternatives, what a correct call looks like, and common parameter mistakes to avoid. Good descriptions measurably improve tool usage accuracy.
+    </div>
+
+    <h4>Security Considerations for MCP</h4>
+    <p>MCP servers execute with the permissions of the process they run in. A compromised or malicious MCP server can do significant damage. Before trusting any MCP server, evaluate:</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Question</th><th>Why It Matters</th></tr></thead>
+        <tbody>
+          <tr><td>Is the server open source?</td><td>Can you audit what it actually does with the data and credentials you give it?</td></tr>
+          <tr><td>What credentials does it request?</td><td>Minimal-scope tokens are safer. Does it need write access, or would read-only suffice?</td></tr>
+          <tr><td>Is it maintained?</td><td>Unmaintained MCP servers may have security vulnerabilities in dependencies.</td></tr>
+          <tr><td>Does it log data?</td><td>Some MCP servers log all requests to external analytics. Check the privacy policy.</td></tr>
+          <tr><td>What happens on errors?</td><td>Does it expose internal error messages, stack traces, or connection strings in error responses?</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout warning">
+      <strong>Warning:</strong> Prompt injection via MCP is a real risk. If an MCP server reads content from the web (e.g., a web scraping MCP), that content could contain instructions designed to hijack Claude's behavior. This is called an "indirect prompt injection attack." Be especially cautious with MCPs that fetch arbitrary external content and feed it back to the model.
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- SECTION: Best Practices -->
+<section class="section" id="best-practices">
+  <div class="section-eyebrow"><span class="s-cat">Guidance</span></div>
+  <h2>MCP Best Practices</h2>
+
+  <div class="sub">
+    <h3><span class="material-symbols-rounded">check_circle</span> Production MCP Checklist</h3>
+    <ul>
+      <li><strong>Install only what you need.</strong> Each installed server adds context overhead. Prefer targeted servers over comprehensive ones.</li>
+      <li><strong>Use project scope for team tools.</strong> Commit your <span class="ic">settings.json</span> MCP configuration so every team member gets consistent tool access.</li>
+      <li><strong>Secure API tokens via environment variables.</strong> Never hardcode credentials in settings files. Use <span class="ic">${ENV_VAR}</span> syntax in the configuration.</li>
+      <li><strong>Write tool-specific CLAUDE.md context.</strong> Load <span class="ic">@memory/github/CLAUDE.md</span> when doing GitHub work, with conventions specific to your repo and team workflow.</li>
+      <li><strong>Test tool definitions independently.</strong> Before relying on an MCP server in production workflows, verify that the model selects and invokes the tools correctly with representative test prompts.</li>
+      <li><strong>Monitor token usage.</strong> MCP tool calls are some of the highest-token operations in Claude Code. Audit which tools get called most and whether the results justify the cost.</li>
+    </ul>
+
+    <h4>Troubleshooting MCP — Common Issues and Fixes</h4>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Symptom</th><th>Likely Cause</th><th>Fix</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>MCP tools not appearing in Claude Code</td>
+            <td>Server failed to start or handshake failed</td>
+            <td>Run <span class="ic">claude mcp list</span> to check status. Check that the command and args in settings.json are correct. Run the command manually in your terminal to see startup errors.</td>
+          </tr>
+          <tr>
+            <td>Authentication errors from the MCP server</td>
+            <td>Token not available in environment</td>
+            <td>Verify <span class="ic">echo $GITHUB_TOKEN</span> returns a value. Ensure the variable is exported, not just set. Restart Claude Code after sourcing your shell profile.</td>
+          </tr>
+          <tr>
+            <td>Claude Code invokes wrong tool</td>
+            <td>Ambiguous or poor tool descriptions</td>
+            <td>Add context to your CLAUDE.md explaining which tools to prefer for which tasks. Improve the tool's description field.</td>
+          </tr>
+          <tr>
+            <td>MCP server crashes mid-session</td>
+            <td>Unhandled error in the server process</td>
+            <td>Check the server's stderr output. For stdio servers, add <span class="ic">2>&1</span> to your command to capture stderr. Report to the server's maintainers.</td>
+          </tr>
+          <tr>
+            <td>Tools work once then stop</td>
+            <td>Token expired or rate limit hit</td>
+            <td>Refresh the token. Add rate limit handling context in CLAUDE.md: "If GitHub returns 429, wait 60 seconds before retrying."</td>
+          </tr>
+          <tr>
+            <td>SSE server connection drops</td>
+            <td>Network timeout or server restart</td>
+            <td>Claude Code will attempt to reconnect. If persistent, check the server's uptime and any firewall rules blocking the connection.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h4>Which MCP Server for Which Task?</h4>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Task</th><th>Recommended MCP</th><th>Why</th></tr></thead>
+        <tbody>
+          <tr><td>Manage PRs and issues</td><td>GitHub MCP</td><td>Full GitHub API access, PR creation, reviews, labels</td></tr>
+          <tr><td>Test a web UI</td><td>Playwright MCP</td><td>Real browser control, screenshots, form interaction</td></tr>
+          <tr><td>Query production data</td><td>Postgres / SQLite MCP</td><td>Direct SQL access with schema introspection</td></tr>
+          <tr><td>Fetch web content</td><td>Fetch MCP</td><td>HTTP requests to APIs or web pages, returns structured content</td></tr>
+          <tr><td>Remember across sessions</td><td>Memory MCP</td><td>Persistent key-value store survives <span class="ic">/clear</span> and session restarts</td></tr>
+          <tr><td>Access files outside the project</td><td>Filesystem MCP</td><td>Expands readable/writable paths beyond the CWD</td></tr>
+          <tr><td>Slack notifications</td><td>Slack MCP</td><td>Send messages and read channel history from Claude Code</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- Chapter nav footer -->
+<div style="display:flex;justify-content:space-between;padding-top:32px;border-top:1px solid var(--border-dim);">
+  <a href="chapter-04.html" class="btn-secondary" style="text-decoration:none">← Essential Commands</a>
+  <a href="chapter-06.html" class="btn-primary" style="text-decoration:none">GitHub Integration →</a>
+</div>
+
+</main>
+<aside class="toc-panel"><div id="page-toc"></div></aside>
+</div>
+
+<div id="back-to-top">↑</div>
+<div id="sidebar-overlay"></div>
+<div id="cmd-overlay">
+  <div id="cmd-palette">
+    <div class="cmd-search">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398l3.85 3.85a1 1 0 0 0 1.415-1.415l-3.868-3.833zm-5.242 1.156a5 5 0 1 1 0-10 5 5 0 0 1 0 10z"/></svg>
+      <input type="text" id="cmd-input" placeholder="Search chapters and sections..." autocomplete="off" spellcheck="false">
+      <kbd>esc</kbd>
+    </div>
+    <div class="cmd-results" id="cmd-results"></div>
+    <div class="cmd-footer">
+      <span class="cmd-hint"><kbd>↑↓</kbd> navigate</span>
+      <span class="cmd-hint"><kbd>↵</kbd> open</span>
+      <span class="cmd-hint"><kbd>esc</kbd> close</span>
+    </div>
+  </div>
+</div>
+<script src="assets/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ch.09 — Output Styles</title>
+<link rel="stylesheet" href="assets/styles.css">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+</head>
+<body>
+<div id="progress-bar"></div>
+
+<nav class="top-nav">
+  <button class="mobile-menu-btn" id="mobile-menu-btn"><span class="material-symbols-rounded">menu</span></button>
+  <a class="nav-logo" href="index.html">
+    <div class="nav-logo-icon">CC</div>
+    <span class="nav-logo-text">Claude <em>Code</em></span>
+  </a>
+  <span class="nav-ver">Docs v1.0</span>
+  <div class="nav-spacer"></div>
+  <button class="search-trigger"><span class="st-icon"><span class="material-symbols-rounded" style="font-size:16px">search</span></span><span>Search docs...</span><kbd>⌘K</kbd></button>
+  <button class="theme-toggle" id="theme-toggle"><span class="material-symbols-rounded">light_mode</span></button>
+</nav>
+
+<div class="page-header">
+  <div class="breadcrumb">
+    <a href="index.html">Home</a><span class="sep">/</span>
+    <span class="cur">Chapter 09 — Output Styles</span>
+  </div>
+  <h1>Output Styles</h1>
+  <p class="subtitle">Output styles define how Claude Code communicates — tone, format, verbosity, and structure. Custom styles let you shape every response to match your workflow, team conventions, and engineering standards.</p>
+  <div class="tag-row">
+    <span class="tag purple">Chapter 09</span>
+    <span class="tag blue">Output Styles</span>
+    <span class="tag orange">Status Line</span>
+    <span class="tag green">Specialized Agents</span>
+  </div>
+</div>
+
+<div class="layout">
+<aside class="sidebar">
+  <div class="sb-section">
+    <div class="sb-label">Documentation</div>
+    <a class="sb-link" href="index.html">Overview</a>
+  </div>
+  <div class="sb-section">
+    <div class="sb-label">Chapters</div>
+    <a class="sb-link" href="chapter-01.html"><span class="ch-n">01</span>Introduction</a>
+    <a class="sb-link" href="chapter-02.html"><span class="ch-n">02</span>Context Engineering</a>
+    <a class="sb-link" href="chapter-03.html"><span class="ch-n">03</span>Claude Code Essentials</a>
+    <a class="sb-link" href="chapter-04.html"><span class="ch-n">04</span>Essential Commands</a>
+    <a class="sb-link" href="chapter-05.html"><span class="ch-n">05</span>MCP</a>
+    <a class="sb-link" href="chapter-06.html"><span class="ch-n">06</span>GitHub Integration</a>
+    <a class="sb-link" href="chapter-07.html"><span class="ch-n">07</span>Advanced Workflows</a>
+    <a class="sb-link" href="chapter-08.html"><span class="ch-n">08</span>Subagents</a>
+    <a class="sb-link active" href="chapter-09.html"><span class="ch-n">09</span>Output Styles</a>
+    <a class="sb-link" href="chapter-10.html"><span class="ch-n">10</span>Agent Skills</a>
+    <a class="sb-link" href="chapter-11.html"><span class="ch-n">11</span>Desktop</a>
+    <a class="sb-link" href="chapter-12.html"><span class="ch-n">12</span>Deep Agents</a>
+    <a class="sb-link" href="chapter-13.html"><span class="ch-n">13</span>Security</a>
+  </div>
+</aside>
+
+<main class="main-content">
+
+<!-- SECTION: What Are Output Styles -->
+<section class="section" id="what-are-output-styles">
+  <div class="section-eyebrow">
+    <span class="s-badge">Chapter 09</span>
+    <span class="s-cat">Foundations</span>
+  </div>
+  <h2>What Are Output Styles?</h2>
+  <p class="lead">Output styles define <em>how</em> Claude Code communicates — not what it knows, but how it responds. Tone, format, verbosity, and structural preferences are all configurable. The default style is generic. Custom styles make Claude feel like it was built specifically for your workflow.</p>
+
+  <div class="sub">
+    <h3>The Concept: A Style is a Persistent Prompt Addition</h3>
+    <p>An output style is a markdown file that acts as a permanent addition to Claude's system prompt for your session. Every response Claude gives is shaped by the rules in that file — tone, structure, what to include, what to omit. Think of it as a configuration layer that sits between "what Claude knows" and "how Claude talks to you."</p>
+
+    <p>Without a style, Claude gives generic, polished, educational responses — fine for beginners, but often too verbose and preamble-heavy for professional engineers who just need answers. With a well-crafted style, Claude behaves exactly like a senior colleague who already knows your preferences.</p>
+
+    <h3>Where Styles Are Stored</h3>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Location</th><th>Scope</th><th>Committed to repo?</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="ic">~/.claude/</span></td>
+            <td>User-level — applies to all your projects</td>
+            <td>No — personal only</td>
+          </tr>
+          <tr>
+            <td><span class="ic">.claude/output-styles/</span></td>
+            <td>Project-level — applies only to this repository</td>
+            <td>Yes — shared with team</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Built-In Styles</h3>
+    <p>Claude Code ships with three built-in output styles:</p>
+    <ul>
+      <li><span class="ic">default</span> — balanced, general-purpose responses</li>
+      <li><span class="ic">explanatory</span> — more context, reasoning visible, educational tone</li>
+      <li><span class="ic">learning</span> — verbose walkthroughs, explains every step, suited for onboarding</li>
+    </ul>
+    <p>Custom styles live as markdown files in <span class="ic">.claude/</span> (project-level) or <span class="ic">~/.claude/</span> (user-level) and override these defaults per-context.</p>
+
+    <div class="callout note">
+      <strong>Note:</strong> Style files only affect how Claude responds — they do not change its capabilities, tool access, or model. A "concise" style does not make Claude less capable; it just makes it stop padding responses with unnecessary explanation.
+    </div>
+  </div>
+
+  <div class="feature-grid">
+    <div class="feature-card">
+      <div class="fc-icon"><span class="material-symbols-rounded">tune</span></div>
+      <div class="fc-title">Tone Control</div>
+      <div class="fc-body">Define whether Claude should be terse or elaborate, formal or casual, declarative or exploratory.</div>
+    </div>
+    <div class="feature-card">
+      <div class="fc-icon"><span class="material-symbols-rounded">straighten</span></div>
+      <div class="fc-title">Format Control</div>
+      <div class="fc-body">Specify preferences for bullet points vs prose, code blocks, table usage, and header structure.</div>
+    </div>
+    <div class="feature-card">
+      <div class="fc-icon"><span class="material-symbols-rounded">pin</span></div>
+      <div class="fc-title">Verbosity Level</div>
+      <div class="fc-body">Cap explanation length, suppress preamble, eliminate summaries — or expand detail on request.</div>
+    </div>
+    <div class="feature-card">
+      <div class="fc-icon"><span class="material-symbols-rounded">handshake</span></div>
+      <div class="fc-title">Project-Level Consistency</div>
+      <div class="fc-body">Commit a style to the repo so every team member gets the same interaction pattern from Claude Code.</div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- SECTION: Creating Custom Output Styles -->
+<section class="section" id="creating-styles">
+  <div class="section-eyebrow"><span class="s-cat">Setup</span></div>
+  <h2>Creating Custom Output Styles</h2>
+  <p class="lead">Use <span class="ic">/output-style new</span> to launch a setup subagent that asks questions about your preferences and generates a style file. Or create the markdown file manually for full control.</p>
+
+  <div class="sub">
+    <h3>Using the Command</h3>
+    <div class="code-block">
+      <div class="code-header"><span class="lang-label">prompt</span><button class="copy-btn">Copy</button></div>
+      <pre><code>/output-style new</code></pre>
+    </div>
+    <p>The subagent will ask about your preferred response length, formatting conventions, what phrases to avoid, and how you want code references handled. It then writes the style file to <span class="ic">.claude/</span>.</p>
+
+    <h3>Manual Style File</h3>
+    <p>Create a markdown file with your style rules directly. The file name becomes the style identifier. For example, <span class="ic">.claude/concise-engineer.md</span>:</p>
+
+    <div class="code-block">
+      <div class="code-header"><span class="lang-label">markdown — .claude/concise-engineer.md</span><button class="copy-btn">Copy</button></div>
+      <pre><code># Concise Engineer Output Style
+
+You are working with a senior backend engineer who values brevity.
+
+## Rules
+- Lead with the answer or action, never with preamble
+- Max 3 sentences for explanations unless asked for more
+- Use code blocks for all code, even one-liners
+- No filler phrases: "Great question!", "Certainly!", "Of course!"
+- When referencing code, include file:line_number
+- Bullet points over paragraphs for lists
+- Skip summaries at the end of responses — the engineer can read the diff</code></pre>
+    </div>
+
+    <h3>Style File Frontmatter</h3>
+    <p>Style files support optional YAML frontmatter to declare metadata like the style name, description, and whether it inherits from another style:</p>
+
+    <div class="code-block">
+      <div class="cb-header"><span class="cb-lang">markdown</span><span class="cb-title">.claude/output-styles/go-expert.md with frontmatter</span></div>
+      <pre><code>---
+name: go-expert
+description: Go-specific expert style for backend engineering
+extends: concise-engineer
+---
+
+# Go Expert Output Style
+
+## Additional Rules (extends concise-engineer)
+- Always use idiomatic Go patterns
+- Prefer table-driven tests with t.Run()
+- Reference controller-runtime patterns when relevant
+- When suggesting error handling, always wrap errors with context
+- For Kubernetes code, follow controller-runtime conventions
+- Never suggest global state; prefer dependency injection</code></pre>
+    </div>
+
+    <div class="callout tip">
+      <strong>Tip:</strong> The style file is itself a prompt. Think of it as a persistent system prompt addition that shapes every response Claude gives you. The clearer and more specific your rules, the more reliably Claude adheres to them. Imperative rules ("Always do X", "Never do Y") are more reliable than suggestions ("Try to do X").
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- SECTION: Project-Level Output Styles -->
+<section class="section" id="project-styles">
+  <div class="section-eyebrow"><span class="s-cat">Team Workflows</span></div>
+  <h2>Project-Level Output Styles</h2>
+  <p class="lead">Project-scoped styles are stored in <span class="ic">.claude/output-styles/</span> and committed to the repository. Every team member who clones the repo gets the same interaction style without any personal setup.</p>
+
+  <div class="sub">
+    <h3>Setup</h3>
+    <div class="mech-steps">
+      <div class="mech-step">
+        <div class="step-num">1</div>
+        <div class="step-title">Create the directory</div>
+        <div class="step-body">Create <span class="ic">.claude/output-styles/</span> in your project root.</div>
+      </div>
+      <div class="mech-step">
+        <div class="step-num">2</div>
+        <div class="step-title">Write the style file</div>
+        <div class="step-body">Create a markdown file, e.g. <span class="ic">team-concise.md</span>, with your team's communication rules.</div>
+      </div>
+      <div class="mech-step">
+        <div class="step-num">3</div>
+        <div class="step-title">Commit to the repository</div>
+        <div class="step-body">Check the style file into version control. All team members get the style when they pull.</div>
+      </div>
+      <div class="mech-step">
+        <div class="step-num">4</div>
+        <div class="step-title">Activate the style</div>
+        <div class="step-body">Run <span class="ic">/output-style project:team-concise</span> to activate it in the current session.</div>
+      </div>
+    </div>
+
+    <h3>User vs Project Scope</h3>
+    <div class="compare-panel">
+      <div class="cp-col">
+        <div class="cp-head">User Style</div>
+        <ul class="cp-list">
+          <li>Stored in <span class="ic">~/.claude/</span></li>
+          <li>Applies across all projects</li>
+          <li>Personal preferences only</li>
+          <li>Not shared with team</li>
+          <li>Activated with <span class="ic">/output-style style-name</span></li>
+        </ul>
+      </div>
+      <div class="cp-col">
+        <div class="cp-head">Project Style</div>
+        <ul class="cp-list">
+          <li>Stored in <span class="ic">.claude/output-styles/</span></li>
+          <li>Applies only to this project</li>
+          <li>Team-shared and version-controlled</li>
+          <li>Committed to the repository</li>
+          <li>Activated with <span class="ic">/output-style project:name</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- SECTION: Status Line Customization -->
+<section class="section" id="status-line">
+  <div class="section-eyebrow"><span class="s-cat">Interface</span></div>
+  <h2>Status Line Customization</h2>
+  <p class="lead">The status line displays real-time context at the bottom of the Claude Code interface. You can customize it to show model name, token count, cost, session ID, and more — making key metrics visible at a glance without breaking your flow.</p>
+
+  <div class="sub">
+    <h3>Basic Configuration</h3>
+    <p>Set the <span class="ic">statusLine</span> field in <span class="ic">.claude/settings.json</span>:</p>
+
+    <div class="code-block">
+      <div class="code-header"><span class="lang-label">json — .claude/settings.json</span><button class="copy-btn">Copy</button></div>
+      <pre><code>{
+  <span class="ck">"statusLine"</span>: <span class="cs">"${model} | tokens: ${tokens} | cost: $${cost}"</span>
+}</code></pre>
+    </div>
+
+    <h4>Available Variables</h4>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Variable</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><span class="ic">${model}</span></td><td>The active model name (e.g., claude-sonnet-4-5)</td></tr>
+          <tr><td><span class="ic">${tokens}</span></td><td>Total tokens used in the current session</td></tr>
+          <tr><td><span class="ic">${cost}</span></td><td>Estimated session cost in USD</td></tr>
+          <tr><td><span class="ic">${session}</span></td><td>Session identifier</td></tr>
+          <tr><td><span class="ic">${mode}</span></td><td>Current mode (auto, manual, etc.)</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Advanced: Last User Prompt</h3>
+    <p>For context-at-a-glance workflows, you can display the last user prompt in the status line. This is useful when switching between multiple Claude Code windows and needing to orient quickly without scrolling back through the conversation.</p>
+
+    <div class="callout info">
+      <div class="ct">Version Requirement</div>
+      <p>Status line customization requires Claude Code 1.x+. Check your version with <span class="ic">claude --version</span> before configuring advanced status line features.</p>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- SECTION: Teams of Specialized Agents -->
+<section class="section" id="specialized-agents">
+  <div class="section-eyebrow"><span class="s-cat">Future Direction</span></div>
+  <h2>The Future: Teams of Specialized Agents</h2>
+  <p class="lead">Output styles combined with custom skills and subagents form the foundation of agent specialization. Instead of one general-purpose assistant, you compose a team of role-specific agents — each tuned for a distinct part of the development workflow.</p>
+
+  <div class="sub">
+    <h3>Agent Team Architecture</h3>
+    <p>Each agent in the team has a specialized output style matched to its role. The style defines not just format, but the domain knowledge emphasis, what to include or omit, and how to communicate results to the next agent in the pipeline.</p>
+
+    <div class="feature-grid">
+      <div class="feature-card">
+        <div class="fc-icon"><span class="material-symbols-rounded">construction</span></div>
+        <div class="fc-title">Architect</div>
+        <div class="fc-body">Reads codebase and requirements. Produces structured specs and ADRs. Outputs no implementation code — only design decisions and rationale.</div>
+      </div>
+      <div class="feature-card">
+        <div class="fc-icon">⌨</div>
+        <div class="fc-title">Implementer</div>
+        <div class="fc-body">Consumes specs from the Architect. Writes production code. Responds with diffs and implementation notes, not explanations.</div>
+      </div>
+      <div class="feature-card">
+        <div class="fc-icon"><span class="material-symbols-rounded">search</span></div>
+        <div class="fc-title">Reviewer</div>
+        <div class="fc-body">Reads code produced by the Implementer. Produces a structured review with severity classifications. No code output — only analysis.</div>
+      </div>
+      <div class="feature-card">
+        <div class="fc-icon"><span class="material-symbols-rounded">science</span></div>
+        <div class="fc-title">Tester</div>
+        <div class="fc-body">Generates test cases and coverage reports for the implementation. Outputs test files and a coverage summary with gap analysis.</div>
+      </div>
+    </div>
+
+    <div class="callout info">
+      <div class="ct">Where the Industry Is Heading</div>
+      <p>This is the direction AI-assisted development is moving — not one generalist coding assistant, but a team of role-specialized agents collaborating on your codebase. Output styles are what give each agent its distinct identity and communication contract.</p>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- SECTION: Practical Style Examples -->
+<section class="section" id="practical-styles">
+  <div class="section-eyebrow"><span class="s-cat">Examples</span></div>
+  <h2>Practical Style Examples</h2>
+  <p class="lead">Four complete, production-ready style files — each tuned to a different engineering role. Copy, adapt, and commit these to your project or user configuration.</p>
+
+  <div class="sub">
+    <h3>Style 1: Concise — Minimal, Direct Answers</h3>
+    <p>The workhorse style for experienced engineers who want answers without preamble. Eliminates all padding, filler phrases, and post-amble summaries:</p>
+
+    <div class="code-block">
+      <div class="cb-header"><span class="cb-lang">markdown</span><span class="cb-title">~/.claude/concise.md</span></div>
+      <pre><code>---
+name: concise
+description: Minimal, direct responses for experienced engineers
+---
+
+# Concise Style
+
+## Communication Rules
+- Answer first, explain only if the answer requires it
+- Maximum 3 sentences of explanation per response unless explicitly asked
+- No preamble: never start with "Great question", "Certainly", "Sure!", "Of course"
+- No postamble: no "Let me know if you need anything else", no summary recaps
+- No filler words or hedging: be direct
+
+## Code Rules
+- Use code blocks for all code including single-line commands
+- Include file:line references when pointing to specific code locations
+- Show diffs rather than full file rewrites when only part of a file changes
+
+## Formatting
+- Prefer bullet lists over paragraphs for multi-point answers
+- Use tables for comparisons
+- Omit headers unless the response genuinely has multiple sections</code></pre>
+    </div>
+
+    <h3>Style 2: Verbose — Full Context and Reasoning</h3>
+    <p>For onboarding, learning, or when you need Claude to explain its reasoning fully. Every step is explained, tradeoffs are surfaced, and alternatives are noted:</p>
+
+    <div class="code-block">
+      <div class="cb-header"><span class="cb-lang">markdown</span><span class="cb-title">~/.claude/verbose.md</span></div>
+      <pre><code>---
+name: verbose
+description: Educational, fully-explained responses with visible reasoning
+---
+
+# Verbose Style
+
+## Communication Rules
+- Always explain WHY before HOW — rationale before implementation
+- Surface alternatives and their tradeoffs before recommending one approach
+- Explicitly state assumptions you are making
+- Call out risks and edge cases even if not asked
+
+## Code Rules
+- Annotate code with comments explaining non-obvious decisions
+- After code, include a "What this does" paragraph in plain English
+- Include both the implementation and a usage example
+- Mention what to test after any code change
+
+## Formatting
+- Use headers to separate major sections of long responses
+- Include a TL;DR at the top of responses longer than 10 lines
+- Use numbered steps for sequential processes
+- Bold key terms on first use</code></pre>
+    </div>
+
+    <h3>Style 3: Go Expert — Language-Specific Engineering</h3>
+    <p>Specializes Claude for idiomatic Go development. Enforces Go conventions, controller-runtime patterns, and project-specific standards:</p>
+
+    <div class="code-block">
+      <div class="cb-header"><span class="cb-lang">markdown</span><span class="cb-title">.claude/output-styles/go-expert.md</span></div>
+      <pre><code>---
+name: go-expert
+description: Idiomatic Go engineering style for backend and Kubernetes work
+extends: concise
+---
+
+# Go Expert Style
+
+## Go Conventions
+- Always handle errors explicitly — never use blank identifier _ for errors
+- Wrap errors with context: fmt.Errorf("operation failed: %w", err)
+- Use context.Context as first parameter in all I/O functions
+- Prefer interfaces for dependency injection and testability
+- Use table-driven tests with t.Run() subtests
+- Avoid global state — pass dependencies explicitly
+
+## Kubernetes / controller-runtime
+- Use ctrl.Result{} correctly — do not requeue unnecessarily
+- Use client.Client for API server interactions, never raw clientset
+- Handle IsNotFound errors with apierrors.IsNotFound(err)
+- Use controllerutil.SetControllerReference for owned resources
+- Distinguish between .Owns() (direct) and .Watches() + EnqueueRequestsFromMapFunc (indirect)
+
+## Code Output
+- Show idiomatic Go, never Java-style patterns
+- Imports: standard library first, then third-party, then internal
+- File references: always include package name and line number
+- When suggesting tests: show Ginkgo/Gomega patterns if existing tests use them</code></pre>
+    </div>
+
+    <h3>Style 4: Security Reviewer — Audit-Focused</h3>
+    <p>Tunes Claude to behave as a security-focused code reviewer. Every response is framed around risk identification, severity classification, and remediation:</p>
+
+    <div class="code-block">
+      <div class="cb-header"><span class="cb-lang">markdown</span><span class="cb-title">.claude/output-styles/security-reviewer.md</span></div>
+      <pre><code>---
+name: security-reviewer
+description: Security-focused review style for audit and threat modeling
+---
+
+# Security Reviewer Style
+
+## Mindset
+- Default to adversarial thinking: assume inputs are malicious
+- Classify every finding: CRITICAL / HIGH / MEDIUM / LOW / INFO
+- For each issue, state: what it is, how it can be exploited, how to fix it
+- Surface issues even if they are edge cases — better to over-report
+
+## Review Checklist (apply to all code reviews)
+- Input validation: are all user inputs validated and bounded?
+- SQL injection: are all queries parameterized?
+- Auth bypass: is every protected route checking auth before logic?
+- Information leakage: do error messages expose internals?
+- Hardcoded credentials: any secrets, tokens, or keys in source?
+- Dependency risk: any outdated packages with known CVEs?
+
+## Output Format
+- Findings as a table: Severity | File:Line | Issue | Recommendation
+- Summary line: "X critical, Y high, Z medium findings"
+- If no issues found: "No issues found in scope: [list what was checked]"
+- Never say "looks good" without explicitly stating what was checked</code></pre>
+    </div>
+
+    <div class="compare">
+      <div class="compare-col good">
+        <h4>✓ Effective Style Rules</h4>
+        <div class="code-block">
+          <div class="cb-header"><span class="cb-lang">markdown</span></div>
+          <pre><code>- Never start with preamble
+- Always include file:line references
+- Use table format for findings:
+  Severity | File | Issue | Fix
+- Classify severity as CRITICAL/HIGH/MEDIUM/LOW
+- Maximum 3 sentences per explanation</code></pre>
+        </div>
+      </div>
+      <div class="compare-col bad">
+        <h4>✗ Ineffective Style Rules</h4>
+        <div class="code-block">
+          <div class="cb-header"><span class="cb-lang">markdown</span></div>
+          <pre><code>- Be concise
+- Be helpful
+- Focus on security
+- Try to be direct
+- Avoid being too verbose
+  unless needed</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout note">
+      <strong>Note:</strong> Vague directives like "be concise" are less reliable than specific rules like "maximum 3 sentences". Claude interprets "concise" differently in different contexts. Specific, measurable rules produce consistent behavior across all responses.
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- SECTION: When to Use Which Style -->
+<section class="section" id="style-decision-guide">
+  <div class="section-eyebrow"><span class="s-cat">Decision Guide</span></div>
+  <h2>When to Use Which Style</h2>
+  <p class="lead">Choosing the right style for the context saves time and produces better output. Use this as a decision reference.</p>
+
+  <div class="sub">
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Situation</th><th>Recommended Style</th><th>Reason</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Daily feature development by senior engineers</td>
+            <td>concise</td>
+            <td>Minimizes noise; assumes you can read code</td>
+          </tr>
+          <tr>
+            <td>Onboarding a new team member</td>
+            <td>verbose / learning</td>
+            <td>Full explanations help them learn the codebase</td>
+          </tr>
+          <tr>
+            <td>Go/Kubernetes projects</td>
+            <td>go-expert</td>
+            <td>Enforces idiomatic patterns specific to the language</td>
+          </tr>
+          <tr>
+            <td>Pre-release security audit</td>
+            <td>security-reviewer</td>
+            <td>Adversarial lens; structured findings; nothing missed</td>
+          </tr>
+          <tr>
+            <td>Writing ADRs or documentation</td>
+            <td>verbose</td>
+            <td>Detailed reasoning makes better docs</td>
+          </tr>
+          <tr>
+            <td>Debugging a tricky bug</td>
+            <td>verbose</td>
+            <td>You want to understand WHY, not just the fix</td>
+          </tr>
+          <tr>
+            <td>Automated CI pipeline</td>
+            <td>concise (or custom machine-readable)</td>
+            <td>Output needs to be parseable; no prose needed</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Combining Styles with CLAUDE.md</h3>
+    <p>Output styles and <span class="ic">CLAUDE.md</span> serve different purposes and work together. <span class="ic">CLAUDE.md</span> provides project context — what the project does, how to build it, which patterns to follow. An output style shapes how Claude communicates that knowledge back to you. Both can be active simultaneously:</p>
+
+    <div class="code-block">
+      <div class="cb-header"><span class="cb-lang">markdown</span><span class="cb-title">CLAUDE.md — provides project context</span></div>
+      <pre><code># CLAUDE.md
+
+## Project
+KubeVela controller — Go 1.23, controller-runtime v0.17
+
+## Build Commands
+make generate && make manifests
+
+## Architecture
+Uses ResourceTracker pattern instead of .Owns() for child resources.
+PostDispatch traits depend on workload runtime status.</code></pre>
+    </div>
+
+    <div class="code-block">
+      <div class="cb-header"><span class="cb-lang">markdown</span><span class="cb-title">.claude/output-styles/go-expert.md — shapes how Claude talks</span></div>
+      <pre><code>---
+name: go-expert
+---
+- Always use idiomatic Go
+- Reference controller-runtime patterns
+- Include file:line on all code references</code></pre>
+    </div>
+
+    <p>With both active: Claude knows the project architecture from <span class="ic">CLAUDE.md</span> and communicates in the style defined by <span class="ic">go-expert.md</span>. The combination is more powerful than either alone.</p>
+
+    <div class="callout tip">
+      <strong>Tip:</strong> Start with a simple concise style for personal use and a project-specific style committed to the repo for team use. Add specialization gradually — it is easier to add rules than to remove ones that are causing unexpected behavior. Test your style by asking Claude a routine question and evaluating whether the response matches your intent.
+    </div>
+  </div>
+</section>
+
+<!-- Chapter nav footer -->
+<div style="display:flex;justify-content:space-between;padding-top:32px;border-top:1px solid var(--border-dim);">
+  <a href="chapter-08.html" class="btn-secondary" style="text-decoration:none">← Subagents</a>
+  <a href="chapter-10.html" class="btn-primary" style="text-decoration:none">Agent Skills →</a>
+</div>
+
+</main>
+<aside class="toc-panel"><div id="page-toc"></div></aside>
+</div>
+
+<div id="back-to-top">↑</div>
+<div id="sidebar-overlay"></div>
+<div id="cmd-overlay">
+  <div id="cmd-palette">
+    <div class="cmd-search">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398l3.85 3.85a1 1 0 0 0 1.415-1.415l-3.868-3.833zm-5.242 1.156a5 5 0 1 1 0-10 5 5 0 0 1 0 10z"/></svg>
+      <input type="text" id="cmd-input" placeholder="Search chapters and sections..." autocomplete="off" spellcheck="false">
+      <kbd>esc</kbd>
+    </div>
+    <div class="cmd-results" id="cmd-results"></div>
+    <div class="cmd-footer">
+      <span class="cmd-hint"><kbd>↑↓</kbd> navigate</span>
+      <span class="cmd-hint"><kbd>↵</kbd> open</span>
+      <span class="cmd-hint"><kbd>esc</kbd> close</span>
+    </div>
+  </div>
+</div>
+<script src="assets/app.js"></script>
+</body>
+</html>

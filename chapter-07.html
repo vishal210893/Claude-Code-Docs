@@ -1,0 +1,1000 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ch.07 — Advanced Workflows</title>
+<link rel="stylesheet" href="assets/styles.css">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+</head>
+<body>
+<div id="progress-bar"></div>
+
+<nav class="top-nav">
+  <button class="mobile-menu-btn" id="mobile-menu-btn"><span class="material-symbols-rounded">menu</span></button>
+  <a class="nav-logo" href="index.html">
+    <div class="nav-logo-icon">CC</div>
+    <span class="nav-logo-text">Claude <em>Code</em></span>
+  </a>
+  <span class="nav-ver">Docs v1.0</span>
+  <div class="nav-spacer"></div>
+  <button class="search-trigger"><span class="st-icon"><span class="material-symbols-rounded" style="font-size:16px">search</span></span><span>Search docs...</span><kbd>⌘K</kbd></button>
+  <button class="theme-toggle" id="theme-toggle"><span class="material-symbols-rounded">light_mode</span></button>
+</nav>
+
+<div class="page-header">
+  <div class="breadcrumb">
+    <a href="index.html">Home</a><span class="sep">/</span>
+    <span class="cur">Chapter 07 — Advanced Workflows</span>
+  </div>
+  <h1>Advanced Workflows</h1>
+  <p class="subtitle">Unlock Claude Code's most powerful operational patterns — Plan Mode for safe spec-driven development, extended thinking for complex problems, git-first branching discipline, and parallel worktrees for running multiple Claude Code sessions simultaneously without conflicts.</p>
+  <div class="tag-row">
+    <span class="tag purple">Chapter 07</span>
+    <span class="tag blue">Plan Mode</span>
+    <span class="tag green">Deep Thinking</span>
+    <span class="tag green">Git Worktrees</span>
+    <span class="tag orange">Parallel Sessions</span>
+  </div>
+</div>
+
+<div class="layout">
+<aside class="sidebar">
+  <div class="sb-section">
+    <div class="sb-label">Documentation</div>
+    <a class="sb-link" href="index.html">Overview</a>
+  </div>
+  <div class="sb-section">
+    <div class="sb-label">Chapters</div>
+    <a class="sb-link" href="chapter-01.html"><span class="ch-n">01</span>Introduction</a>
+    <a class="sb-link" href="chapter-02.html"><span class="ch-n">02</span>Context Engineering</a>
+    <a class="sb-link" href="chapter-03.html"><span class="ch-n">03</span>Claude Code Essentials</a>
+    <a class="sb-link" href="chapter-04.html"><span class="ch-n">04</span>Essential Commands</a>
+    <a class="sb-link" href="chapter-05.html"><span class="ch-n">05</span>MCP</a>
+    <a class="sb-link" href="chapter-06.html"><span class="ch-n">06</span>GitHub Integration</a>
+    <a class="sb-link active" href="chapter-07.html"><span class="ch-n">07</span>Advanced Workflows</a>
+    <a class="sb-link" href="chapter-08.html"><span class="ch-n">08</span>Subagents</a>
+    <a class="sb-link" href="chapter-09.html"><span class="ch-n">09</span>Output Styles</a>
+    <a class="sb-link" href="chapter-10.html"><span class="ch-n">10</span>Agent Skills</a>
+    <a class="sb-link" href="chapter-11.html"><span class="ch-n">11</span>Desktop</a>
+    <a class="sb-link" href="chapter-12.html"><span class="ch-n">12</span>Deep Agents</a>
+    <a class="sb-link" href="chapter-13.html"><span class="ch-n">13</span>Security</a>
+  </div>
+</aside>
+
+<main class="main-content">
+
+<!-- SECTION: Plan Mode -->
+<section class="section" id="plan-mode">
+  <div class="section-eyebrow">
+    <span class="s-badge">Chapter 07</span>
+    <span class="s-cat">Safety</span>
+  </div>
+  <h2>Plan Mode</h2>
+  <p class="lead">Plan Mode is a read-only research and analysis mode that prevents Claude Code from making any changes until you explicitly approve a spec. It mirrors how senior engineers work: gather requirements, design the solution, then implement — never the other way around.</p>
+
+  <div class="sub">
+    <h3>Activating Plan Mode</h3>
+    <p>You can enter Plan Mode in two ways:</p>
+    <ul>
+      <li>Keyboard shortcut: <span class="ic">Shift+Tab+Tab</span> while in the Claude Code prompt</li>
+      <li>Slash command: type <span class="ic">/plan</span> at the start of your message</li>
+    </ul>
+    <p>While in Plan Mode, Claude Code will read files, explore the codebase, ask clarifying questions, and produce a structured specification — but it will not create, modify, or delete any files until you exit Plan Mode and approve the plan.</p>
+
+    <div class="feature-grid">
+      <div class="feature-card">
+        <div class="fc-icon"><span class="material-symbols-rounded">lock</span></div>
+        <div class="fc-title">Read-Only Safety</div>
+        <div class="fc-body">No files are created, modified, or deleted while in Plan Mode. Claude Code can only read and analyze.</div>
+      </div>
+      <div class="feature-card">
+        <div class="fc-icon"><span class="material-symbols-rounded">assignment</span></div>
+        <div class="fc-title">Structured Specs</div>
+        <div class="fc-body">Output is a detailed implementation plan — files to change, functions to add, risks identified — not loose prose.</div>
+      </div>
+      <div class="feature-card">
+        <div class="fc-icon"><span class="material-symbols-rounded">psychology</span></div>
+        <div class="fc-title">Senior Workflow</div>
+        <div class="fc-body">Mirrors how experienced engineers approach problems: design before coding. Prevents over-eager implementation of the wrong solution.</div>
+      </div>
+      <div class="feature-card">
+        <div class="fc-icon"><span class="material-symbols-rounded">check_circle</span></div>
+        <div class="fc-title">Approval Gate</div>
+        <div class="fc-body">You review and approve the plan before a single line of code is touched. Disagree with part of the plan? Correct it first.</div>
+      </div>
+    </div>
+
+    <h3>Plan Mode in Practice</h3>
+    <p>Here is an example of entering Plan Mode with a complex task and the kind of structured output it produces:</p>
+
+    <div class="code-block">
+      <div class="code-header"><span class="lang-label">prompt — entering plan mode</span><button class="copy-btn">Copy</button></div>
+      <pre><code>/plan
+
+Add rate limiting to the public API. Requirements:
+- Per-user rate limits (100 req/min for free tier, 1000 req/min for paid)
+- Return 429 with Retry-After header when limit is exceeded
+- Store rate limit state in Redis with sliding window algorithm
+- Expose current limit/remaining/reset in response headers on every request
+- Admin endpoint to query and override limits per user</code></pre>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span class="lang-label">plan output — example</span><button class="copy-btn">Copy</button></div>
+      <pre><code><span class="cc">## Plan: API Rate Limiting</span>
+
+<span class="cc">### Files to create</span>
+<span class="cs">- internal/ratelimit/limiter.go</span>     <span class="cc"># sliding window algorithm, Redis backend</span>
+<span class="cs">- internal/ratelimit/middleware.go</span>  <span class="cc"># HTTP middleware, header injection</span>
+<span class="cs">- internal/ratelimit/limiter_test.go</span>
+
+<span class="cc">### Files to modify</span>
+<span class="cs">- internal/server/router.go</span>         <span class="cc"># register middleware on public routes</span>
+<span class="cs">- internal/admin/handlers.go</span>        <span class="cc"># add /admin/ratelimit GET + DELETE</span>
+<span class="cs">- pkg/config/config.go</span>              <span class="cc"># add RateLimitConfig struct</span>
+
+<span class="cc">### Key decisions</span>
+<span class="ck">1.</span> Sliding window via Lua script in Redis (atomic, no race conditions)
+<span class="ck">2.</span> User tier read from JWT claims — no DB lookup per request
+<span class="ck">3.</span> X-RateLimit-Limit / X-RateLimit-Remaining / X-RateLimit-Reset headers
+
+<span class="cc">### Risks identified</span>
+<span class="cs">- Redis unavailability:</span> fail-open strategy (allow requests, log warning)
+<span class="cs">- Clock skew:</span> use Redis server time, not application server time
+
+<span class="cc">### Approve this plan to begin implementation.</span></code></pre>
+    </div>
+
+    <div class="callout info">
+      <div class="ct"><span class="material-symbols-rounded">info</span> Plan Mode vs Normal Mode</div>
+      <p>In normal mode, Claude Code will start implementing as soon as it has enough information. Plan Mode forces a design checkpoint. Use it whenever the task touches multiple files, involves irreversible changes (schema migrations, API contract changes), or when you want a second opinion on the approach before any code is written.</p>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- SECTION: Extended Thinking -->
+<section class="section" id="deep-thinking">
+  <div class="section-eyebrow"><span class="s-cat">Reasoning</span></div>
+  <h2>Extended Thinking</h2>
+  <p class="lead">Extended thinking causes Claude to reason internally before producing a response — consuming more compute and tokens, but significantly improving output quality for complex problems. Trigger it with specific keywords embedded in your prompt.</p>
+
+  <div class="sub">
+    <h3>Thinking Trigger Keywords</h3>
+    <p>Claude Code recognizes four escalating thinking triggers. Use them by including the phrase naturally in your prompt:</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Trigger keyword</th>
+            <th>Thinking intensity</th>
+            <th>Best for</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="ic">think</span></td>
+            <td>Standard</td>
+            <td>Routine decisions, minor design choices, straightforward debugging</td>
+          </tr>
+          <tr>
+            <td><span class="ic">think hard</span></td>
+            <td>Extended</td>
+            <td>Architecture choices, API design, performance tradeoffs</td>
+          </tr>
+          <tr>
+            <td><span class="ic">think harder</span></td>
+            <td>Deep</td>
+            <td>Complex algorithms, concurrency issues, subtle correctness problems</td>
+          </tr>
+          <tr>
+            <td><span class="ic">ultrathink</span></td>
+            <td>Maximum</td>
+            <td>Critical system design, security architecture, irreversible infrastructure decisions</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Using Thinking Keywords</h3>
+    <p>Include the keyword in your prompt naturally — Claude Code recognizes it as a signal to allocate more reasoning budget:</p>
+
+    <div class="code-block">
+      <div class="code-header"><span class="lang-label">prompt — standard think</span><button class="copy-btn">Copy</button></div>
+      <pre><code>Think about the best approach to add pagination to the user list endpoint,
+then implement it. The table has ~50k rows.</code></pre>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span class="lang-label">prompt — ultrathink</span><button class="copy-btn">Copy</button></div>
+      <pre><code>Ultrathink about the distributed locking strategy for our order processing
+system. We have 3 replicas, orders must be processed exactly once, and
+we cannot afford duplicate charges. Design the full locking approach before
+writing any code.</code></pre>
+    </div>
+
+    <div class="callout info">
+      <div class="ct"><span class="material-symbols-rounded">info</span> Token Cost vs Quality Tradeoff</div>
+      <p>Extended thinking consumes significantly more tokens than standard responses — <span class="ic">ultrathink</span> can use 10–20x more tokens than a default reply. Reserve the higher tiers for genuinely hard problems: architecture decisions you will live with for years, security designs, or algorithms where correctness is critical. Use <span class="ic">think</span> for routine decisions to keep costs reasonable.</p>
+    </div>
+
+    <h4>When to Use Each Level</h4>
+    <div class="compare-panel">
+      <div class="cp-col">
+        <div class="cp-head">Use think / think hard for</div>
+        <ul class="cp-list">
+          <li>Choosing between two implementation approaches</li>
+          <li>Diagnosing a non-obvious bug</li>
+          <li>Deciding on an API shape</li>
+          <li>Refactoring a single module</li>
+        </ul>
+      </div>
+      <div class="cp-col">
+        <div class="cp-head">Use think harder / ultrathink for</div>
+        <ul class="cp-list">
+          <li>Distributed system consistency guarantees</li>
+          <li>Security threat modeling</li>
+          <li>Database schema with complex constraints</li>
+          <li>Performance-critical algorithm design</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- SECTION: Git-First Development -->
+<section class="section" id="git-workflows">
+  <div class="section-eyebrow"><span class="s-cat">Version Control</span></div>
+  <h2>Git-First Development</h2>
+  <p class="lead">Claude Code understands git context automatically — current branch, staged changes, recent commits, and remotes. A git-first discipline means every task starts on a branch, progresses through atomic commits, and ends with a PR, giving you full rollback capability at every step.</p>
+
+  <div class="sub">
+    <h3>Branch-Based Workflow</h3>
+    <p>Never work directly on <span class="ic">main</span>. Claude Code reads your current branch and uses it to scope its understanding of what work is in progress:</p>
+
+    <div class="code-block">
+      <div class="code-header"><span class="lang-label">bash — git workflow Claude Code executes</span><button class="copy-btn">Copy</button></div>
+      <pre><code><span class="cc"># Start a feature — Claude Code creates and switches to the branch</span>
+<span class="ck">git</span> checkout <span class="cs">-b</span> feature/add-rate-limiting
+
+<span class="cc"># Claude implements in stages, committing checkpoints</span>
+<span class="ck">git</span> add internal/ratelimit/
+<span class="ck">git</span> commit <span class="cs">-m</span> <span class="cs">"feat(ratelimit): add sliding window algorithm with Redis backend"</span>
+
+<span class="ck">git</span> add internal/server/router.go
+<span class="ck">git</span> commit <span class="cs">-m</span> <span class="cs">"feat(ratelimit): wire middleware into public API routes"</span>
+
+<span class="cc"># Open PR when done</span>
+<span class="ck">gh</span> pr create <span class="cs">--title</span> <span class="cs">"feat: add per-user rate limiting with Redis"</span> <span class="cs">--base</span> main</code></pre>
+    </div>
+
+    <h4>Commit Checkpoint Prompting</h4>
+    <p>Instruct Claude Code to commit at logical checkpoints rather than committing everything at the end:</p>
+
+    <div class="code-block">
+      <div class="code-header"><span class="lang-label">prompt</span><button class="copy-btn">Copy</button></div>
+      <pre><code>Implement rate limiting as planned. After each logical unit is complete
+and tested, commit with a conventional commit message before moving to
+the next unit. Do not create one giant commit at the end.</code></pre>
+    </div>
+
+    <div class="callout tip">
+      <div class="ct"><span class="material-symbols-rounded">lightbulb</span> Atomic Commits Enable Safe Rollback</div>
+      <p>Use atomic commits — one logical change per commit. Claude Code can decompose large tasks into commit-checkpoint sequences automatically when instructed. If an implementation goes wrong mid-way, atomic commits let you <span class="ic">git revert</span> precisely without losing unrelated work.</p>
+    </div>
+
+    <h4>Git Context Claude Code Reads Automatically</h4>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Context</th><th>How Claude Code uses it</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Current branch name</td>
+            <td>Infers the feature scope; avoids touching unrelated areas</td>
+          </tr>
+          <tr>
+            <td>Staged / unstaged diff</td>
+            <td>Understands what is already in progress before adding more</td>
+          </tr>
+          <tr>
+            <td>Recent commit messages</td>
+            <td>Matches commit message style and convention</td>
+          </tr>
+          <tr>
+            <td>Remote tracking status</td>
+            <td>Knows if the branch is ahead/behind origin before suggesting a push</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- SECTION: Parallel Worktrees -->
+<section class="section" id="parallel-worktrees">
+  <div class="section-eyebrow"><span class="s-cat">Parallelism</span></div>
+  <h2>Parallel Claude Code Sessions</h2>
+  <p class="lead">Git worktrees allow multiple simultaneous checkouts of the same repository in different directories. Each worktree is a fully isolated workspace sharing the same git history — enabling you to run multiple Claude Code instances in parallel on different features with zero interference.</p>
+
+  <div class="sub">
+    <h3>Why Worktrees?</h3>
+    <p>Without worktrees, running two Claude Code sessions in the same repository directory causes conflicts: they read and write the same working tree simultaneously. With worktrees, each session has its own directory on disk — separate files, separate unstaged changes — while sharing the underlying git object store.</p>
+
+    <div class="stat-cards">
+      <div class="stat-card">
+        <div class="sc-value">3x</div>
+        <div class="sc-label">parallel sessions on the same repo</div>
+      </div>
+      <div class="stat-card">
+        <div class="sc-value">0</div>
+        <div class="sc-label">conflicts between sessions</div>
+      </div>
+      <div class="stat-card">
+        <div class="sc-value">~2hr</div>
+        <div class="sc-label">typical time saved on parallel feature work</div>
+      </div>
+    </div>
+
+    <h3>Setting Up Parallel Worktrees</h3>
+    <div class="mech-steps">
+      <div class="mech-step">
+        <div class="step-num">1</div>
+        <div class="step-title">Create a worktree for each feature</div>
+        <div class="step-body">
+          <div class="code-block">
+            <div class="code-header"><span class="lang-label">bash</span><button class="copy-btn">Copy</button></div>
+            <pre><code><span class="cc"># From your main repo directory</span>
+<span class="ck">git</span> worktree add ../feature-auth feature/auth-refactor
+<span class="ck">git</span> worktree add ../feature-api feature/api-v2
+<span class="ck">git</span> worktree add ../feature-perf feature/db-optimization</code></pre>
+          </div>
+          <p>Each command creates a new directory and a new branch checked out into it. The directories live alongside your main repo directory.</p>
+        </div>
+      </div>
+      <div class="mech-step">
+        <div class="step-num">2</div>
+        <div class="step-title">Open Claude Code in each worktree directory</div>
+        <div class="step-body">
+          <p>Open a terminal tab or window for each worktree directory and launch Claude Code in each one:</p>
+          <div class="code-block">
+            <div class="code-header"><span class="lang-label">bash — terminal tab 1</span><button class="copy-btn">Copy</button></div>
+            <pre><code><span class="ck">cd</span> ../feature-auth &amp;&amp; <span class="ck">claude</span></code></pre>
+          </div>
+          <div class="code-block">
+            <div class="code-header"><span class="lang-label">bash — terminal tab 2</span><button class="copy-btn">Copy</button></div>
+            <pre><code><span class="ck">cd</span> ../feature-api &amp;&amp; <span class="ck">claude</span></code></pre>
+          </div>
+        </div>
+      </div>
+      <div class="mech-step">
+        <div class="step-num">3</div>
+        <div class="step-title">Work independently in each session</div>
+        <div class="step-body">
+          <p>Each Claude Code instance sees only its worktree's files. Changes in one worktree do not affect the others. Both sessions share the same git history — commits made in one worktree are immediately visible to the other via <span class="ic">git log</span>, but the working trees remain separate.</p>
+        </div>
+      </div>
+      <div class="mech-step">
+        <div class="step-num">4</div>
+        <div class="step-title">Merge back when each feature is complete</div>
+        <div class="step-body">
+          <div class="code-block">
+            <div class="code-header"><span class="lang-label">bash</span><button class="copy-btn">Copy</button></div>
+            <pre><code><span class="cc"># Open PRs from each worktree branch as normal</span>
+<span class="ck">gh</span> pr create <span class="cs">--base</span> main <span class="cs">--head</span> feature/auth-refactor
+
+<span class="cc"># After merge, remove the worktree</span>
+<span class="ck">git</span> worktree remove ../feature-auth
+<span class="ck">git</span> branch <span class="cs">-d</span> feature/auth-refactor</code></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <h3>Sequential vs Parallel Comparison</h3>
+    <div class="compare-panel">
+      <div class="cp-col">
+        <div class="cp-head">Sequential Work (single session)</div>
+        <ul class="cp-list">
+          <li>One feature at a time</li>
+          <li>Blocking — waiting on review blocks next feature</li>
+          <li>Linear progression</li>
+          <li>Simple setup, one directory</li>
+          <li>No risk of cross-contamination</li>
+        </ul>
+      </div>
+      <div class="cp-col">
+        <div class="cp-head">Parallel Worktrees (multiple sessions)</div>
+        <ul class="cp-list">
+          <li>Multiple features simultaneously</li>
+          <li>Non-blocking — one in review, others in flight</li>
+          <li>Concurrent, faster overall delivery</li>
+          <li>Requires multiple terminal tabs/windows</li>
+          <li>Isolated by design — no interference</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="callout tip">
+      <div class="ct"><span class="material-symbols-rounded">lightbulb</span> Ideal Parallelism Strategy</div>
+      <p>A practical pattern: have one Claude Code session implementing the current feature, a second session writing tests for the previous feature while it is in review, and a third session doing exploratory research or documentation. All three advance simultaneously without stepping on each other.</p>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- SECTION: Spec-Driven Loop -->
+<section class="section" id="spec-workflow">
+  <div class="section-eyebrow"><span class="s-cat">Process</span></div>
+  <h2>The Spec-Driven Loop</h2>
+  <p class="lead">The spec-driven loop combines Plan Mode, review, implementation, and testing into a disciplined cycle that prevents the most common failure mode: implementing the wrong thing correctly.</p>
+
+  <div class="sub">
+    <h3>The Complete Loop</h3>
+    <div class="mech-steps">
+      <div class="mech-step">
+        <div class="step-num">1</div>
+        <div class="step-title">Enter Plan Mode</div>
+        <div class="step-body">Use <span class="ic">Shift+Tab+Tab</span> or <span class="ic">/plan</span>. Describe the full requirement, constraints, and any non-obvious context. The more precise the input, the more useful the spec output.</div>
+      </div>
+      <div class="mech-step">
+        <div class="step-num">2</div>
+        <div class="step-title">Review the Spec Output</div>
+        <div class="step-body">Read the plan carefully. Verify file list, design decisions, and identified risks. Push back on anything you disagree with — ask Claude Code to reconsider specific decisions before proceeding.</div>
+      </div>
+      <div class="mech-step">
+        <div class="step-num">3</div>
+        <div class="step-title">Approve and Implement</div>
+        <div class="step-body">Exit Plan Mode and tell Claude Code to proceed. It will implement against the approved spec, committing at logical checkpoints.</div>
+      </div>
+      <div class="mech-step">
+        <div class="step-num">4</div>
+        <div class="step-title">Test</div>
+        <div class="step-body">Run the test suite. If failures occur, feed them back to Claude Code with the error output — it will diagnose and fix without requiring you to re-explain the whole task.</div>
+      </div>
+      <div class="mech-step">
+        <div class="step-num">5</div>
+        <div class="step-title">PR and Review</div>
+        <div class="step-body">Claude Code generates the PR description from the git diff and commit history. Human review validates the implementation against the original spec.</div>
+      </div>
+    </div>
+
+    <div class="callout warn">
+      <div class="ct"><span class="material-symbols-rounded">warning</span> Fix the Spec, Not the Implementation</div>
+      <p>The spec is the source of truth. If you disagree with part of the spec after implementation has begun, stop — roll back, correct the spec, then re-implement. Changing course mid-implementation accumulates technical debt and produces inconsistent code. A two-minute spec correction prevents hours of cleanup.</p>
+    </div>
+
+    <h4>Spec Quality Checklist</h4>
+    <p>Before approving a plan, verify it contains:</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Element</th><th>Why it matters</th></tr></thead>
+        <tbody>
+          <tr><td>Explicit list of files to create/modify</td><td>Bounds scope; prevents Claude Code from touching unrelated code</td></tr>
+          <tr><td>Key design decisions with rationale</td><td>Lets you catch wrong choices before code is written</td></tr>
+          <tr><td>Risks and mitigations</td><td>Surfaces edge cases before they become bugs</td></tr>
+          <tr><td>Explicit out-of-scope items</td><td>Prevents scope creep during implementation</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- SECTION: Headless and Automation Mode -->
+<section class="section" id="headless-mode">
+  <div class="section-eyebrow"><span class="s-cat">Automation</span></div>
+  <h2>Headless Mode and the <span class="ic">-p</span> Flag</h2>
+  <p class="lead">Claude Code can run entirely non-interactively using the <span class="ic">-p</span> (print) flag. Headless mode reads a prompt from stdin or as an argument, executes the task, prints the output to stdout, and exits — making it composable with any shell pipeline, CI system, or automation script.</p>
+
+  <div class="sub">
+    <h3>Basic Usage</h3>
+    <p>Pass a prompt directly with <span class="ic">-p</span>. Claude Code runs the task, writes all output to stdout, and exits with a zero or non-zero code depending on success:</p>
+
+    <div class="code-block">
+      <div class="cb-header"><span class="cb-lang">bash</span><span class="cb-title">Basic headless invocation</span></div>
+      <pre><code>claude -p "Summarize what the function parseConfig does in pkg/config/config.go"</code></pre>
+    </div>
+
+    <div class="code-block">
+      <div class="cb-header"><span class="cb-lang">bash</span><span class="cb-title">Piping a prompt from stdin</span></div>
+      <pre><code>echo "List all exported functions in internal/auth/ with a one-line description of each" \
+  | claude -p</code></pre>
+    </div>
+
+    <div class="code-block">
+      <div class="cb-header"><span class="cb-lang">bash</span><span class="cb-title">Capturing output in a variable</span></div>
+      <pre><code>REVIEW=$(claude -p "Review internal/handlers/user.go for error handling issues. Output as JSON.")
+echo "$REVIEW" | jq '.issues[] | select(.severity == "HIGH")'</code></pre>
+    </div>
+
+    <h3>Piping Claude into Shell Scripts</h3>
+    <p>Because <span class="ic">-p</span> writes to stdout, you can pipe Claude Code output into any standard Unix tool:</p>
+
+    <div class="code-block">
+      <div class="cb-header"><span class="cb-lang">bash</span><span class="cb-title">Pipeline: Claude output piped to jq</span></div>
+      <pre><code>claude -p "Audit src/handlers/ for SQL injection risks. Return JSON: [{file, line, snippet}]" \
+  | jq '.[] | "\(.file):\(.line) — \(.snippet)"' \
+  | sort</code></pre>
+    </div>
+
+    <div class="code-block">
+      <div class="cb-header"><span class="cb-lang">bash</span><span class="cb-title">Using output to gate a deploy</span></div>
+      <pre><code>ISSUES=$(claude -p "Check for hardcoded secrets or API keys in the staged diff. Output: CLEAN or ISSUES_FOUND")
+if [[ "$ISSUES" == "ISSUES_FOUND" ]]; then
+  echo "Aborting: Claude found potential secrets in diff"
+  exit 1
+fi
+git push origin main</code></pre>
+    </div>
+
+    <h3>CI/CD Integration</h3>
+    <p>The <span class="ic">-p</span> flag is designed for CI pipelines. Combine it with GitHub Actions to add AI-assisted checks to your pull request workflow:</p>
+
+    <div class="code-block">
+      <div class="cb-header"><span class="cb-lang">yaml</span><span class="cb-title">.github/workflows/claude-review.yml</span></div>
+      <pre><code>name: Claude Code Review
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install Claude Code
+        run: npm install -g @anthropic-ai/claude-code
+
+      - name: Review changed files
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          CHANGED=$(git diff --name-only origin/main...HEAD | grep '\.go$')
+          for FILE in $CHANGED; do
+            claude -p "Review $FILE for: missing error handling, nil dereference risks, and input validation gaps. Output JSON: [{file, line, severity, description}]" >> review.json
+          done
+
+      - name: Post review as PR comment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs')
+            const review = fs.readFileSync('review.json', 'utf8')
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '## Claude Code Review\n\n```json\n' + review + '\n```'
+            })</code></pre>
+    </div>
+
+    <div class="callout tip">
+      <strong>Tip:</strong> Always set <span class="ic">ANTHROPIC_API_KEY</span> as a GitHub Actions secret, never hardcode it. Use <span class="ic">--no-interactive</span> alongside <span class="ic">-p</span> in CI to prevent Claude Code from pausing for confirmation prompts.
+    </div>
+
+    <div class="callout note">
+      <strong>Note:</strong> Headless mode does not display the interactive UI — no spinners, no prompts, no ANSI coloring. Output is plain text suitable for logging. Use <span class="ic">--output-format json</span> when you need machine-readable structured output from automated runs.
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- SECTION: Hooks Deep Dive -->
+<section class="section" id="hooks">
+  <div class="section-eyebrow"><span class="s-cat">Automation</span></div>
+  <h2>Hooks</h2>
+  <p class="lead">Hooks are shell commands or scripts that Claude Code runs automatically at specific lifecycle events. They let you automate repetitive actions, enforce team conventions, run tests on every save, play sounds, block dangerous commands, and create a fully customized development loop — all without manually triggering anything.</p>
+
+  <div class="sub">
+    <h3>Hook Types</h3>
+    <p>Claude Code supports five hook types, each firing at a different point in the execution lifecycle:</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Hook Type</th><th>When it fires</th><th>Common use</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="ic">PreToolUse</span></td>
+            <td>Before Claude calls any tool (Bash, Edit, Write, etc.)</td>
+            <td>Validate or block dangerous tool calls, log every tool invocation</td>
+          </tr>
+          <tr>
+            <td><span class="ic">PostToolUse</span></td>
+            <td>After a tool call completes, before Claude continues</td>
+            <td>Auto-format code after writes, run linting after edits, run tests after file changes</td>
+          </tr>
+          <tr>
+            <td><span class="ic">Notification</span></td>
+            <td>When Claude sends a notification event</td>
+            <td>Send Slack/email alerts, play sounds, show OS desktop notifications</td>
+          </tr>
+          <tr>
+            <td><span class="ic">Stop</span></td>
+            <td>When Claude Code exits or finishes a session</td>
+            <td>Play a completion sound, send a summary notification, log session stats</td>
+          </tr>
+          <tr>
+            <td><span class="ic">SubagentStop</span></td>
+            <td>When a subagent completes its task</td>
+            <td>Log subagent results, trigger post-processing, chain next step</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Hook Configuration</h3>
+    <p>Hooks are configured in <span class="ic">.claude/settings.json</span> (project-scoped) or <span class="ic">~/.claude/settings.json</span> (user-scoped). Each hook is a shell command string or a path to an executable script:</p>
+
+    <div class="code-block">
+      <div class="cb-header"><span class="cb-lang">json</span><span class="cb-title">.claude/settings.json — hook configuration</span></div>
+      <pre><code>{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          { "type": "command", "command": "gofmt -w \"$CLAUDE_TOOL_FILE\"" }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          { "type": "command", "command": "uv run play_sound.py" }
+        ]
+      }
+    ]
+  }
+}</code></pre>
+    </div>
+
+    <h3>Hook Payloads</h3>
+    <p>When a hook fires, Claude Code injects context about the event into environment variables. Your hook script can read these to make decisions:</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Environment Variable</th><th>Available in</th><th>Value</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><span class="ic">CLAUDE_TOOL_NAME</span></td><td>PreToolUse, PostToolUse</td><td>Name of the tool called (e.g., <span class="ic">Bash</span>, <span class="ic">Edit</span>)</td></tr>
+          <tr><td><span class="ic">CLAUDE_TOOL_INPUT</span></td><td>PreToolUse, PostToolUse</td><td>JSON-encoded input parameters passed to the tool</td></tr>
+          <tr><td><span class="ic">CLAUDE_TOOL_OUTPUT</span></td><td>PostToolUse</td><td>JSON-encoded output returned by the tool</td></tr>
+          <tr><td><span class="ic">CLAUDE_TOOL_FILE</span></td><td>PostToolUse (Edit/Write)</td><td>Absolute path of the file that was written or edited</td></tr>
+          <tr><td><span class="ic">CLAUDE_SESSION_ID</span></td><td>All hooks</td><td>Unique identifier for the current Claude Code session</td></tr>
+          <tr><td><span class="ic">CLAUDE_NOTIFICATION_TYPE</span></td><td>Notification</td><td>Type of notification event</td></tr>
+          <tr><td><span class="ic">CLAUDE_NOTIFICATION_MESSAGE</span></td><td>Notification</td><td>Notification message text</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>PreToolUse: Blocking Dangerous Commands</h3>
+    <p>A <span class="ic">PreToolUse</span> hook that exits with a non-zero code will block the tool call entirely. Claude Code receives the exit code and skips the tool. Use this to enforce safety rules:</p>
+
+    <div class="code-block">
+      <div class="cb-header"><span class="cb-lang">bash</span><span class="cb-title">.claude/hooks/guard-bash.sh — blocks destructive commands</span></div>
+      <pre><code>#!/usr/bin/env bash
+set -euo pipefail
+
+COMMAND=$(echo "$CLAUDE_TOOL_INPUT" | jq -r '.command // ""')
+
+BLOCKED_PATTERNS=(
+  "rm -rf /"
+  "DROP TABLE"
+  "DROP DATABASE"
+  "git push --force origin main"
+  "git push --force origin master"
+  "> /etc"
+)
+
+for PATTERN in "${BLOCKED_PATTERNS[@]}"; do
+  if echo "$COMMAND" | grep -qi "$PATTERN"; then
+    echo "BLOCKED: Refused to run: $COMMAND" >&2
+    echo "Pattern matched: $PATTERN" >&2
+    exit 1
+  fi
+done
+
+exit 0</code></pre>
+    </div>
+
+    <div class="code-block">
+      <div class="cb-header"><span class="cb-lang">json</span><span class="cb-title">Register the guard hook</span></div>
+      <pre><code>{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          { "type": "command", "command": ".claude/hooks/guard-bash.sh" }
+        ]
+      }
+    ]
+  }
+}</code></pre>
+    </div>
+
+    <h3>PostToolUse: Auto-Format on Save</h3>
+    <p>Run <span class="ic">gofmt</span> or your formatter automatically every time Claude writes or edits a file. No more manually running formatters:</p>
+
+    <div class="code-block">
+      <div class="cb-header"><span class="cb-lang">bash</span><span class="cb-title">.claude/hooks/auto-format.sh</span></div>
+      <pre><code>#!/usr/bin/env bash
+set -euo pipefail
+
+FILE="$CLAUDE_TOOL_FILE"
+
+case "$FILE" in
+  *.go)
+    gofmt -w "$FILE"
+    goimports -w "$FILE" 2>/dev/null || true
+    ;;
+  *.ts|*.tsx|*.js)
+    npx prettier --write "$FILE" 2>/dev/null || true
+    ;;
+  *.py)
+    black "$FILE" 2>/dev/null || true
+    ;;
+esac
+
+exit 0</code></pre>
+    </div>
+
+    <h3>PostToolUse: Run Tests After Changes</h3>
+    <p>Trigger the test suite every time Claude edits a source file to catch regressions immediately:</p>
+
+    <div class="code-block">
+      <div class="cb-header"><span class="cb-lang">bash</span><span class="cb-title">.claude/hooks/run-tests.sh</span></div>
+      <pre><code>#!/usr/bin/env bash
+set -euo pipefail
+
+FILE="$CLAUDE_TOOL_FILE"
+
+if [[ "$FILE" == *.go ]] && [[ "$FILE" != *_test.go ]]; then
+  PACKAGE=$(dirname "$FILE")
+  echo "Running tests for $PACKAGE..."
+  go test "$PACKAGE/..." -timeout 30s -count=1 2>&1
+fi
+
+exit 0</code></pre>
+    </div>
+
+    <h3>Stop Hook: Completion Sound</h3>
+    <p>The demo in this crash course uses a <span class="ic">Stop</span> hook to play a sound when Claude Code finishes. This is the primary feature shown in the accompanying <span class="ic">play_sound.py</span> script:</p>
+
+    <div class="code-block">
+      <div class="cb-header"><span class="cb-lang">json</span><span class="cb-title">.claude/settings.local.json</span></div>
+      <pre><code>{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          { "type": "command", "command": "uv run play_sound.py" }
+        ]
+      }
+    ]
+  }
+}</code></pre>
+    </div>
+
+    <h3>Notification Hook: OS Desktop Alerts</h3>
+    <p>Send a desktop notification when Claude completes a long task, so you can leave Claude running and return when it is done:</p>
+
+    <div class="code-block">
+      <div class="cb-header"><span class="cb-lang">bash</span><span class="cb-title">.claude/hooks/notify.sh — cross-platform desktop notification</span></div>
+      <pre><code>#!/usr/bin/env bash
+
+MESSAGE="${CLAUDE_NOTIFICATION_MESSAGE:-Claude Code task complete}"
+
+if command -v osascript &>/dev/null; then
+  osascript -e "display notification \"$MESSAGE\" with title \"Claude Code\""
+elif command -v notify-send &>/dev/null; then
+  notify-send "Claude Code" "$MESSAGE"
+fi
+
+exit 0</code></pre>
+    </div>
+
+    <h3>Logging Hook: Full Audit Trail</h3>
+    <p>Log every tool call with its input and output to a file for audit and debugging purposes:</p>
+
+    <div class="code-block">
+      <div class="cb-header"><span class="cb-lang">bash</span><span class="cb-title">.claude/hooks/audit-log.sh</span></div>
+      <pre><code>#!/usr/bin/env bash
+
+LOG_FILE="${HOME}/.claude/audit.log"
+TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+
+echo "{\"ts\":\"$TIMESTAMP\",\"session\":\"$CLAUDE_SESSION_ID\",\"tool\":\"$CLAUDE_TOOL_NAME\",\"input\":$CLAUDE_TOOL_INPUT}" \
+  >> "$LOG_FILE"
+
+exit 0</code></pre>
+    </div>
+
+    <div class="compare">
+      <div class="compare-col good">
+        <h4>✓ Good Hook Design</h4>
+        <div class="code-block">
+          <div class="cb-header"><span class="cb-lang">bash</span></div>
+          <pre><code>#!/usr/bin/env bash
+set -euo pipefail
+
+FILE="$CLAUDE_TOOL_FILE"
+
+[[ "$FILE" == *.go ]] || exit 0
+gofmt -w "$FILE"
+exit 0</code></pre>
+        </div>
+        <ul style="margin-top:12px;padding-left:20px;font-size:0.875rem">
+          <li>Fast exit when hook does not apply</li>
+          <li>Uses <span class="ic">set -euo pipefail</span> for safety</li>
+          <li>Explicit <span class="ic">exit 0</span> on success</li>
+          <li>Single focused responsibility</li>
+        </ul>
+      </div>
+      <div class="compare-col bad">
+        <h4>✗ Anti-Pattern</h4>
+        <div class="code-block">
+          <div class="cb-header"><span class="cb-lang">bash</span></div>
+          <pre><code>#!/usr/bin/env bash
+
+gofmt -w .
+go test ./...
+go vet ./...
+golangci-lint run
+npm run build
+docker build .</code></pre>
+        </div>
+        <ul style="margin-top:12px;padding-left:20px;font-size:0.875rem">
+          <li>Runs on every tool call regardless of relevance</li>
+          <li>Slow — blocks Claude Code for minutes</li>
+          <li>No early exit for non-matching files</li>
+          <li>Multiple unrelated concerns in one hook</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="callout warning">
+      <strong>Warning:</strong> Hook scripts that block for a long time (e.g., running the full test suite on every keystroke) will slow Claude Code to a crawl. Keep hooks fast — under 2 seconds for PostToolUse hooks. For slow operations like full builds, use the <span class="ic">Stop</span> hook instead, which fires only once at session end.
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- SECTION: Pipeline Patterns -->
+<section class="section" id="pipeline-patterns">
+  <div class="section-eyebrow"><span class="s-cat">Automation</span></div>
+  <h2>Pipeline Patterns</h2>
+  <p class="lead">Claude Code's headless mode and composable output enable powerful pipeline patterns — chaining multiple Claude operations, feeding output from one step into the next, and integrating with external tools to build automated workflows far beyond what the interactive session supports.</p>
+
+  <div class="sub">
+    <h3>Chain Pattern: Plan Then Implement</h3>
+    <p>Run Plan Mode headlessly to generate a spec, capture it to a file, then feed it back to Claude to drive implementation. This turns the spec-driven loop into a fully automated pipeline:</p>
+
+    <div class="code-block">
+      <div class="cb-header"><span class="cb-lang">bash</span><span class="cb-title">Two-stage plan-then-implement pipeline</span></div>
+      <pre><code>#!/usr/bin/env bash
+set -euo pipefail
+
+TASK="$1"
+
+echo "--- Phase 1: Generating spec ---"
+SPEC=$(claude -p "/plan $TASK" --output-format text)
+echo "$SPEC"
+
+echo ""
+echo "--- Phase 2: Implementing from spec ---"
+claude -p "Implement the following plan exactly as specified:
+
+$SPEC
+
+Commit each logical unit as you complete it using conventional commits."</code></pre>
+    </div>
+
+    <h3>Fan-Out Pattern: Parallel File Processing</h3>
+    <p>Process multiple files in parallel by spawning one Claude process per file, then aggregating results:</p>
+
+    <div class="code-block">
+      <div class="cb-header"><span class="cb-lang">bash</span><span class="cb-title">Parallel Claude processes — one per Go file</span></div>
+      <pre><code>#!/usr/bin/env bash
+set -euo pipefail
+
+RESULTS_DIR=$(mktemp -d)
+PIDS=()
+
+for FILE in internal/handlers/*.go; do
+  (
+    claude -p "Review $FILE for missing error handling. Output JSON: [{file,line,issue}]" \
+      > "$RESULTS_DIR/$(basename $FILE).json"
+  ) &
+  PIDS+=($!)
+done
+
+for PID in "${PIDS[@]}"; do
+  wait "$PID"
+done
+
+jq -s 'flatten' "$RESULTS_DIR"/*.json | jq 'sort_by(.file, .line)'
+rm -rf "$RESULTS_DIR"</code></pre>
+    </div>
+
+    <h3>Validation Gate Pattern</h3>
+    <p>Use Claude as a quality gate in your commit or deploy process. Block progression if Claude finds issues:</p>
+
+    <div class="code-block">
+      <div class="cb-header"><span class="cb-lang">bash</span><span class="cb-title">.git/hooks/pre-push — Claude as push gate</span></div>
+      <pre><code>#!/usr/bin/env bash
+set -euo pipefail
+
+CHANGED_FILES=$(git diff --name-only origin/main...HEAD | grep '\.go$' || true)
+
+if [[ -z "$CHANGED_FILES" ]]; then
+  exit 0
+fi
+
+RESULT=$(claude -p "Check these files for critical issues (nil dereferences, missing error handling, hardcoded credentials): $CHANGED_FILES. Output: PASS or FAIL:<reason>")
+
+if [[ "$RESULT" == FAIL* ]]; then
+  echo "Claude Code push gate failed: $RESULT"
+  exit 1
+fi
+
+echo "Claude Code push gate: PASS"
+exit 0</code></pre>
+    </div>
+
+    <div class="callout note">
+      <strong>Note:</strong> Pipeline scripts depend on predictable Claude output format. Always specify the exact output format in your headless prompt (e.g., "Output JSON array" or "Output: PASS or FAIL:reason"). Vague format instructions produce vague output that is difficult to parse reliably in scripts.
+    </div>
+  </div>
+</section>
+
+<!-- Chapter nav footer -->
+<div style="display:flex;justify-content:space-between;padding-top:32px;border-top:1px solid var(--border-dim);">
+  <a href="chapter-06.html" class="btn-secondary" style="text-decoration:none">← GitHub Integration</a>
+  <a href="chapter-08.html" class="btn-primary" style="text-decoration:none">Subagents →</a>
+</div>
+
+</main>
+<aside class="toc-panel"><div id="page-toc"></div></aside>
+</div>
+
+<div id="back-to-top">↑</div>
+<div id="sidebar-overlay"></div>
+<div id="cmd-overlay">
+  <div id="cmd-palette">
+    <div class="cmd-search">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398l3.85 3.85a1 1 0 0 0 1.415-1.415l-3.868-3.833zm-5.242 1.156a5 5 0 1 1 0-10 5 5 0 0 1 0 10z"/></svg>
+      <input type="text" id="cmd-input" placeholder="Search chapters and sections..." autocomplete="off" spellcheck="false">
+      <kbd>esc</kbd>
+    </div>
+    <div class="cmd-results" id="cmd-results"></div>
+    <div class="cmd-footer">
+      <span class="cmd-hint"><kbd>↑↓</kbd> navigate</span>
+      <span class="cmd-hint"><kbd>↵</kbd> open</span>
+      <span class="cmd-hint"><kbd>esc</kbd> close</span>
+    </div>
+  </div>
+</div>
+<script src="assets/app.js"></script>
+</body>
+</html>
