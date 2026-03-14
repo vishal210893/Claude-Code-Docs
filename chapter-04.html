@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ch.04 — Essential Commands</title>
+<link rel="stylesheet" href="assets/styles.css">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+</head>
+<body>
+<div id="progress-bar"></div>
+
+<nav class="top-nav">
+  <button class="mobile-menu-btn" id="mobile-menu-btn"><i data-lucide="menu" class="icon"></i></button>
+  <a class="nav-logo" href="index.html">
+    <div class="nav-logo-icon">CC</div>
+    <span class="nav-logo-text">Claude <em>Code</em></span>
+  </a>
+  <span class="nav-ver">Docs v1.0</span>
+  <div class="nav-spacer"></div>
+  <button class="search-trigger"><span class="st-icon"><i data-lucide="search" class="icon"></i></span><span>Search docs...</span><kbd>⌘K</kbd></button>
+  <button class="theme-toggle" id="theme-toggle"><i data-lucide="sun" class="icon"></i></button>
+</nav>
+
+<div class="page-header">
+  <div class="breadcrumb">
+    <a href="index.html">Home</a><span class="sep">/</span>
+    <span class="cur">Chapter 04 — Essential Commands</span>
+  </div>
+  <h1>Essential Commands</h1>
+  <p class="subtitle">A complete reference for the Claude Code CLI — slash commands, flags, keyboard shortcuts, the permission system, and todo lists. Everything you need to navigate Claude Code fluently.</p>
+  <div class="tag-row">
+    <span class="tag purple">Chapter 04</span>
+    <span class="tag green">CLI Reference</span>
+    <span class="tag blue">Slash Commands</span>
+    <span class="tag orange">Permissions</span>
+  </div>
+</div>
+
+<div class="layout">
+<aside class="sidebar">
+  <div class="sb-section">
+    <div class="sb-label">Documentation</div>
+    <a class="sb-link" href="index.html">Overview</a>
+  </div>
+  <div class="sb-section">
+    <div class="sb-label">Chapters</div>
+    <a class="sb-link" href="chapter-01.html"><span class="ch-n">01</span>Introduction</a>
+    <a class="sb-link" href="chapter-02.html"><span class="ch-n">02</span>Context Engineering</a>
+    <a class="sb-link" href="chapter-03.html"><span class="ch-n">03</span>Claude Code Essentials</a>
+    <a class="sb-link active" href="chapter-04.html"><span class="ch-n">04</span>Essential Commands</a>
+    <a class="sb-link" href="chapter-05.html"><span class="ch-n">05</span>MCP</a>
+    <a class="sb-link" href="chapter-06.html"><span class="ch-n">06</span>GitHub Integration</a>
+    <a class="sb-link" href="chapter-07.html"><span class="ch-n">07</span>Advanced Workflows</a>
+    <a class="sb-link" href="chapter-08.html"><span class="ch-n">08</span>Subagents</a>
+    <a class="sb-link" href="chapter-09.html"><span class="ch-n">09</span>Output Styles</a>
+    <a class="sb-link" href="chapter-10.html"><span class="ch-n">10</span>Agent Skills</a>
+    <a class="sb-link" href="chapter-11.html"><span class="ch-n">11</span>Desktop</a>
+    <a class="sb-link" href="chapter-12.html"><span class="ch-n">12</span>Deep Agents</a>
+    <a class="sb-link" href="chapter-13.html"><span class="ch-n">13</span>Security</a>
+  </div>
+</aside>
+
+<main class="main-content">
+
+<!-- SECTION: Slash Commands -->
+<section class="section" id="slash-commands">
+  <div class="section-eyebrow">
+    <span class="s-badge">Chapter 04</span>
+    <span class="s-cat">Reference</span>
+  </div>
+  <h2>Slash Commands</h2>
+  <p class="lead">Slash commands are special instructions entered inside the Claude Code REPL. They control session behavior, context management, configuration, and navigation — without consuming LLM tokens or triggering a model response.</p>
+
+  <div class="callout note">
+    <strong>Note:</strong> Slash commands are typed directly into the Claude Code REPL prompt — they are not shell commands and cannot be combined with shell pipes or redirects. They take effect immediately without consuming API tokens.
+  </div>
+
+  <div class="sub" id="slash-reference">
+    <h3><i data-lucide="clipboard-list" class="icon"></i> Complete Slash Command Reference</h3>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Command</th><th>What It Does</th><th>When to Use</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><span class="ic">/init</span></td>
+            <td>Analyze codebase and generate CLAUDE.md</td>
+            <td>First time in a new project</td>
+          </tr>
+          <tr>
+            <td><span class="ic">/clear</span></td>
+            <td>Remove all conversation history; reload memory files</td>
+            <td>Starting a new task, or context has become noisy</td>
+          </tr>
+          <tr>
+            <td><span class="ic">/compact</span></td>
+            <td>Compress conversation to essential context</td>
+            <td>Long session, want to continue but reclaim space</td>
+          </tr>
+          <tr>
+            <td><span class="ic">/status</span></td>
+            <td>Show session ID, context usage, active memory files</td>
+            <td>Diagnosing context issues, noting session ID to resume</td>
+          </tr>
+          <tr>
+            <td><span class="ic">/model</span> &lt;name&gt;</td>
+            <td>Switch model mid-session</td>
+            <td>Escalating to Opus for a hard problem, or downgrading for routine work</td>
+          </tr>
+          <tr>
+            <td><span class="ic">/models</span></td>
+            <td>List available models and current selection</td>
+            <td>Before switching — see what's available</td>
+          </tr>
+          <tr>
+            <td><span class="ic">/help</span></td>
+            <td>Show all slash commands with descriptions</td>
+            <td>Quick reference when you forget a command</td>
+          </tr>
+          <tr>
+            <td><span class="ic">/exit</span></td>
+            <td>End the session gracefully</td>
+            <td>Done for the day, or switching to a fresh context</td>
+          </tr>
+          <tr>
+            <td><span class="ic">/new</span></td>
+            <td>Start a new conversation in the current session</td>
+            <td>Quick context reset without leaving the REPL</td>
+          </tr>
+          <tr>
+            <td><span class="ic">/undo</span></td>
+            <td>Revert the most recent file change</td>
+            <td>Immediately after a bad edit</td>
+          </tr>
+          <tr>
+            <td><span class="ic">/doctor</span></td>
+            <td>Run diagnostics — check API key, tool health, MCP servers</td>
+            <td>Troubleshooting a broken setup or unexpected behavior</td>
+          </tr>
+          <tr>
+            <td><span class="ic">/memory</span></td>
+            <td>View and manage loaded memory files and their content</td>
+            <td>Auditing what context Claude Code has loaded from CLAUDE.md files</td>
+          </tr>
+          <tr>
+            <td><span class="ic">/config</span></td>
+            <td>View and modify configuration settings interactively</td>
+            <td>Adjusting behavior without editing settings.json by hand</td>
+          </tr>
+          <tr>
+            <td><span class="ic">/resume</span> &lt;id&gt;</td>
+            <td>Resume a previous session by ID</td>
+            <td>Continuing work from yesterday; or sharing a session with a teammate</td>
+          </tr>
+          <tr>
+            <td><span class="ic">/permissions</span></td>
+            <td>Show current allow/deny permission rules in effect</td>
+            <td>Verifying what is pre-approved before running a risky workflow</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout tip">
+      <strong>Tip:</strong> Use <span class="ic">/status</span> at the start of long sessions to check how much context is already consumed. If you are above 50%, consider <span class="ic">/compact</span> to compress history before adding more large files — this keeps Claude focused and reduces cost.
+    </div>
+
+    <h4>Understanding /clear vs /compact vs /new</h4>
+    <p>These three commands all reset context but in different ways. Choosing the right one for the situation avoids losing useful context unnecessarily:</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Command</th><th>What is Preserved</th><th>What is Discarded</th><th>Best When</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><span class="ic">/clear</span></td>
+            <td>Memory files (CLAUDE.md), permissions config</td>
+            <td>All conversation history, tool results, file contents</td>
+            <td>Starting a completely different task in the same project</td>
+          </tr>
+          <tr>
+            <td><span class="ic">/compact</span></td>
+            <td>Summarized version of the conversation</td>
+            <td>Verbose output, intermediate steps, raw file reads</td>
+            <td>Long task is still ongoing but context is getting full</td>
+          </tr>
+          <tr>
+            <td><span class="ic">/new</span></td>
+            <td>Nothing — fresh conversation</td>
+            <td>All history and loaded context</td>
+            <td>Quick pivot to an unrelated question in the same REPL session</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- SECTION: CLI Flags -->
+<section class="section" id="cli-flags">
+  <div class="section-eyebrow"><span class="s-cat">Reference</span></div>
+  <h2>CLI Flags</h2>
+  <p class="lead">Flags passed to the <span class="ic">claude</span> command control how Claude Code starts, what mode it enters, and how it processes output. These are especially useful in scripting and CI/CD contexts.</p>
+
+  <div class="sub">
+    <h3><i data-lucide="zap" class="icon"></i> Core Flags</h3>
+    <div class="code-block">
+      <div class="code-header"><span class="lang-label">bash</span><button class="copy-btn">Copy</button></div>
+      <pre><code><span class="cc"># -p / --print: one-shot mode — run a task and print output, no REPL</span>
+<span class="ck">claude</span> <span class="cs">-p</span> <span class="cs">"List all exported functions in internal/service/"</span>
+
+<span class="cc"># --output-format: control output format in -p mode</span>
+<span class="ck">claude</span> <span class="cs">-p</span> <span class="cs">"Review this PR"</span> <span class="cs">--output-format</span> json
+
+<span class="cc"># --continue / -c: continue the most recent session</span>
+<span class="ck">claude</span> <span class="cs">--continue</span>
+
+<span class="cc"># --resume: resume a specific session by ID</span>
+<span class="ck">claude</span> <span class="cs">--resume</span> abc123def
+
+<span class="cc"># --model: specify model at startup</span>
+<span class="ck">claude</span> <span class="cs">--model</span> claude-opus-4-5
+
+<span class="cc"># --no-tools: disable all tools (pure LLM conversation)</span>
+<span class="ck">claude</span> <span class="cs">--no-tools</span>
+
+<span class="cc"># --version: print version and exit</span>
+<span class="ck">claude</span> <span class="cs">--version</span>
+
+<span class="cc"># --help: show all flags</span>
+<span class="ck">claude</span> <span class="cs">--help</span></code></pre>
+    </div>
+
+    <h4>Output Format Options</h4>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Format</th><th>Output</th><th>Best For</th></tr></thead>
+        <tbody>
+          <tr><td><span class="ic">text</span></td><td>Plain text response</td><td>Human reading, piping to other commands</td></tr>
+          <tr><td><span class="ic">json</span></td><td>Structured JSON with result and metadata</td><td>Scripting, CI integration, parsing programmatically</td></tr>
+          <tr><td><span class="ic">stream-json</span></td><td>Newline-delimited JSON events as they stream</td><td>Real-time processing pipelines</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span class="lang-label">bash — scripting example</span><button class="copy-btn">Copy</button></div>
+      <pre><code><span class="cc"># Use in a CI pipeline — exit code reflects success/failure</span>
+<span class="ck">claude</span> <span class="cs">-p</span> <span class="cs">"Check if there are any obvious security issues in the changed files"</span> \
+  <span class="cs">--output-format</span> json | <span class="ck">jq</span> <span class="cs">'.result'</span></code></pre>
+    </div>
+
+    <h4>Combining Flags for Automation</h4>
+    <p>The real power of CLI flags comes from combining them. Here are the most useful combinations for different scenarios:</p>
+
+    <div class="code-block">
+      <div class="cb-header">
+        <span class="cb-lang">bash</span>
+        <span class="cb-title">Common flag combinations</span>
+      </div>
+      <pre><code><span class="cc"># Run a one-shot task on a specific model, get JSON output</span>
+<span class="ck">claude</span> <span class="cs">-p</span> <span class="cs">"Summarize the changes in this diff"</span> \
+  <span class="cs">--model</span> claude-haiku-4-5 \
+  <span class="cs">--output-format</span> json
+
+<span class="cc"># Continue yesterday's session where you left off</span>
+<span class="ck">claude</span> <span class="cs">--continue</span>
+
+<span class="cc"># Resume a specific saved session (ID from /status)</span>
+<span class="ck">claude</span> <span class="cs">--resume</span> sess_abc123
+
+<span class="cc"># Pipe file content into a one-shot prompt</span>
+<span class="ck">cat</span> error.log | <span class="ck">claude</span> <span class="cs">-p</span> <span class="cs">"Diagnose this error log and suggest a fix"</span>
+
+<span class="cc"># Process multiple files with a loop</span>
+<span class="ck">for</span> f <span class="ck">in</span> src/**/*.go; <span class="ck">do</span>
+  <span class="ck">claude</span> <span class="cs">-p</span> <span class="cs">"Add godoc comments to all exported symbols in $f"</span>
+<span class="ck">done</span></code></pre>
+    </div>
+
+    <div class="callout warning">
+      <strong>Warning:</strong> When piping into <span class="ic">claude -p</span> in scripts, be careful not to include sensitive data (API keys, passwords, user PII) in the stdin input. The content is sent to the Anthropic API. Review what you are piping before automating these patterns.
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- SECTION: Keyboard Shortcuts -->
+<section class="section" id="keyboard-shortcuts">
+  <div class="section-eyebrow"><span class="s-cat">Reference</span></div>
+  <h2>Keyboard Shortcuts</h2>
+  <p class="lead">Inside the interactive REPL, keyboard shortcuts control mode switching, cancellation, and navigation. These are the ones that matter day-to-day.</p>
+
+  <div class="sub">
+    <h3>⌨ REPL Shortcuts</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Shortcut</th><th>Action</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td><span class="ic">Shift+Tab</span></td><td>Toggle Plan Mode</td><td>Switches between normal and read-only planning mode</td></tr>
+          <tr><td><span class="ic">Ctrl+C</span></td><td>Cancel current operation</td><td>Interrupts a running tool or generation mid-stream</td></tr>
+          <tr><td><span class="ic">Ctrl+C Ctrl+C</span></td><td>Force exit</td><td>Hard exit when the REPL is unresponsive</td></tr>
+          <tr><td><span class="ic">↑ / ↓</span></td><td>Browse prompt history</td><td>Navigate previous inputs in the current session</td></tr>
+          <tr><td><span class="ic">Tab</span></td><td>Autocomplete file paths</td><td>When typing <span class="ic">@</span> paths for file references</td></tr>
+          <tr><td><span class="ic">Ctrl+L</span></td><td>Clear terminal screen</td><td>Visual cleanup — does not affect context</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout tip">
+      <div class="ct"><i data-lucide="lightbulb" class="icon"></i> Ctrl+C is Safe</div>
+      <p><span class="ic">Ctrl+C</span> interrupts the current generation or tool execution without exiting the REPL. If Claude Code is reading a large file you don't need, or executing a long command you want to stop, <span class="ic">Ctrl+C</span> cancels it cleanly. You can then provide a more focused instruction.</p>
+    </div>
+
+    <h4>Plan Mode — The Most Underused Feature</h4>
+    <p><span class="ic">Shift+Tab</span> toggles <strong>Plan Mode</strong>. In Plan Mode, Claude Code will read files, explore the codebase, and think through an approach — but will not write any files or execute any commands. This is the safest way to validate Claude's understanding before letting it make changes.</p>
+
+    <div class="callout tip">
+      <strong>Tip:</strong> Use Plan Mode at the start of any non-trivial task. Press <span class="ic">Shift+Tab</span>, describe what you want, and Claude will produce a detailed plan. Review the plan, correct any misunderstandings, then press <span class="ic">Shift+Tab</span> again to re-enter normal mode and say "proceed". This single habit prevents the majority of wasted iterations.
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Mode</th><th>Can Read Files</th><th>Can Write Files</th><th>Can Run Commands</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>Normal Mode</td>
+            <td>Yes</td>
+            <td>Yes (with permission)</td>
+            <td>Yes (with permission)</td>
+          </tr>
+          <tr>
+            <td>Plan Mode</td>
+            <td>Yes</td>
+            <td>No</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- SECTION: Permission System -->
+<section class="section" id="permission-system">
+  <div class="section-eyebrow"><span class="s-cat">Security</span></div>
+  <h2>Permission System</h2>
+  <p class="lead">Claude Code prompts for permission before taking actions with side effects — writing files, running commands, making network requests. The permission system is how you maintain oversight of agentic behavior.</p>
+
+  <div class="sub">
+    <h3><i data-lucide="lock" class="icon"></i> Interactive Permissions</h3>
+    <p>When Claude Code wants to perform an action, it describes what it intends to do and asks for approval:</p>
+    <ul>
+      <li><strong>Allow once</strong> — permits this specific action</li>
+      <li><strong>Allow always</strong> — adds the action/tool to your allowlist (persisted in <span class="ic">settings.json</span>)</li>
+      <li><strong>Deny</strong> — blocks the action; Claude Code adjusts its approach</li>
+    </ul>
+
+    <h4>Configuration via settings.json</h4>
+    <p>Pre-authorize known-safe actions in <span class="ic">.claude/settings.json</span> to reduce interruptions during automated or repetitive workflows:</p>
+
+    <div class="code-block">
+      <div class="code-header"><span class="lang-label">json — .claude/settings.json</span><button class="copy-btn">Copy</button></div>
+      <pre><code>{
+  <span class="ck">"permissions"</span>: {
+    <span class="ck">"allow"</span>: [
+      <span class="cs">"Bash(npm run test:*)"</span>,
+      <span class="cs">"Bash(go test ./...)"</span>,
+      <span class="cs">"Bash(git diff:*)"</span>,
+      <span class="cs">"Bash(git log:*)"</span>,
+      <span class="cs">"Read(**)"</span>,
+      <span class="cs">"Edit(src/**)"</span>
+    ],
+    <span class="ck">"deny"</span>: [
+      <span class="cs">"Bash(git push:*)"</span>,
+      <span class="cs">"Bash(rm -rf:*)"</span>
+    ]
+  }
+}</code></pre>
+    </div>
+
+    <div class="callout warning">
+      <strong>Warning:</strong> Pre-authorizing broad permissions (e.g., <span class="ic">Bash(*)</span>) removes a critical safety layer. Scope your allowlist to the specific commands you know are safe. For production environments, always require explicit approval for any action that writes to shared infrastructure or external services.
+    </div>
+
+    <h4>Permission Pattern Syntax</h4>
+    <p>Permission rules use a tool-name + optional glob pattern. Understanding the syntax helps you write precise rules that allow what you need without over-granting:</p>
+
+    <div class="code-block">
+      <div class="cb-header">
+        <span class="cb-lang">json</span>
+        <span class="cb-title">Permission pattern examples</span>
+      </div>
+      <pre><code>{
+  "permissions": {
+    "allow": [
+      "Read(**)",               <span class="cc">// Allow reading any file</span>
+      "Edit(src/**)",           <span class="cc">// Allow editing only under src/</span>
+      "Bash(go test ./...)",    <span class="cc">// Allow this exact command only</span>
+      "Bash(git diff:*)",       <span class="cc">// Allow git diff with any arguments</span>
+      "Bash(make *:*)",         <span class="cc">// Allow any make target</span>
+      "WebSearch(*)"            <span class="cc">// Allow all web searches</span>
+    ],
+    "deny": [
+      "Bash(git push:*)",       <span class="cc">// Never push (require explicit approval)</span>
+      "Bash(rm -rf:*)",         <span class="cc">// Never force-remove files</span>
+      "Edit(.env*)",            <span class="cc">// Never touch .env files</span>
+      "Edit(*.yaml:prod*)"      <span class="cc">// Never edit prod YAML</span>
+    ]
+  }
+}</code></pre>
+    </div>
+
+    <div class="callout note">
+      <strong>Note:</strong> Deny rules always take precedence over allow rules. If a pattern matches both, the action is denied. This means you can safely grant broad <span class="ic">Bash(*)</span> and then deny specific dangerous patterns as exceptions.
+    </div>
+
+    <h4>The Three Permission Scopes</h4>
+    <p>Permissions can be configured at three levels. Higher-priority scopes override lower-priority ones:</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Scope</th><th>File Location</th><th>Applies To</th><th>Priority</th></tr></thead>
+        <tbody>
+          <tr><td>Local project</td><td><span class="ic">.claude/settings.local.json</span></td><td>Only you, in this project</td><td>Highest</td></tr>
+          <tr><td>Project</td><td><span class="ic">.claude/settings.json</span></td><td>All team members in this project</td><td>Medium</td></tr>
+          <tr><td>User global</td><td><span class="ic">~/.claude/settings.json</span></td><td>You, across all projects</td><td>Lowest</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- SECTION: Todo Lists -->
+<section class="section" id="todo-lists">
+  <div class="section-eyebrow"><span class="s-cat">Workflow</span></div>
+  <h2>Todo Lists</h2>
+  <p class="lead">Claude Code maintains an internal todo list when executing multi-step tasks. This list provides visibility into what is planned, in progress, and complete — and serves as a coordination mechanism for complex work.</p>
+
+  <div class="sub">
+    <h3><i data-lucide="check-circle" class="icon"></i> How Todo Lists Work</h3>
+    <p>When given a complex task, Claude Code automatically breaks it into steps and tracks them:</p>
+    <ul>
+      <li>Steps are created at the start, based on an initial analysis of the task</li>
+      <li>Each step moves from <span class="hl-orange">pending</span> → <span class="hl-blue">in progress</span> → <span class="hl-green">complete</span></li>
+      <li>Only one step is in progress at any time</li>
+      <li>The list updates in real-time as work proceeds</li>
+      <li>New steps are added if the task reveals additional requirements</li>
+    </ul>
+
+    <div class="callout concept">
+      <div class="ct"><i data-lucide="key" class="icon"></i> Why This Matters</div>
+      <p>Todo lists prevent an LLM from "context-forgetting" mid-task — the written list serves as an external memory that survives context window pressure. They also give you visibility to intervene: if Claude Code is working on step 3 but you realize step 2 was wrong, you can correct it before the error propagates.</p>
+    </div>
+
+    <h4>Triggering Todo Creation</h4>
+    <p>You can explicitly ask Claude Code to plan before executing:</p>
+    <div class="code-block">
+      <div class="cb-header">
+        <span class="cb-lang">prompt</span>
+        <span class="cb-title">Explicit planning request</span>
+      </div>
+      <pre><code>Before making any changes, create a todo list for migrating the auth system
+from session-based to JWT. I'll review it before you start.</code></pre>
+    </div>
+
+    <h4>Intervening Mid-Task</h4>
+    <p>Because the todo list is visible in real-time, you can safely interrupt a running task. If Claude Code has just completed step 2 but step 3 is about to do something wrong, press <span class="ic">Ctrl+C</span> to cancel the current operation, then provide a corrective instruction. Claude Code will update the todo list accordingly and continue from the corrected state.</p>
+
+    <div class="callout tip">
+      <strong>Tip:</strong> If you want Claude Code to pause and check in after each step rather than running through the whole task automatically, include this in your prompt: <em>"After completing each step, stop and wait for my approval before proceeding to the next one."</em> This turns a fully autonomous workflow into a supervised one, which is safer for irreversible operations.
+    </div>
+
+    <h4>Todo List States Explained</h4>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>State</th><th>Visual</th><th>Meaning</th></tr></thead>
+        <tbody>
+          <tr><td>Pending</td><td><span class="ic">[ ]</span></td><td>Planned but not yet started</td></tr>
+          <tr><td>In Progress</td><td><span class="ic">[~]</span></td><td>Currently being executed — only one at a time</td></tr>
+          <tr><td>Complete</td><td><span class="ic">[x]</span></td><td>Successfully finished</td></tr>
+          <tr><td>Blocked</td><td><span class="ic">[!]</span></td><td>Cannot proceed — waiting on input or a dependency</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- SECTION: Custom Commands -->
+<section class="section" id="custom-commands">
+  <div class="section-eyebrow"><span class="s-cat">Customization</span></div>
+  <h2>Custom Slash Commands</h2>
+  <p class="lead">You can define your own slash commands by creating Markdown files in <span class="ic">.claude/commands/</span>. Custom commands are prompts that can be invoked by name with <span class="ic">/your-command-name</span>.</p>
+
+  <div class="sub">
+    <h3><i data-lucide="edit" class="icon"></i> Creating a Custom Command</h3>
+    <p>Custom commands are Markdown files placed in the <span class="ic">.claude/commands/</span> directory (project-level) or <span class="ic">~/.claude/commands/</span> (personal, available in all projects). The filename becomes the command name, with hyphens allowed.</p>
+
+    <div class="code-block">
+      <div class="cb-header">
+        <span class="cb-lang">bash</span>
+        <span class="cb-title">Directory structure</span>
+      </div>
+      <pre><code>.claude/
+  commands/
+    review-pr.md      <span class="cc"># Invoked as /review-pr</span>
+    add-tests.md      <span class="cc"># Invoked as /add-tests</span>
+    security-scan.md  <span class="cc"># Invoked as /security-scan</span>
+    deploy.md         <span class="cc"># Invoked as /deploy</span></code></pre>
+    </div>
+
+    <div class="callout note">
+      <strong>Note:</strong> Commands in <span class="ic">.claude/commands/</span> are project-scoped — they are committed to the repo and shared with your whole team. Commands in <span class="ic">~/.claude/commands/</span> are personal — they work across all your projects but are not shared. Use project-scoped commands for workflow standards; personal commands for your own shortcuts.
+    </div>
+
+    <h4>Command File Format and Frontmatter</h4>
+    <p>Command files support optional YAML frontmatter to configure behavior. The body of the file is the prompt that will be executed when the command is invoked:</p>
+
+    <div class="code-block">
+      <div class="cb-header">
+        <span class="cb-lang">markdown</span>
+        <span class="cb-title">.claude/commands/review-pr.md</span>
+      </div>
+      <pre><code>---
+description: "Review the current git diff for issues before opening a PR"
+allowed-tools: ["Read", "Bash"]
+---
+
+Review the current git diff for:
+1. Logic correctness and edge cases
+2. Error handling coverage
+3. Test coverage for new code paths
+4. Security implications (input validation, auth checks, secrets exposure)
+5. Performance concerns for hot paths
+
+For each issue found, cite the file and line number.
+Summarize with: Critical | Warning | Suggestion counts.</code></pre>
+    </div>
+
+    <h4>Frontmatter Options</h4>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Field</th><th>Type</th><th>Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><span class="ic">description</span></td><td>string</td><td>Short description shown in <span class="ic">/help</span> listing</td></tr>
+          <tr><td><span class="ic">allowed-tools</span></td><td>string[]</td><td>Restricts which tools this command can use (safety boundary)</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h4>Using $ARGUMENTS for Dynamic Commands</h4>
+    <p>Use the <span class="ic">$ARGUMENTS</span> placeholder anywhere in your command file. When you invoke the command with additional text (<span class="ic">/command some text here</span>), that text is substituted in place of every <span class="ic">$ARGUMENTS</span> occurrence.</p>
+
+    <div class="code-block">
+      <div class="cb-header">
+        <span class="cb-lang">markdown</span>
+        <span class="cb-title">.claude/commands/add-tests.md — uses $ARGUMENTS</span>
+      </div>
+      <pre><code>---
+description: "Add unit tests for a specific function or file"
+allowed-tools: ["Read", "Edit", "Bash"]
+---
+
+Add comprehensive unit tests for: $ARGUMENTS
+
+Requirements:
+- Use the existing test framework already in this project
+- Follow the same file naming and organization patterns as existing tests
+- Cover: happy path, edge cases, error conditions
+- Use table-driven test patterns where appropriate
+- Do not modify the implementation — only add tests
+- Run the tests after writing them to verify they pass</code></pre>
+    </div>
+
+    <p>Invoked as: <span class="ic">/add-tests internal/cache/cache.go</span> — the file path is inserted where <span class="ic">$ARGUMENTS</span> appears.</p>
+
+    <h4>Practical Example: /deploy Command</h4>
+    <div class="code-block">
+      <div class="cb-header">
+        <span class="cb-lang">markdown</span>
+        <span class="cb-title">.claude/commands/deploy.md</span>
+      </div>
+      <pre><code>---
+description: "Pre-deployment checklist and deploy to environment: $ARGUMENTS"
+allowed-tools: ["Read", "Bash"]
+---
+
+Prepare to deploy to environment: $ARGUMENTS
+
+Before deploying, verify:
+1. Run the full test suite and confirm it passes
+2. Check for any uncommitted changes (git status)
+3. Confirm the current branch is the expected release branch
+4. Review the diff from the last tag to HEAD (git log --oneline)
+5. Check for any TODO or FIXME comments in recently changed files
+
+If all checks pass, print a deployment summary and ask for confirmation before proceeding.
+If any check fails, stop and report the issue clearly.</code></pre>
+    </div>
+
+    <p>Invoked as: <span class="ic">/deploy staging</span> or <span class="ic">/deploy production</span></p>
+
+    <h4>Practical Example: /security-scan Command</h4>
+    <div class="code-block">
+      <div class="cb-header">
+        <span class="cb-lang">markdown</span>
+        <span class="cb-title">.claude/commands/security-scan.md</span>
+      </div>
+      <pre><code>---
+description: "Scan the codebase for common security vulnerabilities"
+allowed-tools: ["Read", "Bash"]
+---
+
+Perform a security scan of the codebase. Check for:
+
+**Secrets and credentials**
+- Hardcoded API keys, tokens, passwords
+- Credentials in config files or comments
+
+**Input validation**
+- Unsanitized user input passed to shell commands, SQL, or file paths
+- Missing validation on API endpoints
+
+**Authentication and authorization**
+- Endpoints accessible without authentication
+- Missing permission checks on sensitive operations
+
+**Dependencies**
+- Run `npm audit` or `go list -m all` to identify known CVEs
+
+Report each finding with: file path, line number, severity (Critical/High/Medium), and a recommended fix.</code></pre>
+    </div>
+
+
+    <h4>Command Design: Good vs Bad Practices</h4>
+    <div class="compare">
+      <div class="compare-col good">
+        <div class="ch4-head"><i data-lucide="check-circle" class="icon"></i> Well-Designed Command</div>
+        <div class="rendered-markdown">
+          <pre style="background:rgba(16,185,129,0.07);border-radius:8px;padding:12px 14px;font-size:0.8rem;margin:0 0 12px;border:1px solid rgba(16,185,129,0.15)">---
+description: "Review PR diff for correctness and security"
+allowed-tools: ["Read", "Bash"]
+---</pre>
+          <p>Review the git diff between HEAD and main.</p>
+          <p>Focus on:</p>
+          <ol>
+            <li>Correctness — logic errors, edge cases</li>
+            <li>Security — input validation, auth</li>
+            <li>Error handling — all paths covered</li>
+            <li>Test coverage — new code is tested</li>
+          </ol>
+          <p>For each issue: cite file:line, classify as <strong>CRITICAL</strong> | <strong>WARNING</strong> | <strong>SUGGESTION</strong>.</p>
+          <p style="margin-bottom:0">End with a pass/fail recommendation.</p>
+        </div>
+      </div>
+      <div class="compare-col bad">
+        <div class="ch4-head"><i data-lucide="alert-triangle" class="icon"></i> Poorly-Designed Command</div>
+        <div class="rendered-markdown">
+<p>Review the code and tell me if there are any problems.</p>
+<p>Also maybe check for bugs.</p>
+<p style="margin-bottom:0">Fix anything that looks wrong.</p>
+
+</div>
+      </div>
+    </div>
+
+
+    <div class="callout tip">
+      <strong>Tip:</strong> The best custom commands encode your team's specific standards — your error wrapping conventions, your required test patterns, your security requirements. A generic "review the code" command is less valuable than one that checks against your actual team norms. Spend time making your commands specific to your project.
+    </div>
+
+    <h4>Integrating Custom Commands with Hooks</h4>
+    <p>Commands and hooks are complementary. A common pattern: use a <span class="ic">PostToolUse</span> hook to automatically trigger a command whenever Claude Code saves a file. This creates a review-on-save loop:</p>
+
+    <div class="code-block">
+      <div class="cb-header">
+        <span class="cb-lang">json</span>
+        <span class="cb-title">.claude/settings.json — hook triggering after edits</span>
+      </div>
+      <pre><code>{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo 'File modified: running linter' && golangci-lint run --fast 2>&1 | head -20"
+          }
+        ]
+      }
+    ]
+  }
+}</code></pre>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- SECTION: Hooks -->
+<section class="section" id="hooks">
+  <div class="section-eyebrow"><span class="s-cat">Automation</span></div>
+  <h2>Hooks</h2>
+  <p class="lead">Hooks are shell commands that execute automatically on Claude Code lifecycle events. They are the primary mechanism for integrating Claude Code into larger automation workflows.</p>
+
+  <div class="sub">
+    <h3><i data-lucide="settings" class="icon"></i> Available Hook Events</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Event</th><th>Fires When</th><th>Common Use</th></tr></thead>
+        <tbody>
+          <tr><td><span class="ic">PreToolUse</span></td><td>Before any tool is invoked</td><td>Audit logging, safety checks, dry-run mode</td></tr>
+          <tr><td><span class="ic">PostToolUse</span></td><td>After a tool completes</td><td>Notifications, auto-formatting, test triggering</td></tr>
+          <tr><td><span class="ic">Notification</span></td><td>When Claude Code sends a notification</td><td>Desktop alerts, Slack messages, audit trails</td></tr>
+          <tr><td><span class="ic">Stop</span></td><td>When a session ends</td><td>Playing a sound, sending a summary, cleanup</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span class="lang-label">json — .claude/settings.json</span><button class="copy-btn">Copy</button></div>
+      <pre><code>{
+  <span class="ck">"hooks"</span>: {
+    <span class="ck">"Stop"</span>: [
+      {
+        <span class="ck">"matcher"</span>: <span class="cs">""</span>,
+        <span class="ck">"hooks"</span>: [
+          { <span class="ck">"type"</span>: <span class="cs">"command"</span>, <span class="ck">"command"</span>: <span class="cs">"afplay ~/sounds/done.wav"</span> }
+        ]
+      }
+    ],
+    <span class="ck">"PostToolUse"</span>: [
+      {
+        <span class="ck">"matcher"</span>: <span class="cs">"Write|Edit"</span>,
+        <span class="ck">"hooks"</span>: [
+          { <span class="ck">"type"</span>: <span class="cs">"command"</span>, <span class="ck">"command"</span>: <span class="cs">"echo \"$(date): file modified\" >> ~/.claude/audit.log"</span> }
+        ]
+      }
+    ]
+  }
+}</code></pre>
+    </div>
+
+    <div class="callout tip">
+      <div class="ct"><i data-lucide="lightbulb" class="icon"></i> Real-World Hook Uses</div>
+      <p>The most common production hook patterns: running <span class="ic">gofmt</span> or <span class="ic">prettier</span> after every file edit, sending a Slack notification when a long-running task completes, logging all tool invocations to an audit file for compliance, and auto-running tests after any source file change.</p>
+    </div>
+
+    <h4>Hook Matchers in Detail</h4>
+    <p>The <span class="ic">matcher</span> field in a hook configuration filters which tool invocations trigger the hook. It uses simple string matching against the tool name:</p>
+
+    <div class="code-block">
+      <div class="cb-header">
+        <span class="cb-lang">json</span>
+        <span class="cb-title">Hook matcher patterns</span>
+      </div>
+      <pre><code>{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "",            <span class="cc">// Empty string matches ALL tools</span>
+        "hooks": [{ "type": "command", "command": "echo triggered" }]
+      },
+      {
+        "matcher": "Write",       <span class="cc">// Matches only the Write tool</span>
+        "hooks": [{ "type": "command", "command": "prettier --write $TOOL_INPUT_PATH" }]
+      },
+      {
+        "matcher": "Write|Edit",  <span class="cc">// Matches Write OR Edit (pipe = OR)</span>
+        "hooks": [{ "type": "command", "command": "git add -p" }]
+      },
+      {
+        "matcher": "Bash",        <span class="cc">// Matches the Bash tool</span>
+        "hooks": [{ "type": "command", "command": "echo \"$(date): bash\" >> audit.log" }]
+      }
+    ]
+  }
+}</code></pre>
+    </div>
+
+    <h4>Hook Environment Variables</h4>
+    <p>When a hook command executes, Claude Code injects several environment variables you can use in your hook scripts:</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Variable</th><th>Available In</th><th>Contains</th></tr></thead>
+        <tbody>
+          <tr><td><span class="ic">TOOL_NAME</span></td><td>PreToolUse, PostToolUse</td><td>Name of the tool being invoked (e.g., <span class="ic">Write</span>, <span class="ic">Bash</span>)</td></tr>
+          <tr><td><span class="ic">TOOL_INPUT_PATH</span></td><td>PostToolUse (file tools)</td><td>Path of the file that was written or edited</td></tr>
+          <tr><td><span class="ic">TOOL_EXIT_CODE</span></td><td>PostToolUse (Bash)</td><td>Exit code of the bash command that ran</td></tr>
+          <tr><td><span class="ic">SESSION_ID</span></td><td>All hooks</td><td>Current session ID for correlation in logs</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h4>Complete Hook Examples</h4>
+
+    <div class="code-block">
+      <div class="cb-header">
+        <span class="cb-lang">json</span>
+        <span class="cb-title">Auto-format on save (Go + TypeScript)</span>
+      </div>
+      <pre><code>{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if [[ \"$TOOL_INPUT_PATH\" == *.go ]]; then gofmt -w \"$TOOL_INPUT_PATH\"; elif [[ \"$TOOL_INPUT_PATH\" == *.ts || \"$TOOL_INPUT_PATH\" == *.tsx ]]; then npx prettier --write \"$TOOL_INPUT_PATH\"; fi"
+          }
+        ]
+      }
+    ]
+  }
+}</code></pre>
+    </div>
+
+    <div class="code-block">
+      <div class="cb-header">
+        <span class="cb-lang">json</span>
+        <span class="cb-title">Audit log — record every tool invocation</span>
+      </div>
+      <pre><code>{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo \"$(date -u +%Y-%m-%dT%H:%M:%SZ) [$SESSION_ID] $TOOL_NAME\" >> ~/.claude/audit.log"
+          }
+        ]
+      }
+    ]
+  }
+}</code></pre>
+    </div>
+
+    <div class="code-block">
+      <div class="cb-header">
+        <span class="cb-lang">json</span>
+        <span class="cb-title">Desktop notification on session end</span>
+      </div>
+      <pre><code>{
+  "hooks": {
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "osascript -e 'display notification \"Claude Code session complete\" with title \"Claude Code\"'"
+          }
+        ]
+      }
+    ]
+  }
+}</code></pre>
+    </div>
+
+    <div class="callout warning">
+      <strong>Warning:</strong> Hook commands run with the same permissions as your shell. A malicious command could be injected via a <span class="ic">PreToolUse</span> hook if the hook reads from an untrusted source. Keep hook scripts simple and side-effect-free. Avoid running hooks that themselves invoke Claude Code — this creates infinite loops.
+    </div>
+  </div>
+</section>
+
+<!-- Chapter nav footer -->
+<div style="display:flex;justify-content:space-between;padding-top:32px;border-top:1px solid var(--border-dim);">
+  <a href="chapter-03.html" class="btn-secondary" style="text-decoration:none">← Claude Code Essentials</a>
+  <a href="chapter-05.html" class="btn-primary" style="text-decoration:none">MCP →</a>
+</div>
+
+</main>
+<aside class="toc-panel"><div id="page-toc"></div></aside>
+</div>
+
+<div id="back-to-top">↑</div>
+<div id="sidebar-overlay"></div>
+<div id="cmd-overlay">
+  <div id="cmd-palette">
+    <div class="cmd-search">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398l3.85 3.85a1 1 0 0 0 1.415-1.415l-3.868-3.833zm-5.242 1.156a5 5 0 1 1 0-10 5 5 0 0 1 0 10z"/></svg>
+      <input type="text" id="cmd-input" placeholder="Search chapters and sections..." autocomplete="off" spellcheck="false">
+      <kbd>esc</kbd>
+    </div>
+    <div class="cmd-results" id="cmd-results"></div>
+    <div class="cmd-footer">
+      <span class="cmd-hint"><kbd>↑↓</kbd> navigate</span>
+      <span class="cmd-hint"><kbd>↵</kbd> open</span>
+      <span class="cmd-hint"><kbd>esc</kbd> close</span>
+    </div>
+  </div>
+</div>
+<script src="https://unpkg.com/lucide@latest"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>

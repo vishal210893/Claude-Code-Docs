@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ch.08 — Subagents</title>
+<link rel="stylesheet" href="assets/styles.css">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+</head>
+<body>
+<div id="progress-bar"></div>
+
+<nav class="top-nav">
+  <button class="mobile-menu-btn" id="mobile-menu-btn"><i data-lucide="menu" class="icon"></i></button>
+  <a class="nav-logo" href="index.html">
+    <div class="nav-logo-icon">CC</div>
+    <span class="nav-logo-text">Claude <em>Code</em></span>
+  </a>
+  <span class="nav-ver">Docs v1.0</span>
+  <div class="nav-spacer"></div>
+  <button class="search-trigger"><span class="st-icon"><i data-lucide="search" class="icon"></i></span><span>Search docs...</span><kbd>⌘K</kbd></button>
+  <button class="theme-toggle" id="theme-toggle"><i data-lucide="sun" class="icon"></i></button>
+</nav>
+
+<div class="page-header">
+  <div class="breadcrumb">
+    <a href="index.html">Home</a><span class="sep">/</span>
+    <span class="cur">Chapter 08 — Subagents</span>
+  </div>
+  <h1>Subagents</h1>
+  <p class="subtitle">Claude Code can spawn child agents to handle focused subtasks in parallel — each with its own isolated context window. This chapter covers how subagents work, how context flows between them, how to prompt them effectively, and advanced patterns like meta prompting and infinite subagent orchestration.</p>
+  <div class="tag-row">
+    <span class="tag purple">Chapter 08</span>
+    <span class="tag blue">Subagents</span>
+    <span class="tag green">Parallel Agents</span>
+    <span class="tag orange">Context Flow</span>
+    <span class="tag orange">Meta Prompting</span>
+  </div>
+</div>
+
+<div class="layout">
+<aside class="sidebar">
+  <div class="sb-section">
+    <div class="sb-label">Documentation</div>
+    <a class="sb-link" href="index.html">Overview</a>
+  </div>
+  <div class="sb-section">
+    <div class="sb-label">Chapters</div>
+    <a class="sb-link" href="chapter-01.html"><span class="ch-n">01</span>Introduction</a>
+    <a class="sb-link" href="chapter-02.html"><span class="ch-n">02</span>Context Engineering</a>
+    <a class="sb-link" href="chapter-03.html"><span class="ch-n">03</span>Claude Code Essentials</a>
+    <a class="sb-link" href="chapter-04.html"><span class="ch-n">04</span>Essential Commands</a>
+    <a class="sb-link" href="chapter-05.html"><span class="ch-n">05</span>MCP</a>
+    <a class="sb-link" href="chapter-06.html"><span class="ch-n">06</span>GitHub Integration</a>
+    <a class="sb-link" href="chapter-07.html"><span class="ch-n">07</span>Advanced Workflows</a>
+    <a class="sb-link active" href="chapter-08.html"><span class="ch-n">08</span>Subagents</a>
+    <a class="sb-link" href="chapter-09.html"><span class="ch-n">09</span>Output Styles</a>
+    <a class="sb-link" href="chapter-10.html"><span class="ch-n">10</span>Agent Skills</a>
+    <a class="sb-link" href="chapter-11.html"><span class="ch-n">11</span>Desktop</a>
+    <a class="sb-link" href="chapter-12.html"><span class="ch-n">12</span>Deep Agents</a>
+    <a class="sb-link" href="chapter-13.html"><span class="ch-n">13</span>Security</a>
+  </div>
+</aside>
+
+<main class="main-content">
+
+<!-- SECTION: What Are Subagents -->
+<section class="section" id="what-are-subagents">
+  <div class="section-eyebrow">
+    <span class="s-badge">Chapter 08</span>
+    <span class="s-cat">Fundamentals</span>
+  </div>
+  <h2>What Are Subagents?</h2>
+  <p class="lead">Subagents are child Claude Code instances spawned by a main agent to handle specific, bounded subtasks. The main agent acts as an orchestrator — decomposing work, delegating to subagents, and synthesizing results — while each subagent operates in its own isolated context window.</p>
+
+  <div class="sub">
+    <h3>The Orchestrator Pattern</h3>
+    <p>When a task is large enough to risk context window saturation, or when subtasks can be parallelized, the main Claude Code agent spawns subagents. Each subagent receives a targeted task description and a slice of relevant context — not the full conversation history. This keeps each subagent focused and prevents the context pollution that degrades output quality on long-running sessions.</p>
+
+    <div class="feature-grid">
+      <div class="feature-card">
+        <div class="fc-icon"><i data-lucide="lock" class="icon"></i></div>
+        <div class="fc-title">Context Isolation</div>
+        <div class="fc-body">Each subagent has its own context window. Irrelevant history from the main session does not pollute subagent reasoning.</div>
+      </div>
+      <div class="feature-card">
+        <div class="fc-icon"><i data-lucide="zap" class="icon"></i></div>
+        <div class="fc-title">Parallel Execution</div>
+        <div class="fc-body">Multiple subagents run concurrently. A task that would take 20 minutes sequentially can complete in under 5 minutes with parallel subagents.</div>
+      </div>
+      <div class="feature-card">
+        <div class="fc-icon"><i data-lucide="crosshair" class="icon"></i></div>
+        <div class="fc-title">Specialized Focus</div>
+        <div class="fc-body">Each subagent is given a narrow scope — a single file, a single concern, a single question. Narrow scope produces sharper results.</div>
+      </div>
+      <div class="feature-card">
+        <div class="fc-icon"><i data-lucide="hard-hat" class="icon"></i></div>
+        <div class="fc-title">Hierarchical Delegation</div>
+        <div class="fc-body">The main agent coordinates and synthesizes. Subagents execute. This mirrors how engineering teams actually work: lead designs, engineers implement.</div>
+      </div>
+    </div>
+
+    <div class="callout info">
+      <div class="ct"><i data-lucide="info" class="icon"></i> When Claude Code Uses Subagents Automatically</div>
+      <p>Claude Code will autonomously spawn subagents when a task involves multiple independent workstreams, when the codebase is large enough to require partitioned analysis, or when you instruct it to work in parallel. You can also explicitly request subagent delegation in your prompts — the model responds to both implicit task structure and explicit instructions.</p>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- SECTION: Spawning Subagents -->
+<section class="section" id="spawning-subagents">
+  <div class="section-eyebrow"><span class="s-cat">Mechanics</span></div>
+  <h2>Spawning Subagents</h2>
+  <p class="lead">Claude Code uses the <span class="ic">Task</span> tool internally to spawn subagents. You can trigger this behavior by structuring your prompts to describe parallel workstreams — Claude Code will map each workstream to a subagent invocation automatically.</p>
+
+  <div class="sub">
+    <h3>Instructing Claude to Use Subagents</h3>
+    <p>You do not need to invoke any special syntax. Describe the work in terms of parallel, focused tasks and Claude Code will decompose it into subagent calls:</p>
+
+    <div class="code-block">
+      <div class="code-header"><span class="lang-label">prompt — explicit parallel subagents</span><button class="copy-btn">Copy</button></div>
+      <pre><code>Research how our API authentication works, then:
+- Spawn a subagent to audit the auth middleware
+- Spawn another subagent to check JWT validation
+- Spawn a third subagent to review token refresh logic
+Synthesize findings into a security report.</code></pre>
+    </div>
+
+    <p>You can also describe the parallelism more naturally and Claude Code will infer the subagent structure:</p>
+
+    <div class="code-block">
+      <div class="code-header"><span class="lang-label">prompt — natural parallelism</span><button class="copy-btn">Copy</button></div>
+      <pre><code>Audit the entire authentication system in parallel. Cover middleware,
+JWT handling, token refresh, session management, and OAuth callbacks.
+Each area should be reviewed independently, then combine all findings
+into a single prioritized risk report.</code></pre>
+    </div>
+
+    <div class="callout info">
+      <div class="ct"><i data-lucide="info" class="icon"></i> How the Task Tool Works</div>
+      <p>When you instruct Claude to "spawn agents" or "use parallel agents", it invokes the <span class="ic">Task</span> tool to create subagents with dedicated context windows. Each <span class="ic">Task</span> call launches an independent agent that executes its assignment and returns a result to the main agent — which then continues with the synthesized output.</p>
+    </div>
+
+    <h4>Controlling Subagent Count</h4>
+    <p>You can give explicit guidance on parallelism to match your token budget or time constraints:</p>
+
+    <div class="code-block">
+      <div class="code-header"><span class="lang-label">prompt — bounded parallelism</span><button class="copy-btn">Copy</button></div>
+      <pre><code>Review all Go files in internal/handlers/ for error handling issues.
+Use up to 4 parallel subagents — assign each a portion of the files.
+Report back all findings with file path, line number, and severity.</code></pre>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- SECTION: Context Flow -->
+<section class="section" id="context-flow">
+  <div class="section-eyebrow"><span class="s-cat">Architecture</span></div>
+  <h2>Subagents Context Flow</h2>
+  <p class="lead">Understanding how context flows between the main agent and subagents is essential for writing effective subagent prompts. Context is not automatically shared — the main agent controls what each subagent sees.</p>
+
+  <div class="sub">
+    <h3>Flow Diagram</h3>
+
+    <div class="flow-diagram">
+<svg viewBox="0 0 640 420" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <linearGradient id="s8-gm" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#6d28d9"/><stop offset="100%" stop-color="#a78bfa"/></linearGradient>
+  <linearGradient id="s8-gs" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#1e40af"/><stop offset="100%" stop-color="#60a5fa"/></linearGradient>
+  <linearGradient id="s8-gu" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#065f46"/><stop offset="100%" stop-color="#34d399"/></linearGradient>
+  <filter id="s8-sh"><feDropShadow dx="0" dy="3" stdDeviation="6" flood-color="#00000035"/></filter>
+  <marker id="s8-ah" markerWidth="8" markerHeight="6" refX="6" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#6e7681"/></marker>
+  <marker id="s8-ahr" markerWidth="8" markerHeight="6" refX="6" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#a78bfa"/></marker>
+  <marker id="s8-ahg" markerWidth="8" markerHeight="6" refX="6" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#34d399"/></marker>
+</defs>
+
+<!-- Main Agent: center (320,68) -->
+<rect x="175" y="34" width="290" height="68" rx="14" fill="url(#s8-gm)" filter="url(#s8-sh)"/>
+<text x="320" y="60" text-anchor="middle" fill="white" font-size="14" font-weight="800" font-family="inherit">Main Agent</text>
+<text x="320" y="80" text-anchor="middle" fill="rgba(255,255,255,0.78)" font-size="11" font-family="inherit">Orchestrator</text>
+
+<!-- Subagent 1: center (100,220) -->
+<rect x="28" y="192" width="144" height="56" rx="12" fill="url(#s8-gs)" filter="url(#s8-sh)"/>
+<text x="100" y="216" text-anchor="middle" fill="white" font-size="12" font-weight="700" font-family="inherit">Subagent 1</text>
+<text x="100" y="234" text-anchor="middle" fill="rgba(255,255,255,0.82)" font-size="10" font-family="inherit">Auth Audit</text>
+
+<!-- Subagent 2: center (320,220) -->
+<rect x="248" y="192" width="144" height="56" rx="12" fill="url(#s8-gs)" filter="url(#s8-sh)"/>
+<text x="320" y="216" text-anchor="middle" fill="white" font-size="12" font-weight="700" font-family="inherit">Subagent 2</text>
+<text x="320" y="234" text-anchor="middle" fill="rgba(255,255,255,0.82)" font-size="10" font-family="inherit">JWT Review</text>
+
+<!-- Subagent 3: center (540,220) -->
+<rect x="468" y="192" width="144" height="56" rx="12" fill="url(#s8-gs)" filter="url(#s8-sh)"/>
+<text x="540" y="216" text-anchor="middle" fill="white" font-size="12" font-weight="700" font-family="inherit">Subagent 3</text>
+<text x="540" y="234" text-anchor="middle" fill="rgba(255,255,255,0.82)" font-size="10" font-family="inherit">Token Logic</text>
+
+<!-- User: center (320,368) -->
+<rect x="220" y="340" width="200" height="52" rx="26" fill="url(#s8-gu)" filter="url(#s8-sh)"/>
+<text x="320" y="362" text-anchor="middle" fill="white" font-size="13" font-weight="700" font-family="inherit">User</text>
+<text x="320" y="379" text-anchor="middle" fill="rgba(255,255,255,0.78)" font-size="10" font-family="inherit">Receives Report</text>
+
+<!-- M → S1 (task, solid, left diagonal) -->
+<path d="M263,102 C220,148 160,168 100,192" fill="none" stroke="#6e7681" stroke-width="1.5" marker-end="url(#s8-ah)"/>
+<text x="172" y="138" text-anchor="middle" fill="#8b949e" font-size="10" font-family="inherit" transform="rotate(-32,172,138)">Task + Context</text>
+
+<!-- M → S2 (task, solid, center) offset left -->
+<line x1="312" y1="102" x2="312" y2="192" stroke="#6e7681" stroke-width="1.5" marker-end="url(#s8-ah)"/>
+<text x="292" y="152" text-anchor="end" fill="#8b949e" font-size="10" font-family="inherit">Task + Context</text>
+
+<!-- M → S3 (task, solid, right diagonal) -->
+<path d="M377,102 C420,148 480,168 540,192" fill="none" stroke="#6e7681" stroke-width="1.5" marker-end="url(#s8-ah)"/>
+<text x="468" y="138" text-anchor="middle" fill="#8b949e" font-size="10" font-family="inherit" transform="rotate(32,468,138)">Task + Context</text>
+
+<!-- S1 → M (results, dashed purple) -->
+<path d="M100,192 C160,158 220,128 270,102" fill="none" stroke="#a78bfa" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#s8-ahr)"/>
+<text x="175" y="162" text-anchor="middle" fill="#a78bfa" font-size="10" font-family="inherit" transform="rotate(-32,175,162)">Results</text>
+
+<!-- S2 → M (results, dashed purple) offset right -->
+<line x1="328" y1="192" x2="328" y2="102" stroke="#a78bfa" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#s8-ahr)"/>
+<text x="348" y="152" text-anchor="start" fill="#a78bfa" font-size="10" font-family="inherit">Results</text>
+
+<!-- S3 → M (results, dashed purple) -->
+<path d="M540,192 C480,158 420,128 370,102" fill="none" stroke="#a78bfa" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#s8-ahr)"/>
+<text x="465" y="162" text-anchor="middle" fill="#a78bfa" font-size="10" font-family="inherit" transform="rotate(32,465,162)">Results</text>
+
+<!-- M → User: route left side to avoid overlap -->
+<path d="M175,68 C30,68 30,368 220,368" fill="none" stroke="#34d399" stroke-width="2" marker-end="url(#s8-ahg)"/>
+<text x="36" y="240" text-anchor="middle" fill="#34d399" font-size="10" font-family="inherit" transform="rotate(90,36,240)">Synthesized Report</text>
+</svg>
+    </div>
+
+    <h3>What Flows and What Doesn't</h3>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Direction</th><th>What is passed</th><th>What is NOT passed</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Main → Subagent</td>
+            <td>Task description, relevant file content, explicit context the main agent includes</td>
+            <td>Full conversation history, other subagents' tasks, unrelated main-agent context</td>
+          </tr>
+          <tr>
+            <td>Subagent → Main</td>
+            <td>Task results, findings, generated code or content</td>
+            <td>The subagent's internal reasoning steps or tool call history</td>
+          </tr>
+          <tr>
+            <td>Subagent ↔ Subagent</td>
+            <td>Nothing — subagents are fully isolated from each other</td>
+            <td>Everything</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout warn">
+      <div class="ct"><i data-lucide="alert-triangle" class="icon"></i> Subagents Do Not Share Context</div>
+      <p>Subagents do not share context with each other. If subagent 2 needs to know what subagent 1 found, the main agent must explicitly pass that information in the task description for subagent 2. Plan your task decomposition so that truly independent tasks go to separate subagents — interdependent tasks should either be handled by a single subagent or sequenced with the main agent relaying results.</p>
+    </div>
+
+    <h4>Passing Cross-Subagent Context Explicitly</h4>
+    <div class="code-block">
+      <div class="code-header"><span class="lang-label">prompt — relaying context between subagents</span><button class="copy-btn">Copy</button></div>
+      <pre><code>Step 1: Spawn a subagent to map all authentication entry points in the
+codebase. Return the file list and function signatures.
+
+Step 2: Using the entry points found in step 1, spawn a subagent for
+each entry point to audit its input validation. Pass the specific
+file and function from step 1 into each subagent's task description.</code></pre>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- SECTION: Prompting Subagents -->
+<section class="section" id="prompting-subagents">
+  <div class="section-eyebrow"><span class="s-cat">Quality</span></div>
+  <h2>Prompting Subagents Effectively</h2>
+  <p class="lead">The quality of subagent output is directly proportional to the specificity of the task description. Vague tasks produce vague results. Narrow, well-scoped tasks with explicit output format requirements produce actionable findings.</p>
+
+  <div class="sub">
+    <h3>Scope and Output Format</h3>
+    <p>Two factors dominate subagent output quality: how narrow the scope is, and how explicitly the output format is specified. Subagents should not need to infer what you want — tell them exactly.</p>
+
+    <div class="compare-panel">
+      <div class="cp-col">
+        <div class="cp-head">Poor subagent task description</div>
+        <ul class="cp-list">
+          <li>Check if our code is secure</li>
+          <li>Review the auth module</li>
+          <li>Look for bugs in the handlers</li>
+          <li>Analyze performance</li>
+        </ul>
+      </div>
+      <div class="cp-col">
+        <div class="cp-head">Effective subagent task description</div>
+        <ul class="cp-list">
+          <li>Audit src/auth/jwt.go lines 45–120 for weak signing algorithms, missing expiry validation, and improper error handling. Return findings as JSON: {file, line, severity, description}</li>
+          <li>Read middleware/auth.go. For each middleware function, verify it calls next() only after successful auth. List any function where unauthenticated requests can pass through.</li>
+          <li>Review internal/handlers/user.go for SQL injection risks. Check all database queries. Return file:line for each risk found.</li>
+          <li>Profile the top 3 most-called functions in pkg/cache/. Identify any O(n²) or worse operations. Suggest the specific change to improve each one.</li>
+        </ul>
+      </div>
+    </div>
+
+    <h3>Output Format Specification</h3>
+    <p>Always specify the output format explicitly. Structured output from subagents makes the main agent's synthesis step reliable and consistent:</p>
+
+    <div class="code-block">
+      <div class="code-header"><span class="lang-label">prompt — structured output requirement</span><button class="copy-btn">Copy</button></div>
+      <pre><code>Audit src/auth/jwt.go for:
+<span class="cn">1</span>. Weak signing algorithms (HS256 without rotation, none algorithm)
+<span class="cn">2</span>. Missing expiry validation
+<span class="cn">3</span>. Improper error handling that leaks token structure
+
+Return findings as a JSON array with this shape:
+[
+  {
+    <span class="cs">"file"</span>: <span class="cs">"src/auth/jwt.go"</span>,
+    <span class="cs">"line"</span>: <span class="cn">87</span>,
+    <span class="cs">"severity"</span>: <span class="cs">"CRITICAL"</span>,  <span class="cc">// CRITICAL | HIGH | MEDIUM | LOW</span>
+    <span class="cs">"category"</span>: <span class="cs">"weak-algorithm"</span>,
+    <span class="cs">"description"</span>: <span class="cs">"HS256 used without key rotation policy"</span>
+  }
+]
+
+If no issues are found, return an empty array.</code></pre>
+    </div>
+
+    <div class="callout tip">
+      <div class="ct"><i data-lucide="lightbulb" class="icon"></i> Scope by File Range, Not by Concept</div>
+      <p>The most reliable way to scope subagents is by specific file and line range — not by vague concept like "the auth system". Telling a subagent exactly which file and which lines to examine eliminates ambiguity about what is in scope, produces consistent results, and allows you to predict exactly how many subagents are needed to cover a codebase.</p>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- SECTION: Meta Prompting -->
+<section class="section" id="meta-prompting">
+  <div class="section-eyebrow"><span class="s-cat">Advanced</span></div>
+  <h2>Meta Prompting</h2>
+  <p class="lead">Meta prompting is the practice of using Claude to write prompts for other Claude instances. The main agent generates the task descriptions that subagents will execute — enabling systematic, high-quality task decomposition at scale without you having to manually craft every subagent prompt.</p>
+
+  <div class="sub">
+    <h3>The Meta Prompting Pattern</h3>
+    <div class="mech-steps">
+      <div class="mech-step">
+        <div class="step-num">1</div>
+        <div class="step-title">User provides the high-level goal</div>
+        <div class="step-body">You describe the overall objective — "security audit the entire authentication system" — without enumerating every file or subtask.</div>
+      </div>
+      <div class="mech-step">
+        <div class="step-num">2</div>
+        <div class="step-title">Main agent explores and decomposes</div>
+        <div class="step-body">The main agent reads the codebase, identifies all relevant files and modules, and generates a list of specific subagent task descriptions — one per work unit.</div>
+      </div>
+      <div class="mech-step">
+        <div class="step-num">3</div>
+        <div class="step-title">Main agent writes specialized prompts</div>
+        <div class="step-body">For each work unit, the main agent writes a detailed, scoped task description — file path, line range, specific checks, output format. These become the subagent prompts.</div>
+      </div>
+      <div class="mech-step">
+        <div class="step-num">4</div>
+        <div class="step-title">Subagents execute</div>
+        <div class="step-body">Each subagent receives its generated task description and executes against it. Narrow scope + explicit output format = consistent, usable results.</div>
+      </div>
+      <div class="mech-step">
+        <div class="step-num">5</div>
+        <div class="step-title">Main agent aggregates</div>
+        <div class="step-body">All subagent results are returned to the main agent, which synthesizes them into the final output — a structured report, a summary, or a set of changes.</div>
+      </div>
+    </div>
+
+    <h3>Meta Prompting in Practice</h3>
+    <p>Instruct Claude to generate subagent task descriptions as its first step, then execute them:</p>
+
+    <div class="code-block">
+      <div class="code-header"><span class="lang-label">prompt — meta prompting instruction</span><button class="copy-btn">Copy</button></div>
+      <pre><code>First, explore the repository structure of internal/handlers/.
+For each Go file you find, generate a subagent task description that:
+- Names the specific file
+- Lists exactly what to check (error handling, nil checks, input validation)
+- Specifies JSON output format: {file, line, issue, severity}
+
+Then spawn those subagents in parallel and aggregate all findings
+into a single markdown security report sorted by severity.</code></pre>
+    </div>
+
+    <div class="callout info">
+      <div class="ct"><i data-lucide="info" class="icon"></i> Meta Prompting vs Manual Decomposition</div>
+      <p>Writing subagent prompts manually is practical for 3–5 subagents. Beyond that, meta prompting scales better — the main agent knows the codebase structure and can generate precise, consistent task descriptions for dozens of subagents without you having to enumerate every file. Meta prompting is particularly effective for large codebases where the full scope of work is not known upfront.</p>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- SECTION: Infinite Subagents -->
+<section class="section" id="infinite-subagents">
+  <div class="section-eyebrow"><span class="s-cat">Scale</span></div>
+  <h2>Infinite Subagents Pattern</h2>
+  <p class="lead">The infinite subagents pattern extends meta prompting to its logical limit: the main agent dynamically spawns as many subagents as needed based on what it discovers in the codebase. Each completed subagent informs whether additional subagents are required.</p>
+
+  <div class="sub">
+    <h3>How It Works</h3>
+    <div class="mech-steps">
+      <div class="mech-step">
+        <div class="step-num">1</div>
+        <div class="step-title">Main agent analyzes repository structure</div>
+        <div class="step-body">The main agent traverses the codebase — listing files, identifying modules, reading package-level documentation — to understand the full scope of the task.</div>
+      </div>
+      <div class="mech-step">
+        <div class="step-num">2</div>
+        <div class="step-title">Generates N task descriptions</div>
+        <div class="step-body">Based on the discovery step, the main agent generates one task description per file, module, or logical work unit. This list may be 10 items for a small service or 200+ items for a large monorepo.</div>
+      </div>
+      <div class="mech-step">
+        <div class="step-num">3</div>
+        <div class="step-title">Spawns N subagents in parallel</div>
+        <div class="step-body">All generated task descriptions are dispatched as parallel subagent invocations. Execution happens concurrently — the total time is bounded by the slowest subagent, not the sum of all.</div>
+      </div>
+      <div class="mech-step">
+        <div class="step-num">4</div>
+        <div class="step-title">Each subagent executes and reports</div>
+        <div class="step-body">Subagents complete their narrowly scoped tasks and return structured results. No subagent is aware of the others.</div>
+      </div>
+      <div class="mech-step">
+        <div class="step-num">5</div>
+        <div class="step-title">Main aggregates all results</div>
+        <div class="step-body">The main agent collects all subagent outputs, deduplicates findings, prioritizes by severity or impact, and produces the final deliverable.</div>
+      </div>
+    </div>
+
+    <h3>Best Use Cases</h3>
+    <div class="stat-cards">
+      <div class="stat-card">
+        <div class="sc-value">Batch</div>
+        <div class="sc-label">operations across many files</div>
+      </div>
+      <div class="stat-card">
+        <div class="sc-value">Parallel</div>
+        <div class="sc-label">code review at repository scale</div>
+      </div>
+      <div class="stat-card">
+        <div class="sc-value">Large</div>
+        <div class="sc-label">refactors with many touch points</div>
+      </div>
+    </div>
+
+    <h3>Infinite Subagents Prompt</h3>
+    <div class="code-block">
+      <div class="code-header"><span class="lang-label">prompt — infinite subagent pattern</span><button class="copy-btn">Copy</button></div>
+      <pre><code>Perform a complete dead code analysis of this repository.
+
+Phase 1: Explore all directories and list every Go source file.
+Phase 2: For each source file, generate a task description asking a
+  subagent to identify: unexported functions with zero callers,
+  unreachable code blocks after return statements, and empty
+  error branches. Output format: JSON array {file, line, type, snippet}.
+Phase 3: Spawn all subagents from phase 2 in parallel.
+Phase 4: Aggregate all results. Deduplicate. Sort by file path.
+  Produce a final markdown report with a summary count at the top.</code></pre>
+    </div>
+
+    <div class="callout warn">
+      <div class="ct"><i data-lucide="alert-triangle" class="icon"></i> Token Budget Warning</div>
+      <p>The infinite subagents pattern consumes significant API tokens — each subagent uses its own context window, and spawning 50 subagents means 50 separate inference calls. Before launching, estimate the token cost: average tokens per subagent × number of subagents × your model's per-token rate. Set a clear budget ceiling and use this pattern for large codebases or batch operations only — not for tasks where a single focused session would suffice.</p>
+    </div>
+
+    <h4>Cost Management Strategies</h4>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Strategy</th><th>How to implement</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>Scope by directory</td>
+            <td>Limit subagents to a specific subdirectory rather than the full repo</td>
+          </tr>
+          <tr>
+            <td>Batch into groups</td>
+            <td>Assign multiple files per subagent rather than one file per subagent</td>
+          </tr>
+          <tr>
+            <td>Use a lighter model for subagents</td>
+            <td>Instruct Claude to use a faster/cheaper model variant for leaf-level tasks</td>
+          </tr>
+          <tr>
+            <td>Filter before spawning</td>
+            <td>Have the main agent identify which files are most relevant before generating task descriptions</td>
+          </tr>
+          <tr>
+            <td>Stage the work</td>
+            <td>Run the pattern on one package at a time, validate quality, then scale</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- SECTION: When to Use Subagents -->
+<section class="section" id="when-to-use-subagents">
+  <div class="section-eyebrow"><span class="s-cat">Decision Guide</span></div>
+  <h2>When to Use Subagents vs a Single Agent</h2>
+  <p class="lead">Subagents are not always the right choice. They add coordination overhead and consume extra tokens. Use them when the benefits — parallelism, context isolation, specialization — outweigh those costs.</p>
+
+  <div class="sub">
+    <h3>Decision Criteria</h3>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Signal</th><th>Recommendation</th><th>Reason</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Task affects 1–3 closely related files</td>
+            <td>Single agent</td>
+            <td>No benefit from isolation; coordination overhead not worth it</td>
+          </tr>
+          <tr>
+            <td>Task spans 10+ independent files</td>
+            <td>Subagents</td>
+            <td>Parallelism reduces wall-clock time significantly</td>
+          </tr>
+          <tr>
+            <td>Main context window approaching saturation</td>
+            <td>Subagents</td>
+            <td>Offload work to fresh context windows; prevent quality degradation</td>
+          </tr>
+          <tr>
+            <td>Subtasks have no dependencies on each other</td>
+            <td>Subagents</td>
+            <td>True parallelism is safe — no ordering constraints</td>
+          </tr>
+          <tr>
+            <td>Subtasks depend heavily on shared state</td>
+            <td>Single agent</td>
+            <td>Subagents cannot see each other; relaying state adds complexity</td>
+          </tr>
+          <tr>
+            <td>You need a specialized "expert" for one area</td>
+            <td>Subagent</td>
+            <td>Focused scope + specialized prompt produces higher quality output</td>
+          </tr>
+          <tr>
+            <td>Short exploratory task (&lt;5 min)</td>
+            <td>Single agent</td>
+            <td>Subagent launch overhead not justified for quick tasks</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Cost-Benefit Analysis</h3>
+    <div class="compare">
+      <div class="compare-col good">
+        <h4>✓ Use Subagents When</h4>
+        <div class="code-block">
+          <div class="cb-header"><span class="cb-lang">examples</span></div>
+          <pre><code>Audit 40 Go files for security issues
+Generate tests for 20 handler functions
+Migrate 15 API endpoints to new format
+Review a PR with 30 changed files
+Refactor all uses of a deprecated API</code></pre>
+        </div>
+      </div>
+      <div class="compare-col bad">
+        <h4>✗ Skip Subagents When</h4>
+        <div class="code-block">
+          <div class="cb-header"><span class="cb-lang">examples</span></div>
+          <pre><code>Fix one bug in one file
+Add a single new function
+Refactor one package with tight coupling
+Answer a question about the codebase
+Implement a small feature (1-3 files)</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout tip">
+      <strong>Tip:</strong> A good heuristic: if the task would produce a context window more than 50% full when done sequentially, consider subagents. The context saturation point is where output quality starts degrading — subagents prevent you from ever reaching it.
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- SECTION: Task Tool Deep Dive -->
+<section class="section" id="task-tool">
+  <div class="section-eyebrow"><span class="s-cat">Mechanics</span></div>
+  <h2>The Task Tool: How Subagents Are Spawned</h2>
+  <p class="lead">Internally, Claude Code spawns subagents by calling the <span class="ic">Task</span> tool. Understanding its parameters helps you write prompts that give Claude the right instructions for how to structure subagent work.</p>
+
+  <div class="sub">
+    <h3>Task Tool Parameters</h3>
+    <p>When Claude Code calls the <span class="ic">Task</span> tool to spawn a subagent, it passes three key parameters:</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Parameter</th><th>Type</th><th>Purpose</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="ic">description</span></td>
+            <td>string</td>
+            <td>Short human-readable label for this subagent task (shown in UI)</td>
+          </tr>
+          <tr>
+            <td><span class="ic">prompt</span></td>
+            <td>string</td>
+            <td>The full task description the subagent receives — this is its entire context for the job</td>
+          </tr>
+          <tr>
+            <td><span class="ic">subagent_type</span></td>
+            <td>string</td>
+            <td>Agent variant to use (e.g., <span class="ic">general-purpose</span>). Controls tool access and isolation level</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Worktree Isolation</h3>
+    <p>When a subagent is launched with worktree isolation, it runs in a fresh git worktree — a separate checkout of the repository. This is the safest mode for subagents that write files, because changes in one subagent cannot accidentally overwrite another's work:</p>
+
+    <div class="code-block">
+      <div class="cb-header"><span class="cb-lang">prompt</span><span class="cb-title">Requesting worktree-isolated subagents</span></div>
+      <pre><code>Spawn subagents in isolated worktrees to implement these features
+in parallel without file conflicts:
+- Feature A: add user rate limiting to internal/handlers/user.go
+- Feature B: add request tracing to internal/middleware/trace.go
+- Feature C: update config loading in pkg/config/config.go
+
+Each subagent should work in its own worktree branch and commit
+its changes. Return the branch name and a summary of changes made.</code></pre>
+    </div>
+
+    <h3>Background Execution</h3>
+    <p>Long-running subagents can be dispatched to execute in the background. The main agent continues other work and collects results when subagents finish. This is how true parallelism is achieved:</p>
+
+    <div class="code-block">
+      <div class="cb-header"><span class="cb-lang">prompt</span><span class="cb-title">Background parallel execution</span></div>
+      <pre><code>Dispatch all of the following as background subagents simultaneously
+and wait for all to complete before reporting:
+
+1. Subagent A: Run go test ./... and capture all failures
+2. Subagent B: Run golangci-lint ./... and capture all warnings
+3. Subagent C: Check go.mod for outdated dependencies
+
+When all three complete, produce a single report combining findings
+sorted by priority: test failures first, lint errors second, dep updates last.</code></pre>
+    </div>
+
+    <div class="callout info">
+      <strong>Note:</strong> Background subagents are still bounded by the same API rate limits as interactive sessions. Spawning many simultaneous subagents will consume tokens rapidly. Monitor your usage when running large fan-out patterns.
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- SECTION: Practical Subagent Patterns -->
+<section class="section" id="subagent-patterns">
+  <div class="section-eyebrow"><span class="s-cat">Patterns</span></div>
+  <h2>Practical Subagent Patterns</h2>
+  <p class="lead">Four high-value patterns that demonstrate where subagents provide the most concrete benefit in day-to-day engineering work.</p>
+
+  <div class="sub">
+    <h3>Pattern 1: Research + Implement</h3>
+    <p>Separate research from implementation. A research subagent explores the codebase and produces a findings report; the implementation subagent receives that report as context and builds from it:</p>
+
+    <div class="code-block">
+      <div class="cb-header"><span class="cb-lang">prompt</span><span class="cb-title">Research-then-implement pattern</span></div>
+      <pre><code>Step 1 — Research subagent:
+  Explore all database interaction code in internal/db/ and internal/store/.
+  Map every query, its parameters, and whether it uses parameterized statements.
+  Return: JSON {file, function, query, parameterized: bool}
+
+Step 2 — Using the findings from step 1:
+  For each non-parameterized query found, spawn an implementation subagent
+  to rewrite it to use parameterized statements. Each subagent handles
+  one file. Commit each file separately.</code></pre>
+    </div>
+
+    <h3>Pattern 2: Parallel File Processing</h3>
+    <p>Assign a batch of files to each subagent for parallel processing. Faster than sequential processing and keeps each subagent's context window small:</p>
+
+    <div class="code-block">
+      <div class="cb-header"><span class="cb-lang">prompt</span><span class="cb-title">Parallel batch processing</span></div>
+      <pre><code>List all .go files in internal/handlers/. Group them into 4 equal batches.
+Spawn one subagent per batch. Each subagent should:
+- Read every file in its batch
+- Check for: missing context.Context parameters, unhandled errors,
+  empty catch blocks
+- Return JSON: [{file, line, issue_type, description}]
+
+After all 4 subagents complete, merge all results, remove duplicates,
+and sort by severity.</code></pre>
+    </div>
+
+    <h3>Pattern 3: Test Generation</h3>
+    <p>One subagent per source file, each responsible for generating comprehensive tests. Parallelism cuts test generation time dramatically on large codebases:</p>
+
+    <div class="code-block">
+      <div class="cb-header"><span class="cb-lang">prompt</span><span class="cb-title">Parallel test generation</span></div>
+      <pre><code>Generate tests for every exported function in internal/auth/.
+Spawn one subagent per source file. Each subagent should:
+- Read its assigned source file completely
+- Identify all exported functions
+- Write a corresponding _test.go file with table-driven tests
+- Cover: happy path, nil inputs, empty inputs, boundary values
+- Use testify/assert for assertions
+
+Return: list of created test files with function coverage count.</code></pre>
+    </div>
+
+    <h3>Pattern 4: Multi-Stage Pipeline</h3>
+    <p>Chain subagents sequentially — each stage's output becomes the next stage's input. Use for workflows where later stages depend on earlier discoveries:</p>
+
+    <div class="code-block">
+      <div class="cb-header"><span class="cb-lang">prompt</span><span class="cb-title">Sequential multi-stage pipeline</span></div>
+      <pre><code>Execute this 3-stage pipeline:
+
+Stage 1 — Discovery (1 subagent):
+  Map all API endpoints in internal/api/. Return a list of:
+  {method, path, handler_function, auth_required}
+
+Stage 2 — Analysis (1 subagent per endpoint, parallel):
+  For each endpoint from stage 1, spawn a subagent to check:
+  - Input validation completeness
+  - Auth enforcement
+  - Rate limiting applied
+  Return: {endpoint, issues: []}
+
+Stage 3 — Report (1 subagent):
+  Receive all stage 2 results. Produce an executive summary:
+  - Total endpoints audited
+  - Critical issues (missing auth, no validation)
+  - Medium issues (missing rate limits)
+  - Recommended fixes in priority order</code></pre>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- SECTION: Context Management -->
+<section class="section" id="subagent-context-management">
+  <div class="section-eyebrow"><span class="s-cat">Architecture</span></div>
+  <h2>Context Management with Subagents</h2>
+  <p class="lead">The primary reason to use subagents is context protection. As a Claude Code session grows, the context window fills — earlier instructions become less influential, output quality degrades, and responses slow down. Subagents are the antidote: fresh context windows on demand.</p>
+
+  <div class="sub">
+    <h3>How Subagents Protect the Main Context</h3>
+    <p>When the main agent delegates a large workload to a subagent, the work happens in the subagent's context window — not the main one. The main agent only sees the final result, keeping its own context clean:</p>
+
+    <div class="stat-cards">
+      <div class="stat-card">
+        <div class="sc-value">200K</div>
+        <div class="sc-label">tokens per context window (Claude 3.x)</div>
+      </div>
+      <div class="stat-card">
+        <div class="sc-value">~50%</div>
+        <div class="sc-label">quality degradation threshold — avoid crossing it</div>
+      </div>
+      <div class="stat-card">
+        <div class="sc-value">N</div>
+        <div class="sc-label">fresh windows available via subagents</div>
+      </div>
+    </div>
+
+    <h3>Designing Prompts for Context Efficiency</h3>
+    <p>When writing subagent task descriptions, include only the context the subagent actually needs — not your entire session history. Lean, targeted prompts keep each subagent's context window available for the actual work:</p>
+
+    <div class="compare">
+      <div class="compare-col good">
+        <h4>✓ Lean subagent prompt</h4>
+        <div class="code-block">
+          <div class="cb-header"><span class="cb-lang">prompt</span></div>
+          <pre><code>File: internal/auth/jwt.go
+Task: Check lines 45-120 for weak signing
+algorithms and missing expiry validation.
+Output: JSON [{line, issue, severity}]</code></pre>
+        </div>
+      </div>
+      <div class="compare-col bad">
+        <h4>✗ Context-bloated prompt</h4>
+        <div class="code-block">
+          <div class="cb-header"><span class="cb-lang">prompt</span></div>
+          <pre><code">[Full session history pasted here]
+[All previous findings pasted here]
+[Entire codebase structure pasted here]
+Now also check internal/auth/jwt.go for
+signing issues.</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <h3>Error Handling and Recovery</h3>
+    <p>Subagents can fail. The main agent receives an error result and must decide whether to retry, skip, or surface the failure. Build recovery logic into your orchestrator prompts:</p>
+
+    <div class="code-block">
+      <div class="cb-header"><span class="cb-lang">prompt</span><span class="cb-title">Orchestrator with error handling</span></div>
+      <pre><code>Spawn subagents to review each file in internal/handlers/.
+If a subagent fails or returns no results for a file, do not abort —
+log the failure as {file, error: "subagent failed"} and continue
+with the remaining files. At the end, include a "failed_files" section
+in the report listing any files that could not be reviewed.</code></pre>
+    </div>
+
+    <div class="callout warning">
+      <strong>Warning:</strong> If a subagent runs out of context mid-task, it will produce a truncated or incomplete result. For very large files or tasks, break the work into smaller chunks — assign line ranges rather than whole files, or split functions rather than entire packages. A completed small result is more useful than a truncated large one.
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- SECTION: Complete Multi-Agent Workflow Example -->
+<section class="section" id="complete-example">
+  <div class="section-eyebrow"><span class="s-cat">Real-World Example</span></div>
+  <h2>Complete Multi-Agent Workflow: Security Audit</h2>
+  <p class="lead">A complete end-to-end example showing how to orchestrate a full security audit of a Go web service using multiple specialized subagents. This demonstrates all the patterns — meta prompting, parallel execution, context passing, and result aggregation — in a single workflow.</p>
+
+  <div class="sub">
+    <h3>The Orchestrator Prompt</h3>
+    <p>The user sends this single prompt to the main Claude Code agent. Everything else — decomposition, subagent spawning, synthesis — happens automatically:</p>
+
+    <div class="code-block">
+      <div class="cb-header"><span class="cb-lang">prompt</span><span class="cb-title">Full orchestrator prompt</span></div>
+      <pre><code>Perform a comprehensive security audit of this Go web service.
+
+Phase 1 — Discovery (single subagent):
+  Map the repository structure. List all packages and their purpose.
+  Identify the highest-risk areas: auth, input handling, DB access,
+  external HTTP calls, file I/O. Return a priority-ranked list.
+
+Phase 2 — Parallel Audit (one subagent per high-risk area from phase 1):
+  Each subagent receives its assigned package and this checklist:
+  [ ] SQL injection: all queries use parameterized statements
+  [ ] Auth bypass: every protected handler checks auth before logic
+  [ ] Input validation: all user inputs are validated and bounded
+  [ ] Error information leakage: errors do not expose stack traces to clients
+  [ ] Hardcoded secrets: no credentials in source files
+  [ ] Dependency vulnerabilities: note any obvious outdated packages
+
+  Output per subagent: JSON array
+  [{file, line, category, severity, description, recommendation}]
+
+Phase 3 — Synthesis (single subagent):
+  Receive all phase 2 results. Produce a final markdown report:
+
+  ## Executive Summary
+  - Critical issues: N
+  - High issues: N
+  - Medium issues: N
+
+  ## Critical Findings
+  [Table: File | Line | Issue | Recommendation]
+
+  ## High Findings
+  [Table: ...]
+
+  ## Remediation Priority
+  Ordered list of fixes by impact × effort score.</code></pre>
+    </div>
+
+    <h3>What Happens Internally</h3>
+    <div class="mech-steps">
+      <div class="mech-step">
+        <div class="step-num">1</div>
+        <div class="step-title">Discovery subagent runs</div>
+        <div class="step-body">Reads the repo structure and returns a prioritized list of packages. Takes ~30 seconds.</div>
+      </div>
+      <div class="mech-step">
+        <div class="step-num">2</div>
+        <div class="step-title">Main agent generates audit prompts</div>
+        <div class="step-body">Using the discovery results, the main agent writes one detailed audit task description per high-risk package — this is the meta prompting step.</div>
+      </div>
+      <div class="mech-step">
+        <div class="step-num">3</div>
+        <div class="step-title">Audit subagents run in parallel</div>
+        <div class="step-body">All audit subagents fire simultaneously. Each reads its assigned package and checks the security checklist. Wall-clock time: ~60 seconds regardless of how many packages are audited.</div>
+      </div>
+      <div class="mech-step">
+        <div class="step-num">4</div>
+        <div class="step-title">Synthesis subagent aggregates</div>
+        <div class="step-body">Receives all JSON findings from the audit subagents. Deduplicates, classifies, and produces the final markdown report.</div>
+      </div>
+      <div class="mech-step">
+        <div class="step-num">5</div>
+        <div class="step-title">Main agent returns the report</div>
+        <div class="step-body">The complete security report is displayed to the user. The main agent's context window only held coordination and the final report — not the full audit of every file.</div>
+      </div>
+    </div>
+
+    <div class="callout tip">
+      <strong>Tip:</strong> This same pattern scales from a 5-file microservice to a 500-file monorepo. The only change is the number of audit subagents spawned in phase 2. The orchestrator prompt stays identical — the main agent determines the right number of subagents from what it discovers in phase 1.
+    </div>
+  </div>
+</section>
+
+<!-- Chapter nav footer -->
+<div style="display:flex;justify-content:space-between;padding-top:32px;border-top:1px solid var(--border-dim);">
+  <a href="chapter-07.html" class="btn-secondary" style="text-decoration:none">← Advanced Workflows</a>
+  <a href="chapter-09.html" class="btn-primary" style="text-decoration:none">Output Styles →</a>
+</div>
+
+</main>
+<aside class="toc-panel"><div id="page-toc"></div></aside>
+</div>
+
+<div id="back-to-top">↑</div>
+<div id="sidebar-overlay"></div>
+<div id="cmd-overlay">
+  <div id="cmd-palette">
+    <div class="cmd-search">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398l3.85 3.85a1 1 0 0 0 1.415-1.415l-3.868-3.833zm-5.242 1.156a5 5 0 1 1 0-10 5 5 0 0 1 0 10z"/></svg>
+      <input type="text" id="cmd-input" placeholder="Search chapters and sections..." autocomplete="off" spellcheck="false">
+      <kbd>esc</kbd>
+    </div>
+    <div class="cmd-results" id="cmd-results"></div>
+    <div class="cmd-footer">
+      <span class="cmd-hint"><kbd>↑↓</kbd> navigate</span>
+      <span class="cmd-hint"><kbd>↵</kbd> open</span>
+      <span class="cmd-hint"><kbd>esc</kbd> close</span>
+    </div>
+  </div>
+</div>
+<script src="https://unpkg.com/lucide@latest"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>

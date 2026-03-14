@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ch.03 — Claude Code Essentials</title>
+<link rel="stylesheet" href="assets/styles.css">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+</head>
+<body>
+<div id="progress-bar"></div>
+
+<nav class="top-nav">
+  <button class="mobile-menu-btn" id="mobile-menu-btn"><i data-lucide="menu" class="icon"></i></button>
+  <a class="nav-logo" href="index.html">
+    <div class="nav-logo-icon">CC</div>
+    <span class="nav-logo-text">Claude <em>Code</em></span>
+  </a>
+  <span class="nav-ver">Docs v1.0</span>
+  <div class="nav-spacer"></div>
+  <button class="search-trigger"><span class="st-icon"><i data-lucide="search" class="icon"></i></span><span>Search docs...</span><kbd>⌘K</kbd></button>
+  <button class="theme-toggle" id="theme-toggle"><i data-lucide="sun" class="icon"></i></button>
+</nav>
+
+<div class="page-header">
+  <div class="breadcrumb">
+    <a href="index.html">Home</a><span class="sep">/</span>
+    <span class="cur">Chapter 03 — Claude Code Essentials</span>
+  </div>
+  <h1>Claude Code Essentials</h1>
+  <p class="subtitle">The core workflow patterns for building with Claude Code — from initializing a project and writing specs through managing context across sessions and connecting external tools.</p>
+  <div class="tag-row">
+    <span class="tag purple">Chapter 03</span>
+    <span class="tag green">Plan Mode</span>
+    <span class="tag blue">Spec-Driven Dev</span>
+    <span class="tag orange">MCP Tools</span>
+  </div>
+</div>
+
+<div class="layout">
+<aside class="sidebar">
+  <div class="sb-section">
+    <div class="sb-label">Documentation</div>
+    <a class="sb-link" href="index.html">Overview</a>
+  </div>
+  <div class="sb-section">
+    <div class="sb-label">Chapters</div>
+    <a class="sb-link" href="chapter-01.html"><span class="ch-n">01</span>Introduction</a>
+    <a class="sb-link" href="chapter-02.html"><span class="ch-n">02</span>Context Engineering</a>
+    <a class="sb-link active" href="chapter-03.html"><span class="ch-n">03</span>Claude Code Essentials</a>
+    <a class="sb-link" href="chapter-04.html"><span class="ch-n">04</span>Essential Commands</a>
+    <a class="sb-link" href="chapter-05.html"><span class="ch-n">05</span>MCP</a>
+    <a class="sb-link" href="chapter-06.html"><span class="ch-n">06</span>GitHub Integration</a>
+    <a class="sb-link" href="chapter-07.html"><span class="ch-n">07</span>Advanced Workflows</a>
+    <a class="sb-link" href="chapter-08.html"><span class="ch-n">08</span>Subagents</a>
+    <a class="sb-link" href="chapter-09.html"><span class="ch-n">09</span>Output Styles</a>
+    <a class="sb-link" href="chapter-10.html"><span class="ch-n">10</span>Agent Skills</a>
+    <a class="sb-link" href="chapter-11.html"><span class="ch-n">11</span>Desktop</a>
+    <a class="sb-link" href="chapter-12.html"><span class="ch-n">12</span>Deep Agents</a>
+    <a class="sb-link" href="chapter-13.html"><span class="ch-n">13</span>Security</a>
+  </div>
+</aside>
+
+<main class="main-content">
+
+<!-- SECTION: Interface -->
+<section class="section" id="interface">
+  <div class="section-eyebrow">
+    <span class="s-badge">Chapter 03</span>
+    <span class="s-cat">Getting Oriented</span>
+  </div>
+  <h2>The Claude Code Interface</h2>
+  <p class="lead">Claude Code has three primary interaction modes. Each serves a different workflow stage — knowing which to reach for and when is fundamental to working efficiently.</p>
+
+  <div class="sub">
+    <h3><i data-lucide="monitor" class="icon"></i> Three Interaction Modes</h3>
+
+    <div class="feature-grid">
+      <div class="feature-card">
+        <span class="fc-icon"><i data-lucide="message-square" class="icon"></i></span>
+        <h4>Interactive REPL</h4>
+        <p>The default mode. Run <span class="ic">claude</span> in your terminal to enter the multi-turn REPL. Full tool access, slash commands, memory loading, and interactive permission prompts.</p>
+      </div>
+      <div class="feature-card">
+        <span class="fc-icon"><i data-lucide="zap" class="icon"></i></span>
+        <h4>One-Shot / Headless</h4>
+        <p>Run <span class="ic">claude -p "your task"</span> to execute a single prompt and exit. Ideal for scripts, CI pipelines, and automation where you need Claude Code without a human in the loop.</p>
+      </div>
+      <div class="feature-card">
+        <span class="fc-icon"><i data-lucide="clipboard-list" class="icon"></i></span>
+        <h4>Plan Mode</h4>
+        <p>Activate inside the REPL with <span class="ic">Shift+Tab</span>. Read-only — Claude Code can read files and reason, but makes no changes. Use for research, architecture review, and planning before execution.</p>
+      </div>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span class="lang-label">bash</span><button class="copy-btn">Copy</button></div>
+      <pre><code><span class="cc"># Start interactive REPL</span>
+<span class="ck">claude</span>
+
+<span class="cc"># One-shot: run a task and exit (no REPL)</span>
+<span class="ck">claude</span> <span class="cs">-p</span> <span class="cs">"Add error handling to all HTTP handlers in internal/handlers/"</span>
+
+<span class="cc"># Continue the most recent conversation</span>
+<span class="ck">claude</span> <span class="cs">--continue</span>
+
+<span class="cc"># Resume a specific session by ID</span>
+<span class="ck">claude</span> <span class="cs">--resume</span> <span class="cn">abc123</span></code></pre>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- SECTION: Init -->
+<section class="section" id="init">
+  <div class="section-eyebrow"><span class="s-cat">First Steps</span></div>
+  <h2>Project Initialization with /init</h2>
+  <p class="lead">The <span class="ic">/init</span> command is the entry point for any new project. It performs a one-time analysis of your codebase and generates a <span class="ic">CLAUDE.md</span> that becomes the foundation of your project's memory.</p>
+
+  <div class="sub">
+    <h3><i data-lucide="search" class="icon"></i> What /init Does</h3>
+    <div class="mechanism">
+      <div class="mech-step">
+        <div class="mech-icon purple">1</div>
+        <div class="mech-body">
+          <h5>Traverses directory structure</h5>
+          <p>Reads file names, folder structure, and key configuration files (package.json, go.mod, Makefile, etc.) to understand the project shape.</p>
+        </div>
+      </div>
+      <div class="mech-step">
+        <div class="mech-icon blue">2</div>
+        <div class="mech-body">
+          <h5>Identifies the tech stack</h5>
+          <p>Detects frameworks, languages, build systems, test runners, and CI configuration based on the files present.</p>
+        </div>
+      </div>
+      <div class="mech-step">
+        <div class="mech-icon orange">3</div>
+        <div class="mech-body">
+          <h5>Infers architecture</h5>
+          <p>Reads representative source files to understand naming conventions, design patterns, and structural organization.</p>
+        </div>
+      </div>
+      <div class="mech-step">
+        <div class="mech-icon green">4</div>
+        <div class="mech-body">
+          <h5>Writes CLAUDE.md</h5>
+          <p>Produces a structured context file with architecture summary, key directories, build/test commands, and inferred conventions.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout tip">
+      <div class="ct"><i data-lucide="lightbulb" class="icon"></i> After /init</div>
+      <p>Read and edit the generated <span class="ic">CLAUDE.md</span> before committing it. Claude Code's inferences are a good starting point but may miss important conventions, constraints, or off-limits areas that are implicit in your team's culture. Make them explicit here.</p>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- SECTION: Plan Mode -->
+<section class="section" id="plan-mode">
+  <div class="section-eyebrow"><span class="s-cat">Core Workflow</span></div>
+  <h2>Plan Mode</h2>
+  <p class="lead">Plan mode is a read-only state where Claude Code can explore your codebase, reason about architecture, and produce a plan — without modifying any files. It is the right tool for the design phase of any non-trivial task.</p>
+
+  <div class="sub">
+    <h3>⌨ Activating Plan Mode</h3>
+    <p>Inside the REPL, press <span class="ic">Shift+Tab</span> to toggle between normal mode and plan mode. A visual indicator in the interface confirms which mode is active.</p>
+
+    <h4>What Plan Mode Can Do</h4>
+    <ul>
+      <li>Read any file in your project</li>
+      <li>Traverse the directory tree</li>
+      <li>Run read-only shell commands (e.g., <span class="ic">git log</span>, <span class="ic">go list</span>)</li>
+      <li>Reason about architecture and produce a structured plan</li>
+      <li>Generate todo lists for multi-step tasks</li>
+    </ul>
+
+    <h4>What Plan Mode Cannot Do</h4>
+    <ul>
+      <li>Write or modify files</li>
+      <li>Run commands with side effects</li>
+      <li>Make network requests (unless explicitly permitted)</li>
+    </ul>
+
+    <div class="callout concept">
+      <div class="ct"><i data-lucide="key" class="icon"></i> When to Use Plan Mode</div>
+      <p>Use plan mode at the start of any task that touches more than 3-4 files, involves architectural decisions, or has significant risk of unintended side effects. A 10-minute planning phase reliably produces better outcomes than jumping straight to execution — especially for refactors and cross-cutting changes.</p>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- SECTION: Spec-Driven -->
+<section class="section" id="spec-driven">
+  <div class="section-eyebrow"><span class="s-cat">Development Pattern</span></div>
+  <h2>Spec-Driven Development</h2>
+  <p class="lead">Before asking Claude Code to implement anything non-trivial, write a spec file. A spec is a structured document that defines what you are building, why, and how — before a single line of implementation code is written.</p>
+
+  <div class="sub">
+    <h3><i data-lucide="file-text" class="icon"></i> Why Specs First</h3>
+    <p>Specs serve two purposes simultaneously:</p>
+    <ul>
+      <li><strong>For you:</strong> Forces clarity on requirements before implementation. Catches ambiguities and scope issues before they cost implementation time.</li>
+      <li><strong>For Claude Code:</strong> Provides a stable, structured reference that can be loaded with <span class="ic">@</span> syntax in any session. More reliable than inline instructions that age with the conversation.</li>
+    </ul>
+
+    <h4>Spec File Structure</h4>
+    <div class="code-block">
+      <div class="code-header"><span class="lang-label">markdown — spec/feature-name.md</span><button class="copy-btn">Copy</button></div>
+      <pre><code><span class="cc"># Feature: Hook Registry MVP</span>
+
+<span class="cs">## Overview</span>
+A web interface for browsing and sharing Claude Code hooks.
+Users can search by category, view hook details, and copy the hook configuration.
+
+<span class="cs">## Scope</span>
+MVP only: read-only browsing. No auth, no user accounts, no submissions.
+
+<span class="cs">## Data Model</span>
+Hook: { id, name, category, description, config, author, tags }
+Categories: pre-tool | post-tool | notification | stop
+
+<span class="cs">## UI/UX Requirements</span>
+- Grid layout on desktop, list on mobile
+- Filter by category
+- Search by name and description
+- Copy-to-clipboard for hook config JSON
+
+<span class="cs">## Technical Architecture</span>
+Next.js App Router, Tailwind CSS, static JSON data source
+No database for MVP — data in /public/hooks.json
+
+<span class="cs">## Out of Scope</span>
+- User submissions
+- Authentication
+- Comments or ratings</code></pre>
+    </div>
+
+    <h4>Using the Spec in Sessions</h4>
+    <div class="code-block">
+      <div class="code-header"><span class="lang-label">prompt</span><button class="copy-btn">Copy</button></div>
+      <pre><code>Implement the Hook Registry per @spec/hook-registry.md.
+Start with the data model and the search/filter logic.</code></pre>
+    </div>
+
+    <div class="callout tip">
+      <div class="ct"><i data-lucide="lightbulb" class="icon"></i> Spec + Fresh Session</div>
+      <p>The most reliable implementation pattern: write the spec, commit it, then start a fresh Claude Code session and load the spec with <span class="ic">@</span>. The fresh session has no accumulated context residue, and the spec provides a complete, self-contained brief for the entire task.</p>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- SECTION: Model Selection -->
+<section class="section" id="model-selection">
+  <div class="section-eyebrow"><span class="s-cat">Configuration</span></div>
+  <h2>Model Selection</h2>
+  <p class="lead">Claude Code supports multiple model tiers. Choosing the right model for a given task affects both quality and cost — some tasks justify the most capable model, others do not.</p>
+
+  <div class="sub">
+    <h3><i data-lucide="brain" class="icon"></i> Available Models</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Model</th><th>Best For</th><th>Trade-off</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>Claude Opus 4</td>
+            <td>Deep reasoning, architecture planning, complex refactors, spec writing</td>
+            <td class="td-opt">Higher cost and latency — reserve for tasks that genuinely need it</td>
+          </tr>
+          <tr>
+            <td>Claude Sonnet 4</td>
+            <td>Day-to-day implementation, code review, test writing, most tasks</td>
+            <td class="td-ok">Best balance of quality, speed, and cost for typical engineering work</td>
+          </tr>
+          <tr>
+            <td>Claude Haiku 4</td>
+            <td>Simple edits, formatting, repetitive tasks, batch operations</td>
+            <td class="td-ok">Fastest and cheapest — appropriate for high-volume low-complexity work</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h4>Switching Models</h4>
+    <div class="code-block">
+      <div class="code-header"><span class="lang-label">prompt — inside REPL</span><button class="copy-btn">Copy</button></div>
+      <pre><code><span class="cc"># List available models</span>
+<span class="cg">/models</span>
+
+<span class="cc"># Set model for this session</span>
+<span class="cg">/model</span> claude-opus-4-5
+
+<span class="cc"># Start with a specific model from CLI</span>
+<span class="ck">claude</span> <span class="cs">--model</span> claude-sonnet-4-5</code></pre>
+    </div>
+
+    <div class="callout info">
+      <div class="ct"><i data-lucide="info" class="icon"></i> Multimodal Support</div>
+      <p>All Claude Code models accept images and screenshots as input. You can paste a screenshot of a UI design, a diagram, or an error message directly into the REPL or reference it via <span class="ic">@</span> path. This is useful for implementing designs from mockups or debugging visual issues.</p>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- SECTION: Session Management -->
+<section class="section" id="session-management">
+  <div class="section-eyebrow"><span class="s-cat">Context Hygiene</span></div>
+  <h2>Session Management</h2>
+  <p class="lead">Every turn in a Claude Code session accumulates context. Left unmanaged, this degrades output quality over time. Effective session management is as important as good prompts.</p>
+
+  <div class="sub">
+    <h3><i data-lucide="refresh-cw" class="icon"></i> The Session Lifecycle</h3>
+    <p>A Claude Code session goes through predictable phases:</p>
+    <ul>
+      <li><strong>Fresh start:</strong> Memory files loaded, context window nearly empty, highest quality</li>
+      <li><strong>Working phase:</strong> File reads, edits, and tool outputs accumulate — quality stable</li>
+      <li><strong>Degradation zone:</strong> History grows large, responses become less precise, instructions from early in the session may be "forgotten"</li>
+      <li><strong>Intervention point:</strong> <span class="ic">/clear</span>, <span class="ic">/compact</span>, or new session</li>
+    </ul>
+
+    <h4>Practical Session Patterns</h4>
+
+    <div class="callout tip">
+      <div class="ct"><i data-lucide="lightbulb" class="icon"></i> One Task, One Session</div>
+      <p>The simplest and most reliable session strategy: start a new session for each major task. Load your spec or <span class="ic">CLAUDE.md</span> context files, do the task, exit. Don't reuse sessions across unrelated work — the accumulated context from one task actively hurts the next.</p>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span class="lang-label">workflow — managing long sessions</span><button class="copy-btn">Copy</button></div>
+      <pre><code><span class="cc"># Midway through a long task — history getting noisy</span>
+<span class="cg">/compact</span>                      <span class="cc"># Compress to essentials, keep going</span>
+
+<span class="cc"># Switching to a different task in the same codebase</span>
+<span class="cg">/clear</span>                        <span class="cc"># Wipe history, memory files reload automatically</span>
+
+<span class="cc"># Done for the day, want to resume tomorrow</span>
+<span class="cc"># Session ID is shown in /status — note it</span>
+<span class="cg">/status</span>
+<span class="cg">/exit</span>
+
+<span class="cc"># Next day — resume with full history restored</span>
+<span class="ck">claude</span> <span class="cs">--resume</span> &lt;session-id&gt;</span></code></pre>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- SECTION: MCP Tools -->
+<section class="section" id="mcp-tools">
+  <div class="section-eyebrow"><span class="s-cat">Integrations</span></div>
+  <h2>Connecting MCP Tools</h2>
+  <p class="lead">Claude Code connects to external tools through the Model Context Protocol. MCP servers extend what Claude Code can do — browser automation, GitHub access, database queries, and more.</p>
+
+  <div class="sub">
+    <h3><i data-lucide="power" class="icon"></i> Installing MCP Servers</h3>
+    <div class="code-block">
+      <div class="code-header"><span class="lang-label">bash</span><button class="copy-btn">Copy</button></div>
+      <pre><code><span class="cc"># Install Playwright MCP — browser automation</span>
+<span class="ck">claude</span> mcp install @playwright/mcp@latest <span class="cs">-s</span> user
+
+<span class="cc"># Install at project scope (only this project)</span>
+<span class="ck">claude</span> mcp install @playwright/mcp@latest <span class="cs">-s</span> project
+
+<span class="cc"># List installed MCP servers</span>
+<span class="ck">claude</span> mcp list
+
+<span class="cc"># Remove an MCP server</span>
+<span class="ck">claude</span> mcp remove playwright</code></pre>
+    </div>
+
+    <h4>Scope: User vs Project</h4>
+    <div class="compare">
+      <div class="compare-col good">
+        <div class="ch4-head" style="color:var(--blue)">-s user (User Scope)</div>
+        <p>Available in all Claude Code instances for this user. Installed once, works everywhere. Good for general-purpose tools (Playwright, filesystem, GitHub).</p>
+      </div>
+      <div class="compare-col bad">
+        <div class="ch4-head" style="color:var(--green)">-s project (Project Scope)</div>
+        <p>Available only in this project directory. Stored in <span class="ic">.claude/settings.json</span> and committed to version control — all team members get it.</p>
+      </div>
+    </div>
+
+    <h4>Playwright Example</h4>
+    <p>After installing Playwright MCP, Claude Code can interact with browsers — taking screenshots, clicking elements, filling forms, and scraping content:</p>
+    <div class="code-block">
+      <div class="code-header"><span class="lang-label">prompt</span><button class="copy-btn">Copy</button></div>
+      <pre><code>Open localhost:3000 in a browser, take a screenshot of the homepage,
+and identify any layout issues at mobile viewport (375px wide).</code></pre>
+    </div>
+
+    <div class="callout info">
+      <div class="ct"><i data-lucide="info" class="icon"></i> Context-Specific Memory Files</div>
+      <p>Create tool-specific context files like <span class="ic">memory/playwright/CLAUDE.md</span> with guidance on how to use the tool effectively in your project (base URL, auth patterns, selector conventions). Load them explicitly with <span class="ic">@</span> when doing browser-related tasks rather than including them in the root <span class="ic">CLAUDE.md</span>.</p>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- SECTION: Slash Command Reference -->
+<section class="section" id="slash-commands">
+  <div class="section-eyebrow"><span class="s-cat">Command Reference</span></div>
+  <h2>Slash Command Reference</h2>
+  <p class="lead">Slash commands are typed directly in the REPL prompt. They control session state, model configuration, context, and tool management. Knowing these commands well significantly improves your day-to-day workflow.</p>
+
+  <div class="sub" id="essential-commands">
+    <h3><i data-lucide="list-ordered" class="icon"></i> Essential Commands</h3>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Command</th><th>Syntax</th><th>What It Does</th><th>When to Use</th></tr></thead>
+        <tbody>
+          <tr><td><span class="ic">/init</span></td><td>/init</td><td>Analyzes the project and generates a CLAUDE.md context file</td><td>First time in a new project</td></tr>
+          <tr><td><span class="ic">/clear</span></td><td>/clear</td><td>Wipes conversation history. CLAUDE.md files are preserved and reloaded.</td><td>Starting a new task, context is polluted</td></tr>
+          <tr><td><span class="ic">/compact</span></td><td>/compact [instructions]</td><td>Summarizes conversation history. Keeps the task thread while reducing token count.</td><td>Long task, history growing unwieldy</td></tr>
+          <tr><td><span class="ic">/status</span></td><td>/status</td><td>Shows current session ID, model, token usage, and loaded memory files</td><td>Before exiting if you want to resume later</td></tr>
+          <tr><td><span class="ic">/model</span></td><td>/model &lt;model-name&gt;</td><td>Switches the active model for the current session</td><td>Switching between Opus/Sonnet/Haiku mid-session</td></tr>
+          <tr><td><span class="ic">/models</span></td><td>/models</td><td>Lists all available models with their IDs</td><td>When you need the exact model ID string</td></tr>
+          <tr><td><span class="ic">/exit</span></td><td>/exit</td><td>Exits the REPL cleanly</td><td>Ending a session</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="sub" id="tool-commands">
+    <h3><i data-lucide="power" class="icon"></i> MCP and Tool Commands</h3>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Command</th><th>Syntax</th><th>What It Does</th></tr></thead>
+        <tbody>
+          <tr><td><span class="ic">mcp install</span></td><td>claude mcp install &lt;package&gt; -s [user|project]</td><td>Installs an MCP server at user or project scope</td></tr>
+          <tr><td><span class="ic">mcp list</span></td><td>claude mcp list</td><td>Lists all installed MCP servers and their scope</td></tr>
+          <tr><td><span class="ic">mcp remove</span></td><td>claude mcp remove &lt;name&gt;</td><td>Uninstalls an MCP server by name</td></tr>
+          <tr><td><span class="ic">/tools</span></td><td>/tools</td><td>Lists all active tools (built-in + MCP) in the current session</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header">
+        <span class="lang-label">bash — MCP install examples</span>
+        <button class="copy-btn">Copy</button>
+      </div>
+      <pre><code><span class="cc"># Install Playwright for browser automation (user scope — available in all projects)</span>
+<span class="ck">claude</span> mcp install @playwright/mcp@latest <span class="cs">-s</span> user
+
+<span class="cc"># Install a database tool at project scope (committed to .claude/settings.json)</span>
+<span class="ck">claude</span> mcp install @modelcontextprotocol/server-postgres <span class="cs">-s</span> project
+
+<span class="cc"># Verify what is installed</span>
+<span class="ck">claude</span> mcp list</code></pre>
+    </div>
+  </div>
+
+  <div class="sub" id="context-shortcuts">
+    <h3><i data-lucide="plus-circle" class="icon"></i> Inline Context Shortcuts</h3>
+    <p>These shortcuts inject context into a prompt without modifying CLAUDE.md:</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Shortcut</th><th>Syntax</th><th>What It Does</th><th>Example</th></tr></thead>
+        <tbody>
+          <tr><td><span class="ic">@</span> file reference</td><td>@path/to/file</td><td>Injects the file contents at that point in the prompt</td><td>Implement the handler per @spec/users.md</td></tr>
+          <tr><td><span class="ic">#</span> file picker</td><td># (typed at start of input)</td><td>Opens an interactive file picker — selected files are added to context</td><td># (then select multiple files)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- SECTION: Keyboard Shortcuts -->
+<section class="section" id="keyboard-shortcuts">
+  <div class="section-eyebrow"><span class="s-cat">Productivity</span></div>
+  <h2>Keyboard Shortcuts</h2>
+  <p class="lead">The Claude Code REPL has a set of keyboard shortcuts for common actions. Learning these avoids repetitive typing for the operations you perform every session.</p>
+
+  <div class="sub">
+    <h3><i data-lucide="keyboard" class="icon"></i> REPL Shortcuts</h3>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Shortcut</th><th>Action</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td><kbd>Shift+Tab</kbd></td><td>Toggle Plan Mode</td><td>Switches between normal (read+write) and plan (read-only) mode</td></tr>
+          <tr><td><kbd>Ctrl+C</kbd></td><td>Interrupt / Cancel</td><td>Stops a running tool call or in-progress generation. Safe to use mid-execution.</td></tr>
+          <tr><td><kbd>↑</kbd> / <kbd>↓</kbd></td><td>History navigation</td><td>Cycles through previous prompts in the current session</td></tr>
+          <tr><td><kbd>Ctrl+L</kbd></td><td>Clear screen</td><td>Clears terminal display only — does not clear context</td></tr>
+          <tr><td><kbd>Tab</kbd></td><td>Autocomplete</td><td>Autocompletes slash commands and @ file paths</td></tr>
+          <tr><td><kbd>Ctrl+R</kbd></td><td>Reverse history search</td><td>Searches previous prompts by substring</td></tr>
+          <tr><td><kbd>Enter</kbd></td><td>Submit prompt</td><td>Sends the current input</td></tr>
+          <tr><td><kbd>Shift+Enter</kbd></td><td>Newline in prompt</td><td>Adds a newline without submitting — for multi-line prompts</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout tip">
+      <strong>Tip:</strong> <kbd>Ctrl+C</kbd> is safe to use mid-execution if Claude Code is heading in the wrong direction. It cancels the current tool call and returns control to you. The context window retains everything up to the cancellation point, so you can redirect with a follow-up prompt.
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- SECTION: Configuration Deep Dive -->
+<section class="section" id="configuration">
+  <div class="section-eyebrow"><span class="s-cat">Configuration</span></div>
+  <h2>Configuration Deep Dive</h2>
+  <p class="lead">Claude Code's behavior is controlled through <span class="ic">.claude/settings.json</span> (project scope) and <span class="ic">~/.claude/settings.json</span> (user scope). Understanding these settings lets you configure permissions, hooks, and MCP tools for your environment.</p>
+
+  <div class="sub" id="settings-structure">
+    <h3><i data-lucide="settings" class="icon"></i> settings.json Structure</h3>
+
+    <div class="code-block">
+      <div class="code-header">
+        <span class="lang-label">json — .claude/settings.json (annotated)</span>
+        <button class="copy-btn">Copy</button>
+      </div>
+      <pre><code>{
+  "model": "claude-sonnet-4-5",
+
+  "permissions": {
+    "allow": [
+      "Bash(go test ./...)",
+      "Bash(make *)",
+      "Bash(git diff*)",
+      "Bash(git log*)"
+    ],
+    "deny": [
+      "Bash(git push*)",
+      "Bash(rm -rf*)"
+    ]
+  },
+
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo 'Running: $CLAUDE_TOOL_INPUT' >> ~/.claude/audit.log"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "notify-send 'Claude Code finished'"
+          }
+        ]
+      }
+    ]
+  },
+
+  "mcpServers": {
+    "playwright": {
+      "command": "npx",
+      "args": ["@playwright/mcp@latest"],
+      "scope": "project"
+    }
+  }
+}</code></pre>
+    </div>
+
+    <h4>Permission Rules</h4>
+    <p>The <span class="ic">permissions</span> block uses glob-style patterns to pre-approve or block tool calls. Pre-approved commands run without an interactive prompt:</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Pattern</th><th>Matches</th><th>Use Case</th></tr></thead>
+        <tbody>
+          <tr><td><span class="ic">Bash(go test ./...)</span></td><td>Exact command only</td><td>Pre-approve your test command</td></tr>
+          <tr><td><span class="ic">Bash(make *)</span></td><td>Any make target</td><td>Allow all Makefile targets</td></tr>
+          <tr><td><span class="ic">Bash(git diff*)</span></td><td>Any git diff variant</td><td>Allow read-only git operations</td></tr>
+          <tr><td><span class="ic">Bash(git push*)</span> in deny</td><td>Any git push</td><td>Block pushes — require manual review</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout warning">
+      <strong>Warning:</strong> Permissions in the project <span class="ic">.claude/settings.json</span> apply to every developer who uses Claude Code in that project. Set project-level permissions to allow safe operations (build, test, lint) and block irreversible ones (push, database drops). Individual developers can extend their personal permissions in <span class="ic">~/.claude/settings.json</span>.
+    </div>
+  </div>
+
+  <div class="sub" id="hooks-config">
+    <h3><i data-lucide="webhook" class="icon"></i> Hook Configuration</h3>
+    <p>Hooks execute shell commands on lifecycle events. They are the mechanism for workflow automation, audit logging, and CI/CD integration.</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Hook Event</th><th>When It Fires</th><th>Common Use</th></tr></thead>
+        <tbody>
+          <tr><td><span class="ic">PreToolUse</span></td><td>Before any tool call</td><td>Audit logging, command validation</td></tr>
+          <tr><td><span class="ic">PostToolUse</span></td><td>After any tool call completes</td><td>Run linter after file edits, notify on completion</td></tr>
+          <tr><td><span class="ic">Stop</span></td><td>When the session ends</td><td>Play a sound, send a notification, run cleanup</td></tr>
+          <tr><td><span class="ic">Notification</span></td><td>When Claude has a question or needs input</td><td>Desktop notification when Claude is waiting for you</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header">
+        <span class="lang-label">json — hook: run lint after every file edit</span>
+        <button class="copy-btn">Copy</button>
+      </div>
+      <pre><code>{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "golangci-lint run --fix 2>&1 | head -20"
+          }
+        ]
+      }
+    ]
+  }
+}</code></pre>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- SECTION: Workflow Patterns -->
+<section class="section" id="workflow-patterns">
+  <div class="section-eyebrow"><span class="s-cat">Workflows</span></div>
+  <h2>Workflow Patterns</h2>
+  <p class="lead">These are concrete multi-step workflows that combine Claude Code's features. Each addresses a common engineering scenario and shows the command sequence to execute it.</p>
+
+  <div class="sub" id="workflow-new-feature">
+    <h3><i data-lucide="plus-square" class="icon"></i> Pattern: New Feature from Spec</h3>
+    <p>The most reliable pattern for implementing a non-trivial feature from scratch.</p>
+
+    <div class="code-block">
+      <div class="code-header">
+        <span class="lang-label">workflow — new feature</span>
+        <button class="copy-btn">Copy</button>
+      </div>
+      <pre><code><span class="cc"># 1. Write spec before opening Claude Code</span>
+<span class="cc">#    Create spec/feature-name.md with requirements, data model, constraints</span>
+
+<span class="cc"># 2. Start fresh session</span>
+<span class="ck">claude</span>
+
+<span class="cc"># 3. Enter Plan Mode before touching any code</span>
+<span class="cc">#    Press Shift+Tab, then describe the task</span>
+<span class="cs">Read @spec/feature-name.md and produce an implementation plan.
+List affected files and describe each change needed.</span>
+
+<span class="cc"># 4. Review the plan, then exit Plan Mode (Shift+Tab again)</span>
+<span class="cc"># 5. Implement step by step, verifying each step</span>
+<span class="cs">Implement step 1: create the data model in internal/models/feature.go</span>
+
+<span class="cc"># 6. Run tests after each step</span>
+<span class="cs">Run the tests for the models package and fix any failures.</span>
+
+<span class="cc"># 7. Commit working increments</span>
+<span class="cs">Stage all changes and create a commit with message: "feat: add feature-name model"</span></code></pre>
+    </div>
+  </div>
+
+  <div class="sub" id="workflow-debug">
+    <h3><i data-lucide="bug" class="icon"></i> Pattern: Debugging a Failure</h3>
+    <p>Use this when a test fails or a bug is reported and you need Claude Code to trace it.</p>
+
+    <div class="code-block">
+      <div class="code-header">
+        <span class="lang-label">workflow — debugging</span>
+        <button class="copy-btn">Copy</button>
+      </div>
+      <pre><code><span class="cc"># 1. Run the failing test and capture output</span>
+<span class="ck">go</span> test ./internal/auth/... <span class="cs">-run</span> TestValidateToken <span class="cs">-v</span>
+
+<span class="cc"># 2. Open Claude Code and describe the failure</span>
+<span class="cs">The TestValidateToken test is failing with this output:
+[paste the test output]
+Read the test and the implementation, trace the failure, and tell me the root cause.
+Do not fix anything yet — just explain what is wrong.</span>
+
+<span class="cc"># 3. Confirm your understanding before asking for a fix</span>
+<span class="cs">That analysis is correct. Now fix the bug in token.go line 47.
+The fix should be minimal — do not refactor anything else.</span>
+
+<span class="cc"># 4. Verify the fix works</span>
+<span class="cs">Run TestValidateToken again and confirm it passes.</span></code></pre>
+    </div>
+
+    <div class="callout tip">
+      <strong>Tip:</strong> Always ask for the root cause analysis before asking for a fix. This forces Claude Code to show its reasoning — you can catch a wrong diagnosis before it produces a wrong fix. A one-sentence description of the bug that you agree with is worth more than jumping straight to a code change.
+    </div>
+  </div>
+
+  <div class="sub" id="workflow-refactor">
+    <h3><i data-lucide="arrow-left-right" class="icon"></i> Pattern: Large-Scale Refactor</h3>
+    <p>Renaming a function, changing an interface, or migrating a pattern across many files.</p>
+
+    <div class="code-block">
+      <div class="code-header">
+        <span class="lang-label">workflow — refactor</span>
+        <button class="copy-btn">Copy</button>
+      </div>
+      <pre><code><span class="cc"># 1. Plan Mode first — understand the blast radius</span>
+<span class="cc">#    Press Shift+Tab</span>
+<span class="cs">I want to rename the getUserByID function to FindUserByID across
+the entire codebase and update all callers. List every file that
+needs to change and what change is needed in each.</span>
+
+<span class="cc"># 2. Review the plan — are there files you did not expect?</span>
+<span class="cc"># 3. Exit Plan Mode, execute</span>
+<span class="cs">Execute the rename. Start with the definition in internal/store/user.go,
+then update all callers. Run the build after each file to catch errors early.</span>
+
+<span class="cc"># 4. Full test suite after all changes</span>
+<span class="cs">Run go test ./... and fix any remaining compilation errors.</span></code></pre>
+    </div>
+  </div>
+
+  <div class="sub" id="workflow-review">
+    <h3><i data-lucide="star" class="icon"></i> Pattern: Pre-PR Code Review</h3>
+    <p>Use Claude Code as a final review pass before opening a pull request.</p>
+
+    <div class="code-block">
+      <div class="code-header">
+        <span class="lang-label">workflow — pre-PR review</span>
+        <button class="copy-btn">Copy</button>
+      </div>
+      <pre><code><span class="cc"># Fresh session for clean context</span>
+<span class="ck">claude</span>
+
+<span class="cc"># Load only the diff — no extra context needed</span>
+<span class="cs">Review this diff for: missing error handling, edge cases,
+security issues, and deviations from the conventions in CLAUDE.md.
+Do not suggest style preferences — only flag correctness issues.</span>
+
+<span class="cc"># Paste the diff or reference the git diff</span>
+<span class="cs">Here is the diff: @$(git diff main..HEAD)</span>
+
+<span class="cc"># Or reference a specific file</span>
+<span class="cs">Review the changes in @internal/handlers/payment.go</span></code></pre>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- SECTION: Power User Tips -->
+<section class="section" id="power-user-tips">
+  <div class="section-eyebrow"><span class="s-cat">Advanced</span></div>
+  <h2>Tips for Power Users</h2>
+  <p class="lead">These patterns build on the fundamentals and are worth adopting once you are comfortable with the core workflow.</p>
+
+  <div class="sub">
+    <h3><i data-lucide="rocket" class="icon"></i> Advanced Usage Patterns</h3>
+
+    <h4>Use One-Shot Mode for Automation</h4>
+    <p>The <span class="ic">-p</span> flag runs Claude Code headlessly — no REPL, just execute and exit. This is the integration point for CI/CD pipelines and shell scripts.</p>
+    <div class="code-block">
+      <div class="code-header">
+        <span class="lang-label">bash — one-shot in scripts</span>
+        <button class="copy-btn">Copy</button>
+      </div>
+      <pre><code><span class="cc"># In a CI script — auto-generate release notes from git log</span>
+<span class="ck">claude</span> <span class="cs">-p</span> <span class="cs">"Based on this git log, write a CHANGELOG entry for version $(cat VERSION):
+$(git log --oneline v$(cat VERSION)..HEAD)"</span>
+
+<span class="cc"># Run as a pre-commit hook — check for debug code</span>
+<span class="ck">claude</span> <span class="cs">-p</span> <span class="cs">"Scan the staged diff for debug statements (fmt.Println, console.log,
+debugger, TODO: remove). List each occurrence with file and line number."</span> <span class="cs">--output-format</span> json</code></pre>
+    </div>
+
+    <h4>Use --output-format for Machine-Readable Output</h4>
+    <p>When integrating Claude Code into scripts, <span class="ic">--output-format json</span> produces structured output instead of prose — easier to parse programmatically.</p>
+    <div class="code-block">
+      <div class="code-header">
+        <span class="lang-label">bash</span>
+        <button class="copy-btn">Copy</button>
+      </div>
+      <pre><code><span class="ck">claude</span> <span class="cs">-p</span> <span class="cs">"List all exported functions in pkg/auth/ with their signatures"</span> <span class="cs">--output-format</span> json | <span class="ck">jq</span> <span class="cs">'.result'</span></code></pre>
+    </div>
+
+    <h4>Layer CLAUDE.md Files for Monorepos</h4>
+    <p>In a monorepo with multiple services, place a root CLAUDE.md for shared conventions and per-service CLAUDE.md files for service-specific context. Claude Code loads both when working in a service subdirectory.</p>
+
+    <div class="code-block">
+      <div class="code-header">
+        <span class="lang-label">directory layout — monorepo CLAUDE.md hierarchy</span>
+        <button class="copy-btn">Copy</button>
+      </div>
+      <pre><code>monorepo/
+├── CLAUDE.md              ← shared: monorepo conventions, CI commands
+├── services/
+│   ├── auth/
+│   │   └── CLAUDE.md      ← auth-specific: JWT patterns, token constraints
+│   ├── payments/
+│   │   └── CLAUDE.md      ← payments-specific: PCI rules, no logging card data
+│   └── notifications/
+│       └── CLAUDE.md      ← notifications-specific: provider patterns, retry policy</code></pre>
+    </div>
+
+    <h4>Custom Instructions via /compact</h4>
+    <p>The <span class="ic">/compact</span> command accepts optional text instructions that tell Claude how to prioritize the summary. Use this to emphasize what matters for the next phase of work.</p>
+    <div class="code-block">
+      <div class="code-header">
+        <span class="lang-label">prompt</span>
+        <button class="copy-btn">Copy</button>
+      </div>
+      <pre><code>/compact Focus on what was decided about the data model and what still needs to be implemented. Drop the debugging history.</code></pre>
+    </div>
+
+    <div class="callout tip">
+      <strong>Tip:</strong> Combine Plan Mode with the <span class="ic">@</span> file reference to build structured technical proposals. Enter Plan Mode, describe the problem, and ask Claude Code to produce a structured ADR (Architecture Decision Record) referencing the relevant files. Review it, then exit Plan Mode to implement.
+    </div>
+
+    <h4>Parallel Subagents for Independent Tasks</h4>
+    <p>If you have two tasks that do not share state — e.g., writing tests for module A and writing documentation for module B — open two terminal windows and run both as separate Claude Code sessions simultaneously. They will not interfere with each other.</p>
+
+    <div class="callout note">
+      <strong>Note:</strong> Parallel sessions should operate on non-overlapping files. If both sessions write to the same file, you will get conflicts. Use separate git branches and merge afterward, or partition the work so each session owns its files.
+    </div>
+  </div>
+</section>
+
+<!-- Chapter nav footer -->
+<div style="display:flex;justify-content:space-between;padding-top:32px;border-top:1px solid var(--border-dim);">
+  <a href="chapter-02.html" class="btn-secondary" style="text-decoration:none">← Context Engineering</a>
+  <a href="chapter-04.html" class="btn-primary" style="text-decoration:none">Essential Commands →</a>
+</div>
+
+</main>
+<aside class="toc-panel"><div id="page-toc"></div></aside>
+</div>
+
+<div id="back-to-top">↑</div>
+<div id="sidebar-overlay"></div>
+<div id="cmd-overlay">
+  <div id="cmd-palette">
+    <div class="cmd-search">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398l3.85 3.85a1 1 0 0 0 1.415-1.415l-3.868-3.833zm-5.242 1.156a5 5 0 1 1 0-10 5 5 0 0 1 0 10z"/></svg>
+      <input type="text" id="cmd-input" placeholder="Search chapters and sections..." autocomplete="off" spellcheck="false">
+      <kbd>esc</kbd>
+    </div>
+    <div class="cmd-results" id="cmd-results"></div>
+    <div class="cmd-footer">
+      <span class="cmd-hint"><kbd>↑↓</kbd> navigate</span>
+      <span class="cmd-hint"><kbd>↵</kbd> open</span>
+      <span class="cmd-hint"><kbd>esc</kbd> close</span>
+    </div>
+  </div>
+</div>
+<script src="https://unpkg.com/lucide@latest"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>
