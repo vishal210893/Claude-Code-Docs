@@ -362,17 +362,17 @@ All handlers in internal/handlers/, business logic in internal/service/.
     <h3><i data-lucide="scale" class="icon"></i> The Goldilocks Zone</h3>
 
     <div class="compare">
-      <div class="compare-col good">
+      <div class="compare-col good" style="display:flex;flex-direction:column">
         <div class="ch4-head"><i data-lucide="x" class="icon"></i> Too Specific (Brittle)</div>
         <p>Treating the LLM as a deterministic state machine. Exhaustive enumeration of every case. Hardcoded logic and decision trees. Maintenance nightmare — any uncovered case falls through to undefined behavior.</p>
-        <div style="margin-top:12px;font-size:0.8rem;color:var(--red)">
+        <div style="margin-top:auto;padding-top:12px;font-size:0.8rem;color:var(--red)">
           "If the user asks about X, do Y. If they ask about Z, do W. If both X and Z, do..."
         </div>
       </div>
-      <div class="compare-col bad">
+      <div class="compare-col bad" style="display:flex;flex-direction:column">
         <div class="ch4-head"><i data-lucide="x" class="icon"></i> Too Vague (Unpredictable)</div>
         <p>Insufficient signal. False assumptions about default behavior. Undefined boundaries lead to inconsistent results. "Do the right thing" without defining what right means for this context.</p>
-        <div style="margin-top:12px;font-size:0.8rem;color:var(--orange)">
+        <div style="margin-top:auto;padding-top:12px;font-size:0.8rem;color:var(--orange)">
           "Be helpful and write good code."
         </div>
       </div>
