@@ -351,7 +351,7 @@ initCollapsible();
     },
     'chapter-10': {
       header: YM('10'),
-      sects: [[1, PH(ph[8]), 'r'], [3, FP(fp[8]), 'r'], [5, PT(pt[8]), 'r']],
+      sects: [[1, PH(ph[8]), 'r'], [3, FP(fp[8]), 'r']],
     },
     'chapter-11': {
       header: null,
@@ -359,11 +359,11 @@ initCollapsible();
     },
     'chapter-12': {
       header: YM('12'),
-      sects: [[1, FP(fp[10]), 'r'], [3, PT(pt[10]), 'r'], [5, PH(ph[10]), 'r']],
+      sects: [[5, PH(ph[10]), 'r']],
     },
     'chapter-13': {
       header: AM('13'),
-      sects: [[1, PT(pt[11]), 'r'], [3, PH(ph[11]), 'r'], [5, FP(fp[11]), 'r']],
+      sects: [[3, PH(ph[11]), 'r'], [5, FP(fp[11]), 'r']],
     },
   };
 
