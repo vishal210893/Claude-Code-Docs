@@ -366,11 +366,11 @@ Start with the data model and the search/filter logic.</code></pre>
     <h3><i data-lucide="power" class="icon"></i> Installing MCP Servers</h3>
     <div class="code-block">
       <div class="code-header"><span class="lang-label">bash</span><button class="copy-btn">Copy</button></div>
-      <pre><code><span class="cc"># Install Playwright MCP — browser automation</span>
-<span class="ck">claude</span> mcp install @playwright/mcp@latest <span class="cs">-s</span> user
+      <pre><code><span class="cc"># Add Playwright MCP — browser automation (user scope)</span>
+<span class="ck">claude</span> mcp add <span class="cs">-s</span> user playwright -- npx @playwright/mcp@latest
 
-<span class="cc"># Install at project scope (only this project)</span>
-<span class="ck">claude</span> mcp install @playwright/mcp@latest <span class="cs">-s</span> project
+<span class="cc"># Add at project scope (only this project)</span>
+<span class="ck">claude</span> mcp add <span class="cs">-s</span> project playwright -- npx @playwright/mcp@latest
 
 <span class="cc"># List installed MCP servers</span>
 <span class="ck">claude</span> mcp list
@@ -440,7 +440,7 @@ and identify any layout issues at mobile viewport (375px wide).</code></pre>
       <table>
         <thead><tr><th>Command</th><th>Syntax</th><th>What It Does</th></tr></thead>
         <tbody>
-          <tr><td><span class="ic">mcp install</span></td><td>claude mcp install &lt;package&gt; -s [user|project]</td><td>Installs an MCP server at user or project scope</td></tr>
+          <tr><td><span class="ic">mcp add</span></td><td>claude mcp add -s [user|project] &lt;name&gt; -- &lt;command&gt; [args...]</td><td>Adds an MCP server at user or project scope</td></tr>
           <tr><td><span class="ic">mcp list</span></td><td>claude mcp list</td><td>Lists all installed MCP servers and their scope</td></tr>
           <tr><td><span class="ic">mcp remove</span></td><td>claude mcp remove &lt;name&gt;</td><td>Uninstalls an MCP server by name</td></tr>
           <tr><td><span class="ic">/tools</span></td><td>/tools</td><td>Lists all active tools (built-in + MCP) in the current session</td></tr>
@@ -453,11 +453,11 @@ and identify any layout issues at mobile viewport (375px wide).</code></pre>
         <span class="lang-label">bash — MCP install examples</span>
         <button class="copy-btn">Copy</button>
       </div>
-      <pre><code><span class="cc"># Install Playwright for browser automation (user scope — available in all projects)</span>
-<span class="ck">claude</span> mcp install @playwright/mcp@latest <span class="cs">-s</span> user
+      <pre><code><span class="cc"># Add Playwright for browser automation (user scope — available in all projects)</span>
+<span class="ck">claude</span> mcp add <span class="cs">-s</span> user playwright -- npx @playwright/mcp@latest
 
-<span class="cc"># Install a database tool at project scope (committed to .claude/settings.json)</span>
-<span class="ck">claude</span> mcp install @modelcontextprotocol/server-postgres <span class="cs">-s</span> project
+<span class="cc"># Add a database tool at project scope (committed to .claude/settings.json)</span>
+<span class="ck">claude</span> mcp add <span class="cs">-s</span> project postgres -- npx @modelcontextprotocol/server-postgres
 
 <span class="cc"># Verify what is installed</span>
 <span class="ck">claude</span> mcp list</code></pre>

@@ -602,7 +602,7 @@ generally while you're in there?</code></pre>
           <tr><td>Git</td><td class="td-req">Required</td><td>Branching, committing, pushing. Claude Code interacts with git constantly.</td></tr>
           <tr><td>Terminal / CLI</td><td class="td-req">Required</td><td>Comfortable running commands, reading output, setting environment variables.</td></tr>
           <tr><td>Virtual environments</td><td class="td-req">Required</td><td><span class="ic">venv</span>, <span class="ic">nvm</span>, or equivalent. Required for clean dependency management.</td></tr>
-          <tr><td>Node.js / npm</td><td class="td-opt">Recommended</td><td>Claude Code is installed via npm. Node.js 18+ required.</td></tr>
+          <tr><td>Node.js / npm</td><td class="td-opt">Optional</td><td>Required only if installing Claude Code via npm. Not needed if using the native installer or Homebrew.</td></tr>
           <tr><td>Docker</td><td class="td-opt">Recommended</td><td>Useful for sandboxed execution and MCP server containers.</td></tr>
           <tr><td>Machine learning</td><td class="td-ok">Not Required</td><td>No ML background needed. You are using the model, not training it.</td></tr>
         </tbody>
@@ -635,7 +635,7 @@ generally while you're in there?</code></pre>
     <span class="s-cat">Setup</span>
   </div>
   <h2>Installation</h2>
-  <p class="lead">Claude Code is distributed as an npm package. Install it globally so it is available from any project directory in your terminal.</p>
+  <p class="lead">Claude Code can be installed via a native installer (macOS/Linux/WSL), Homebrew, or as an npm package. All methods install the same CLI — pick the one that fits your environment.</p>
 
   <div class="sub" id="first-run">
     <h3><i data-lucide="rocket" class="icon"></i> Install & Authenticate</h3>
@@ -645,7 +645,13 @@ generally while you're in there?</code></pre>
         <span class="lang-label">bash</span>
         <button class="copy-btn">Copy</button>
       </div>
-      <pre><code><span class="cc"># Install Claude Code globally</span>
+      <pre><code><span class="cc"># Option 1: Native installer (macOS / Linux / WSL — recommended)</span>
+curl <span class="cs">-fsSL</span> https://claude.ai/install.sh | bash
+
+<span class="cc"># Option 2: Homebrew (macOS)</span>
+brew install <span class="cs">--cask</span> claude-code
+
+<span class="cc"># Option 3: npm (requires Node.js 18+)</span>
 <span class="ck">npm</span> install <span class="cs">-g</span> @anthropic-ai/claude-code
 
 <span class="cc"># Verify installation</span>

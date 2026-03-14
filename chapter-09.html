@@ -270,36 +270,48 @@ extends: concise-engineer
   <p class="lead">The status line displays real-time context at the bottom of the Claude Code interface. You can customize it to show model name, token count, cost, session ID, and more — making key metrics visible at a glance without breaking your flow.</p>
 
   <div class="sub">
-    <h3>Basic Configuration</h3>
-    <p>Set the <span class="ic">statusLine</span> field in <span class="ic">.claude/settings.json</span>:</p>
+    <h3>How It Works</h3>
+    <p>The status line is <strong>command-based</strong> — Claude Code runs a shell script after each response and displays whatever it prints to stdout. The script receives a JSON payload via stdin with session data (model, cost, tokens, etc.).</p>
 
     <div class="code-block">
       <div class="code-header"><span class="lang-label">json — .claude/settings.json</span><button class="copy-btn">Copy</button></div>
       <pre><code>{
-  <span class="ck">"statusLine"</span>: <span class="cs">"${model} | tokens: ${tokens} | cost: $${cost}"</span>
+  <span class="ck">"statusLine"</span>: {
+    <span class="ck">"type"</span>: <span class="cs">"command"</span>,
+    <span class="ck">"command"</span>: <span class="cs">"~/.claude/statusline.sh"</span>,
+    <span class="ck">"padding"</span>: 2
+  }
 }</code></pre>
     </div>
 
-    <h4>Available Variables</h4>
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>Variable</th><th>Description</th></tr></thead>
-        <tbody>
-          <tr><td><span class="ic">${model}</span></td><td>The active model name (e.g., claude-sonnet-4-5)</td></tr>
-          <tr><td><span class="ic">${tokens}</span></td><td>Total tokens used in the current session</td></tr>
-          <tr><td><span class="ic">${cost}</span></td><td>Estimated session cost in USD</td></tr>
-          <tr><td><span class="ic">${session}</span></td><td>Session identifier</td></tr>
-          <tr><td><span class="ic">${mode}</span></td><td>Current mode (auto, manual, etc.)</td></tr>
-        </tbody>
-      </table>
+    <h4>Example Script</h4>
+    <p>Create <span class="ic">~/.claude/statusline.sh</span> (make it executable with <span class="ic">chmod +x</span>):</p>
+
+    <div class="code-block">
+      <div class="code-header"><span class="lang-label">bash — ~/.claude/statusline.sh</span><button class="copy-btn">Copy</button></div>
+      <pre><code>#!/bin/bash
+INPUT=$(cat)
+MODEL=$(echo "$INPUT" | jq -r '.model.display_name // "unknown"')
+COST=$(echo "$INPUT" | jq -r '.cost.total_cost_usd // 0 | . * 1000 | round / 1000')
+TOKENS=$(echo "$INPUT" | jq -r '.context_window.current_usage.input_tokens // 0')
+echo "$MODEL | tokens: $TOKENS | cost: \$$COST"</code></pre>
     </div>
 
-    <h3>Advanced: Last User Prompt</h3>
-    <p>For context-at-a-glance workflows, you can display the last user prompt in the status line. This is useful when switching between multiple Claude Code windows and needing to orient quickly without scrolling back through the conversation.</p>
-
-    <div class="callout info">
-      <div class="ct">Version Requirement</div>
-      <p>Status line customization requires Claude Code 1.x+. Check your version with <span class="ic">claude --version</span> before configuring advanced status line features.</p>
+    <h4>Available JSON Fields (via stdin)</h4>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Field</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><span class="ic">model.id</span></td><td>Model identifier (e.g., claude-sonnet-4-6)</td></tr>
+          <tr><td><span class="ic">model.display_name</span></td><td>Human-readable model name</td></tr>
+          <tr><td><span class="ic">cost.total_cost_usd</span></td><td>Total session cost in USD</td></tr>
+          <tr><td><span class="ic">context_window.current_usage.input_tokens</span></td><td>Input tokens in current context</td></tr>
+          <tr><td><span class="ic">context_window.used_percentage</span></td><td>Context window usage percentage</td></tr>
+          <tr><td><span class="ic">session_id</span></td><td>Unique session identifier</td></tr>
+          <tr><td><span class="ic">cwd</span></td><td>Current working directory</td></tr>
+          <tr><td><span class="ic">worktree.branch</span></td><td>Git branch (when using --worktree)</td></tr>
+        </tbody>
+      </table>
     </div>
   </div>
 </section>

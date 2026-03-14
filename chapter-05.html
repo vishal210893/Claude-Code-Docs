@@ -241,17 +241,14 @@
     <h3><i data-lucide="box" class="icon"></i> Installation Commands</h3>
     <div class="code-block">
       <div class="code-header"><span class="lang-label">bash</span><button class="copy-btn">Copy</button></div>
-      <pre><code><span class="cc"># Install from npm package</span>
-<span class="ck">claude</span> mcp install @anthropic-ai/mcp-server-github <span class="cs">-s</span> user
+      <pre><code><span class="cc"># Add from npm package (stdio is the default transport)</span>
+<span class="ck">claude</span> mcp add <span class="cs">-s</span> user github -- npx @anthropic-ai/mcp-server-github
 
-<span class="cc"># Install from a local path</span>
-<span class="ck">claude</span> mcp install /path/to/my-mcp-server <span class="cs">-s</span> project
+<span class="cc"># Add from a local path</span>
+<span class="ck">claude</span> mcp add <span class="cs">-s</span> project myserver -- /path/to/my-mcp-server
 
 <span class="cc"># Add with environment variables (for API keys)</span>
-<span class="ck">claude</span> mcp add github \
-  <span class="cs">--transport</span> stdio \
-  <span class="cs">--command</span> <span class="cs">"npx @anthropic-ai/mcp-server-github"</span> \
-  <span class="cs">--env</span> GITHUB_TOKEN=<span class="co">$GITHUB_TOKEN</span>
+<span class="ck">claude</span> mcp add <span class="cs">-e</span> GITHUB_TOKEN=<span class="co">$GITHUB_TOKEN</span> <span class="cs">-s</span> user github -- npx @anthropic-ai/mcp-server-github
 
 <span class="cc"># List installed servers</span>
 <span class="ck">claude</span> mcp list
@@ -325,11 +322,7 @@
 npm install -g @anthropic-ai/mcp-server-filesystem
 
 <span class="cc"># Step 2: Add to user-level settings</span>
-claude mcp add filesystem \
-  --transport stdio \
-  --command "mcp-server-filesystem" \
-  --args "/Users/me/Documents" "/Users/me/projects" \
-  -s user
+claude mcp add -s user filesystem -- mcp-server-filesystem /Users/me/Documents /Users/me/projects
 
 <span class="cc"># Step 3: Verify it is listed</span>
 claude mcp list
@@ -349,11 +342,7 @@ claude mcp list
       </div>
       <pre><code><span class="cc"># Step 1: No separate install needed — npx handles it</span>
 <span class="cc"># Add directly to settings.json:</span>
-claude mcp add playwright \
-  --transport stdio \
-  --command "npx" \
-  --args "@playwright/mcp@latest" \
-  -s user
+claude mcp add -s user playwright -- npx @playwright/mcp@latest
 
 <span class="cc"># Step 2: Install browser binaries (one-time)</span>
 npx playwright install chromium
@@ -378,12 +367,7 @@ echo 'export GITHUB_TOKEN="ghp_your_token_here"' >> ~/.zshrc
 source ~/.zshrc
 
 <span class="cc"># Step 3: Install the MCP server</span>
-claude mcp add github \
-  --transport stdio \
-  --command "npx" \
-  --args "-y @anthropic-ai/mcp-server-github" \
-  --env GITHUB_TOKEN="${GITHUB_TOKEN}" \
-  -s user
+claude mcp add -e GITHUB_TOKEN="${GITHUB_TOKEN}" -s user github -- npx -y @anthropic-ai/mcp-server-github
 
 <span class="cc"># Step 4: Verify connection in REPL:</span>
 <span class="cc"># "List my 5 most recently updated repositories"</span></code></pre>
