@@ -208,19 +208,20 @@
 
     <h4>How Tool Discovery Works</h4>
     <p>When Claude Code starts and MCP servers are configured, it performs a <strong>tool discovery handshake</strong>. Here is what happens step by step:</p>
-    <img src="https://assets.streamlinehq.com/image/private/w_420,h_420,ar_1/f_auto/v1/icons/illustrations-brooklyn/development/development/coding-a-website-1-439p1adp31b3cag9o2v81h.png?_a=DATAiZAAZAA0" class="sect-illus sect-illus--right" alt="">
-
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>Step</th><th>What Happens</th></tr></thead>
-        <tbody>
-          <tr><td>1. Server Start</td><td>Claude Code launches the MCP server process (stdio) or connects to the remote URL (SSE/HTTP)</td></tr>
-          <tr><td>2. Capability Negotiation</td><td>Client and server exchange supported MCP protocol versions and capability flags</td></tr>
-          <tr><td>3. Tool List Request</td><td>Claude Code sends a <span class="ic">tools/list</span> request to enumerate all available tools</td></tr>
-          <tr><td>4. Schema Injection</td><td>All tool schemas from all configured servers are loaded into the active context window</td></tr>
-          <tr><td>5. Ready</td><td>Claude Code can now invoke any discovered tool by sending a <span class="ic">tools/call</span> request with arguments</td></tr>
-        </tbody>
-      </table>
+    <div style="display:flex;gap:2rem;align-items:flex-start">
+      <div class="table-wrap" style="flex:1;margin:0">
+        <table>
+          <thead><tr><th>Step</th><th>What Happens</th></tr></thead>
+          <tbody>
+            <tr><td>1. Server Start</td><td>Claude Code launches the MCP server process (stdio) or connects to the remote URL (SSE/HTTP)</td></tr>
+            <tr><td>2. Capability Negotiation</td><td>Client and server exchange supported MCP protocol versions and capability flags</td></tr>
+            <tr><td>3. Tool List Request</td><td>Claude Code sends a <span class="ic">tools/list</span> request to enumerate all available tools</td></tr>
+            <tr><td>4. Schema Injection</td><td>All tool schemas from all configured servers are loaded into the active context window</td></tr>
+            <tr><td>5. Ready</td><td>Claude Code can now invoke any discovered tool by sending a <span class="ic">tools/call</span> request with arguments</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <img src="https://assets.streamlinehq.com/image/private/w_420,h_420,ar_1/f_auto/v1/icons/illustrations-brooklyn/development/development/coding-a-website-1-439p1adp31b3cag9o2v81h.png?_a=DATAiZAAZAA0" class="sect-illus" style="flex-shrink:0;float:none;margin:0;align-self:center" alt="">
     </div>
 
     <div class="callout note">
