@@ -312,7 +312,7 @@ initCollapsible();
     },
     'chapter-05': {
       header: AM('05'),
-      sects: [[1, FP(fp[4]), 'r'], [3, PT(pt[4]), 'l'], [5, PH(ph[4]), 'r']],
+      sects: [[5, PH(ph[4]), 'r']],
     },
     'chapter-06': {
       header: AM('06'),

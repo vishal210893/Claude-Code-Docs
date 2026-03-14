@@ -609,6 +609,10 @@ li strong { color: var(--text); font-weight: 600; }
 h2:hover .anchor-link, h3:hover .anchor-link { opacity: 1; }
 .anchor-link:hover { color: var(--accent); }
 
+/* ── Flow Diagram ──────────────────────────────────────── */
+.flow-diagram { overflow-x: auto; margin: 24px 0; border-radius: var(--r); border: 1px solid var(--border); background: var(--bg-2); padding: 8px; }
+.flow-diagram svg { display: block; width: 100%; max-width: 760px; height: auto; margin: 0 auto; }
+
 /* ── Code Blocks ───────────────────────────────────────── */
 .code-block { border-radius: var(--r); border: 1px solid var(--border); overflow: hidden; margin: 24px 0; box-shadow: var(--shadow-sm); }
 .code-header, .cb-header {
