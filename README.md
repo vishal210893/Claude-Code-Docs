@@ -96,7 +96,24 @@ documentation/
 | JavaScript | Vanilla JS (no frameworks) |
 | Icons | [Lucide Icons](https://lucide.dev/) via CDN |
 | Fonts | [Inter](https://fonts.google.com/specimen/Inter) + [JetBrains Mono](https://www.jetbrains.com/lp/mono/) via Google Fonts |
-| Illustrations | [Illustra CDN](https://getillustra.com/) |
+| Illustrations | [Getillustra CDN](https://getillustra.com/) — 6 illustration packs (see below) |
+
+---
+
+## 🖼 Illustration Sources
+
+All illustrations are sourced from [Getillustra](https://getillustra.com/) and served via their CDN. The copyright for all images belongs to their respective creators.
+
+| Code | Pack | Style | Source |
+|------|------|-------|--------|
+| `YM` | **Youmind** | Doodle / hand-drawn, knowledge & thinking themes | [getillustra.com/youmind](https://getillustra.com/youmind) |
+| `AM` | **Amplemarket** | Clean 2D, professional & workflow themes | [getillustra.com/amplemarket](https://getillustra.com/amplemarket) |
+| `SB` | **Saybriefly** | Doodle / Typo, notes, briefs & communication themes | [getillustra.com/saybriefly](https://getillustra.com/saybriefly) |
+| `ZC` | **Zeroco2** | Doodle / Typo, nature, structured & systematic themes | [getillustra.com/zeroco2](https://getillustra.com/zeroco2) |
+| `IS` | **Iamsteve.me** | 2D, web design, craft & interface themes | [getillustra.com/iamsteve-me](https://getillustra.com/iamsteve-me) |
+| `PH` | **Pointhound** | 2D character illustrations, action & motion themes | [getillustra.com/pointhound](https://getillustra.com/pointhound) |
+
+CDN base URL: `https://getillustra.blr1.cdn.digitaloceanspaces.com/illustrations`
 
 ---
 
