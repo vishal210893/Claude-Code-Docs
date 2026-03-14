@@ -36,115 +36,6 @@
     <span class="tag green">Git Worktrees</span>
     <span class="tag orange">Local vs Cloud</span>
   </div>
-
-  <!-- Desktop App illustration: app window with parallel background agents -->
-  <svg class="page-illus" viewBox="0 0 420 280" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-    <defs>
-      <linearGradient id="winBg" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stop-color="#1e1b2e"/>
-        <stop offset="100%" stop-color="#13111f"/>
-      </linearGradient>
-      <linearGradient id="accentG" x1="0" y1="0" x2="1" y2="0">
-        <stop offset="0%" stop-color="#7c3aed"/>
-        <stop offset="100%" stop-color="#a78bfa"/>
-      </linearGradient>
-      <linearGradient id="blueG" x1="0" y1="0" x2="1" y2="0">
-        <stop offset="0%" stop-color="#2563eb"/>
-        <stop offset="100%" stop-color="#60a5fa"/>
-      </linearGradient>
-      <linearGradient id="greenG" x1="0" y1="0" x2="1" y2="0">
-        <stop offset="0%" stop-color="#16a34a"/>
-        <stop offset="100%" stop-color="#4ade80"/>
-      </linearGradient>
-      <linearGradient id="tealG" x1="0" y1="0" x2="1" y2="0">
-        <stop offset="0%" stop-color="#0891b2"/>
-        <stop offset="100%" stop-color="#38bdf8"/>
-      </linearGradient>
-      <filter id="winShadow" x="-10%" y="-10%" width="120%" height="130%">
-        <feDropShadow dx="0" dy="8" stdDeviation="16" flood-color="#000" flood-opacity="0.4"/>
-      </filter>
-      <filter id="paneShadow">
-        <feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#000" flood-opacity="0.25"/>
-      </filter>
-      <clipPath id="winClip">
-        <rect x="30" y="20" width="360" height="240" rx="12"/>
-      </clipPath>
-    </defs>
-
-    <!-- App window frame -->
-    <rect x="30" y="20" width="360" height="240" rx="12" fill="url(#winBg)" filter="url(#winShadow)"/>
-
-    <!-- Title bar -->
-    <rect x="30" y="20" width="360" height="32" rx="12" fill="#2a2540"/>
-    <rect x="30" y="38" width="360" height="14" fill="#2a2540"/>
-    <!-- Traffic lights -->
-    <circle cx="52" cy="36" r="5" fill="#ff5f57"/>
-    <circle cx="68" cy="36" r="5" fill="#febc2e"/>
-    <circle cx="84" cy="36" r="5" fill="#28c840"/>
-    <!-- Window title -->
-    <text x="210" y="41" text-anchor="middle" font-family="system-ui,sans-serif" font-size="11" fill="#6b7280" font-weight="600">Claude Code Desktop</text>
-
-    <!-- Sidebar -->
-    <rect x="30" y="52" width="72" height="208" fill="#1a1830" clip-path="url(#winClip)"/>
-    <!-- Sidebar items -->
-    <rect x="38" y="66" width="54" height="24" rx="6" fill="url(#accentG)" opacity="0.9"/>
-    <text x="65" y="82" text-anchor="middle" font-family="system-ui,sans-serif" font-size="8" fill="#fff" font-weight="700">Agents</text>
-    <rect x="38" y="96" width="54" height="20" rx="5" fill="none"/>
-    <text x="65" y="110" text-anchor="middle" font-family="system-ui,sans-serif" font-size="8" fill="#6b7280">Worktrees</text>
-    <rect x="38" y="122" width="54" height="20" rx="5" fill="none"/>
-    <text x="65" y="136" text-anchor="middle" font-family="system-ui,sans-serif" font-size="8" fill="#6b7280">Settings</text>
-    <!-- Sidebar bottom: local/cloud toggle -->
-    <rect x="38" y="226" width="54" height="24" rx="6" fill="#0f172a" stroke="#334155" stroke-width="1"/>
-    <circle cx="51" cy="238" r="5" fill="#4ade80"/>
-    <text x="66" y="242" font-family="system-ui,sans-serif" font-size="7" fill="#4ade80" font-weight="600">Local</text>
-
-    <!-- Main panel: 3 agent cards stacked -->
-    <!-- Agent 1 — running -->
-    <rect x="112" y="62" width="264" height="54" rx="8" fill="#1e1b2e" stroke="#7c3aed" stroke-width="1.2" filter="url(#paneShadow)"/>
-    <rect x="112" y="62" width="264" height="8" rx="8" fill="url(#accentG)" opacity="0.6"/>
-    <rect x="112" y="67" width="264" height="3" fill="url(#accentG)" opacity="0.6"/>
-    <!-- Status dot -->
-    <circle cx="126" cy="82" r="4" fill="#a78bfa"/>
-    <circle cx="126" cy="82" r="4" fill="#a78bfa" opacity="0.4">
-      <animate attributeName="r" values="4;8;4" dur="2s" repeatCount="indefinite"/>
-      <animate attributeName="opacity" values="0.4;0;0.4" dur="2s" repeatCount="indefinite"/>
-    </circle>
-    <text x="136" y="86" font-family="system-ui,sans-serif" font-size="9" fill="#e2e8f0" font-weight="600">Agent 1 — Refactoring auth module</text>
-    <!-- Progress bar -->
-    <rect x="122" y="96" width="240" height="4" rx="2" fill="#2d2a40"/>
-    <rect x="122" y="96" width="156" height="4" rx="2" fill="url(#accentG)"/>
-    <text x="372" y="100" text-anchor="end" font-family="monospace" font-size="7" fill="#7c3aed">65%</text>
-    <text x="122" y="110" font-family="monospace" font-size="7" fill="#6b7280">→ writing tests for UserService.go</text>
-
-    <!-- Agent 2 — running (blue) -->
-    <rect x="112" y="126" width="264" height="54" rx="8" fill="#1e1b2e" stroke="#2563eb" stroke-width="1.2" filter="url(#paneShadow)"/>
-    <rect x="112" y="126" width="264" height="8" rx="8" fill="url(#blueG)" opacity="0.5"/>
-    <rect x="112" y="131" width="264" height="3" fill="url(#blueG)" opacity="0.5"/>
-    <circle cx="126" cy="146" r="4" fill="#60a5fa"/>
-    <circle cx="126" cy="146" r="4" fill="#60a5fa" opacity="0.35">
-      <animate attributeName="r" values="4;8;4" dur="2.4s" repeatCount="indefinite"/>
-      <animate attributeName="opacity" values="0.35;0;0.35" dur="2.4s" repeatCount="indefinite"/>
-    </circle>
-    <text x="136" y="150" font-family="system-ui,sans-serif" font-size="9" fill="#e2e8f0" font-weight="600">Agent 2 — Writing E2E test suite</text>
-    <rect x="122" y="160" width="240" height="4" rx="2" fill="#2d2a40"/>
-    <rect x="122" y="160" width="96" height="4" rx="2" fill="url(#blueG)"/>
-    <text x="372" y="164" text-anchor="end" font-family="monospace" font-size="7" fill="#2563eb">40%</text>
-    <text x="122" y="174" font-family="monospace" font-size="7" fill="#6b7280">→ cypress/e2e/login.spec.ts</text>
-
-    <!-- Agent 3 — queued (green) -->
-    <rect x="112" y="190" width="264" height="54" rx="8" fill="#1e1b2e" stroke="#16a34a" stroke-width="1.2" filter="url(#paneShadow)"/>
-    <rect x="112" y="190" width="264" height="8" rx="8" fill="url(#greenG)" opacity="0.4"/>
-    <rect x="112" y="195" width="264" height="3" fill="url(#greenG)" opacity="0.4"/>
-    <circle cx="126" cy="210" r="4" fill="#4ade80"/>
-    <text x="136" y="214" font-family="system-ui,sans-serif" font-size="9" fill="#e2e8f0" font-weight="600">Agent 3 — Updating API docs</text>
-    <rect x="122" y="224" width="240" height="4" rx="2" fill="#2d2a40"/>
-    <rect x="122" y="224" width="22" height="4" rx="2" fill="url(#greenG)"/>
-    <text x="372" y="228" text-anchor="end" font-family="monospace" font-size="7" fill="#16a34a">9%</text>
-    <text x="122" y="238" font-family="monospace" font-size="7" fill="#6b7280">→ scanning openapi.yaml</text>
-
-    <!-- Window border glow -->
-    <rect x="30" y="20" width="360" height="240" rx="12" fill="none" stroke="#7c3aed" stroke-width="0.5" opacity="0.4"/>
-  </svg>
 </div>
 
 <div class="layout">
@@ -184,6 +75,7 @@
 
   <div class="sub">
     <h3>Two Execution Modes</h3>
+    <img src="https://assets.streamlinehq.com/image/private/w_420,h_420,ar_1/f_auto/v1/icons/illustrations-brooklyn/development/development/coding-6-6oy9b2znv04p9e0i75k3r.png?_a=DATAiZAAZAA0" class="sect-illus sect-illus--right" alt="">
     <p>Desktop exposes two fundamentally different ways to run Claude Code agents:</p>
     <ul>
       <li><strong>Local Mode</strong> — the agent runs on your machine, with full access to your filesystem, environment variables, and local tools</li>

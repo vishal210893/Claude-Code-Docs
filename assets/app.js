@@ -279,169 +279,32 @@ function initCollapsible() {
 }
 initCollapsible();
 
-/* ── Illustrations ───────────────────────────────────────── */
-(function initIllustrations() {
-  const CDN = 'https://getillustra.blr1.cdn.digitaloceanspaces.com/illustrations';
-  const YM  = n => `${CDN}/youmind/images/youmind${n}.webp`;
-  const AM  = n => `${CDN}/amplemarket/images/${n}.webp`;
-  const SB  = f => `${CDN}/saybriefly/images/${f}.webp`;
-  const ZC  = f => `${CDN}/zeroco2/images/${f}.webp`;
-  const IS  = f => `${CDN}/iamsteve-me/images/${f}.webp`;
-  const PH  = f => `${CDN}/pointhound/images/${f}.webp`;
 
-  /*
-   * Per-chapter config:
-   *   header  — .page-header illustration (absolute, right side)
-   *   sects   — [sectIndex, imgUrl, side] floated inside sections
-   *
-   * All illustrations are unique (no repeats across all chapters).
-   * Sources: YM=youmind, AM=amplemarket, SB=saybriefly, ZC=zeroco2,
-   *          IS=iamsteve-me, PH=pointhound
-   */
+/* ── Zeroco2 Section Illustrations ──────────────────────── */
+(function initZeroco2() {
+  const ZC = f => `https://getillustra.blr1.cdn.digitaloceanspaces.com/illustrations/zeroco2/images/${f}.webp`;
   const CHAPTERS = {
-    'chapter-01': {
-      header: YM('02'),
-      // Introduction: getting started, AI coding tool
-      sects: [
-        [1, SB('4mFR49WAXM2bqb4yj2jSzV'), 'r'],  // person taking notes
-        [5, ZC('7oVybqGTXA4wr3sA6tRYF7'), 'r'],   // growth/launch
-      ],
-    },
-    'chapter-02': {
-      header: YM('03'),
-      // Context Engineering: memory, knowledge, files
-      sects: [
-        [1, IS('dKeVfSrJWrch4HrFMqnuUH'), 'r'],   // design/craft
-        [3, SB('kwEtF6QhGqK7W3iSnkrN4d'), 'r'],   // notes/briefs
-        [5, ZC('BiBiqbVbwWwjq6DHBnkgFq'), 'r'],   // environment/context
-      ],
-    },
-    'chapter-03': {
-      header: YM('04'),
-      // Claude Code Essentials: workflow, planning
-      sects: [
-        [1, PH('6VYhaLTM3aPJ6CAerFGjZi'), 'r'],  // character in motion
-        [3, IS('6wDTVPzrsRyHJBV4w7qV6S'), 'r'],   // code/interface
-        [5, SB('Y27rBXoZTH9LvLojeujgdd'), 'r'],   // workflow/process
-      ],
-    },
-    'chapter-04': {
-      header: AM('04'),
-      // Essential Commands: settings, permissions, CLI
-      sects: [
-        [1, ZC('M2Yz7vjRmpC8roWVedaXVZ'), 'r'],   // structured/systematic
-        [3, IS('cY4bjaNbM9iYLLyj5UMvpo'), 'r'],   // interface/tools
-        [5, PH('eZukDUKqPYPaGmmdDeuVbp'), 'r'],   // character with gear
-      ],
-    },
-    'chapter-05': {
-      header: AM('05'),
-      // MCP: protocols, connecting external tools
-      sects: [
-        [5, SB('QyxiWiNrGQsA5mh8yN39PB'), 'r'],   // connection/communication
-      ],
-    },
-    'chapter-06': {
-      header: AM('06'),
-      // GitHub Integration: code reviews, collaboration
-      sects: [
-        [1, IS('noTyJPVrw677PuEcFJMVxa'), 'r'],   // creative/design work
-        [3, ZC('e2Dco3fogewgWpk4ctCMFB'), 'r'],   // collaboration/teamwork
-      ],
-    },
-    'chapter-07': {
-      header: YM('07'),
-      // Advanced Workflows: orchestration, complex tasks
-      sects: [
-        [1, SB('GHDBafkBUbJcqu9ZVsrJur'), 'r'],   // organization/workflow
-        [3, PH('Za2PcitJqUpZriQmyB8z8y'), 'r'],   // characters in action
-        [5, IS('aYQxNHUJ4VNQKKkNvLRBiq'), 'r'],   // structured layout
-      ],
-    },
-    'chapter-08': {
-      header: YM('08'),
-      // Subagents: delegation, parallelism, teamwork
-      sects: [
-        [1, ZC('hWh38BPaZujRRZHk45k3h2'), 'r'],   // multiple elements/parallel
-        [3, SB('Z7FqUGj5br79NohkyHBYDi'), 'r'],   // team/collaboration
-        [5, PH('MtNyfetjByfhKXXHjvFnJA'), 'r'],   // character pair
-      ],
-    },
-    'chapter-09': {
-      header: YM('09'),
-      // Output Styles: formatting, structured responses
-      sects: [
-        [1, IS('6kDN4oPmbim79yo5XBgPRx'), 'r'],   // typography/styling
-        [3, ZC('8tnpZhPwSHo4coF9jw2W4H'), 'r'],   // clean/structured
-        [5, SB('fTA25xGgRiwxpRKhUVVq2H'), 'r'],   // document/output
-      ],
-    },
-    'chapter-10': {
-      header: YM('10'),
-      // Agent Skills: custom capabilities, reusable tools
-      sects: [
-        [1, PH('CJvp5WVFhpnKMFgtYRwemB'), 'r'],   // skilled character
-        [3, IS('3t9dh8sFvMekCZUcPRRbbx'), 'r'],   // craft/skill
-      ],
-    },
-    'chapter-11': {
-      header: null,
-      // Desktop: extended thinking, visual interface
-      sects: [
-        [1, SB('R6tDz6wjuJPStxdqEzfTgA'), 'r'],   // thinking/planning
-        [3, ZC('ZsCUGfVjaPKdBCbJtHFmxB'), 'r'],   // clear/visual
-        [5, PH('DfhJhfZetTr33YeiPUtZLC'), 'r'],   // interface character
-      ],
-    },
-    'chapter-12': {
-      header: YM('12'),
-      // Deep Agents: long-running tasks, state management
-      sects: [
-        [5, IS('PBy2PGtg6oLSJg88BPbhNv'), 'r'],   // deep work/focus
-      ],
-    },
-    'chapter-13': {
-      header: AM('13'),
-      // Agentic Security: safety, blast radius, permissions
-      sects: [
-        [3, ZC('f9LsN5SgYdQKU8eZ2okord'), 'r'],   // protection/safety
-        [5, SB('McwiMfw9zSr4YMhK6bjtCV'), 'r'],   // secure/controlled
-      ],
-    },
+    'chapter-01': [[5, ZC('7oVybqGTXA4wr3sA6tRYF7'), 'r']],
+    'chapter-02': [[5, ZC('BiBiqbVbwWwjq6DHBnkgFq'), 'r']],
+    'chapter-04': [[1, ZC('M2Yz7vjRmpC8roWVedaXVZ'), 'r']],
+    'chapter-06': [[3, ZC('e2Dco3fogewgWpk4ctCMFB'), 'r']],
+    'chapter-08': [[1, ZC('hWh38BPaZujRRZHk45k3h2'), 'r']],
+    'chapter-09': [[3, ZC('8tnpZhPwSHo4coF9jw2W4H'), 'r']],
+    'chapter-11': [[3, ZC('ZsCUGfVjaPKdBCbJtHFmxB'), 'r']],
+    'chapter-13': [[3, ZC('f9LsN5SgYdQKU8eZ2okord'), 'r']],
   };
-
-  const page = location.pathname.split('/').pop().replace('.html', '');
-  const cfg  = CHAPTERS[page];
-  if (!cfg) return;
-
-  /* 1. Page-header illustration (fixed position, right side) */
-  const header = document.querySelector('.page-header');
-  if (header && cfg.header) {
+  const sects = CHAPTERS[location.pathname.split('/').pop().replace('.html', '')];
+  if (!sects) return;
+  const sections = document.querySelectorAll('.main-content .section');
+  sects.forEach(([idx, url, side]) => {
+    const sect = sections[idx]; if (!sect) return;
     const img = document.createElement('img');
-    img.src = cfg.header;
-    img.className = 'page-illus';
-    img.alt = ''; img.loading = 'lazy'; img.decoding = 'async';
-    header.appendChild(img);
-  }
-
-  /* 2. Section float illustrations */
-  if (cfg.sects && cfg.sects.length) {
-    const sections = document.querySelectorAll('.main-content .section');
-    cfg.sects.forEach(([idx, url, side]) => {
-      const sect = sections[idx];
-      if (!sect) return;
-      const img = document.createElement('img');
-      img.src = url; img.alt = ''; img.loading = 'lazy'; img.decoding = 'async';
-      img.className = 'sect-illus sect-illus--' + (side === 'r' ? 'right' : 'left');
-      /* insert after the first .lead or after h2 */
-      const anchor = sect.querySelector('.lead') || sect.querySelector('h2');
-      if (anchor && anchor.nextSibling) {
-        sect.insertBefore(img, anchor.nextSibling);
-      } else {
-        sect.appendChild(img);
-      }
-    });
-  }
+    img.src = url; img.alt = ''; img.loading = 'lazy'; img.decoding = 'async';
+    img.className = 'sect-illus sect-illus--' + (side === 'r' ? 'right' : 'left');
+    const anchor = sect.querySelector('.lead') || sect.querySelector('h2');
+    if (anchor && anchor.nextSibling) sect.insertBefore(img, anchor.nextSibling);
+    else sect.appendChild(img);
+  });
 })();
 
 /* ── Comprehensive Search Index ─────────────────────────── */
