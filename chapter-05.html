@@ -208,6 +208,7 @@
 
     <h4>How Tool Discovery Works</h4>
     <p>When Claude Code starts and MCP servers are configured, it performs a <strong>tool discovery handshake</strong>. Here is what happens step by step:</p>
+    <img src="https://assets.streamlinehq.com/image/private/w_420,h_420,ar_1/f_auto/v1/icons/illustrations-brooklyn/development/development/coding-a-website-1-439p1adp31b3cag9o2v81h.png?_a=DATAiZAAZAA0" class="sect-illus sect-illus--left" alt="">
 
     <div class="table-wrap">
       <table>
@@ -221,7 +222,6 @@
         </tbody>
       </table>
     </div>
-    <img src="https://assets.streamlinehq.com/image/private/w_420,h_420,ar_1/f_auto/v1/icons/illustrations-brooklyn/development/development/coding-a-website-1-439p1adp31b3cag9o2v81h.png?_a=DATAiZAAZAA0" class="sect-illus sect-illus--left" alt="">
 
     <div class="callout note">
       <strong>Note:</strong> Step 4 is the source of the context pollution problem described in the Pitfalls section. All tool schemas are injected at startup, not on demand. A server with 40 tools injects 40 schemas even if you only use 2 of them. This is a current limitation of the MCP protocol.
