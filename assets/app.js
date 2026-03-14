@@ -122,6 +122,7 @@ initHeadingLinks();
 
 /* ── Copy Code Buttons ──────────────────────────────────── */
 function initCopyCode() {
+  /* Handle existing .copy-btn elements (inside .code-header) */
   document.querySelectorAll('.copy-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       const pre = btn.closest('.code-block')?.querySelector('pre');
@@ -131,6 +132,24 @@ function initCopyCode() {
         btn.textContent = 'Copied!';
         btn.classList.add('copied');
         setTimeout(() => { btn.textContent = orig; btn.classList.remove('copied'); }, 2000);
+      });
+    });
+  });
+
+  /* Inject copy buttons into .cb-header blocks that don't have one */
+  document.querySelectorAll('.cb-header').forEach(header => {
+    if (header.querySelector('.copy-btn')) return; /* already has one */
+    const btn = document.createElement('button');
+    btn.className = 'copy-btn';
+    btn.textContent = 'Copy';
+    header.appendChild(btn);
+    btn.addEventListener('click', () => {
+      const pre = btn.closest('.code-block')?.querySelector('pre');
+      if (!pre) return;
+      navigator.clipboard.writeText(pre.textContent.trim()).then(() => {
+        btn.textContent = 'Copied!';
+        btn.classList.add('copied');
+        setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
       });
     });
   });
@@ -300,15 +319,15 @@ initCollapsible();
     },
     'chapter-02': {
       header: YM('03'),
-      sects: [[1, YM('02'), 'r'], [3, PH(ph[1]), 'l'], [5, FP(fp[1]), 'r']],
+      sects: [[1, YM('02'), 'r'], [3, PH(ph[1]), 'r'], [5, FP(fp[1]), 'r']],
     },
     'chapter-03': {
       header: YM('04'),
-      sects: [[1, FP(fp[2]), 'r'], [3, PT(pt[2]), 'l'], [5, PH(ph[2]), 'r']],
+      sects: [[1, FP(fp[2]), 'r'], [3, PT(pt[2]), 'r'], [5, PH(ph[2]), 'r']],
     },
     'chapter-04': {
       header: AM('04'),
-      sects: [[1, PT(pt[3]), 'r'], [3, PH(ph[3]), 'l'], [5, FP(fp[3]), 'r']],
+      sects: [[1, PT(pt[3]), 'r'], [3, PH(ph[3]), 'r'], [5, FP(fp[3]), 'r']],
     },
     'chapter-05': {
       header: AM('05'),
@@ -316,35 +335,35 @@ initCollapsible();
     },
     'chapter-06': {
       header: AM('06'),
-      sects: [[1, PH(ph[5]), 'r'], [3, FP(fp[5]), 'l'], [5, PT(pt[5]), 'r']],
+      sects: [[1, PH(ph[5]), 'r'], [3, FP(fp[5]), 'r']],
     },
     'chapter-07': {
       header: YM('07'),
-      sects: [[1, AM('07'), 'r'], [3, PT(pt[6]), 'l'], [5, PH(ph[6]), 'r']],
+      sects: [[1, AM('07'), 'r'], [3, PT(pt[6]), 'r'], [5, PH(ph[6]), 'r']],
     },
     'chapter-08': {
       header: YM('08'),
-      sects: [[1, PH(ph[7]), 'r'], [3, FP(fp[6]), 'l'], [5, AM('08'), 'r']],
+      sects: [[1, PH(ph[7]), 'r'], [3, FP(fp[6]), 'r'], [5, AM('08'), 'r']],
     },
     'chapter-09': {
       header: YM('09'),
-      sects: [[1, AM('09'), 'r'], [3, PT(pt[7]), 'l'], [5, FP(fp[7]), 'r']],
+      sects: [[1, AM('09'), 'r'], [3, PT(pt[7]), 'r'], [5, FP(fp[7]), 'r']],
     },
     'chapter-10': {
       header: YM('10'),
-      sects: [[1, PH(ph[8]), 'r'], [3, FP(fp[8]), 'l'], [5, PT(pt[8]), 'r']],
+      sects: [[1, PH(ph[8]), 'r'], [3, FP(fp[8]), 'r'], [5, PT(pt[8]), 'r']],
     },
     'chapter-11': {
       header: null,
-      sects: [[1, AM('11'), 'r'], [3, YM('10'), 'l'], [5, AM('10'), 'r']],
+      sects: [[1, AM('11'), 'r'], [3, YM('10'), 'r'], [5, AM('10'), 'r']],
     },
     'chapter-12': {
       header: YM('12'),
-      sects: [[1, FP(fp[10]), 'r'], [3, PT(pt[10]), 'l'], [5, PH(ph[10]), 'r']],
+      sects: [[1, FP(fp[10]), 'r'], [3, PT(pt[10]), 'r'], [5, PH(ph[10]), 'r']],
     },
     'chapter-13': {
       header: AM('13'),
-      sects: [[1, PT(pt[11]), 'r'], [3, PH(ph[11]), 'l'], [5, FP(fp[11]), 'r']],
+      sects: [[1, PT(pt[11]), 'r'], [3, PH(ph[11]), 'r'], [5, FP(fp[11]), 'r']],
     },
   };
 
